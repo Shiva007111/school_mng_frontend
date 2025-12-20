@@ -72,3 +72,4 @@ export default defineConfig([
 ])
 ```
 # school_mng_frontend
+# school_mng_frontend
