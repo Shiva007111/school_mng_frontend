@@ -3,12 +3,13 @@ import { cn } from '@/utils/cn';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', isLoading, children, disabled, ...props }, ref) => {
-    const baseStyles = "flex justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+  ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
+    const baseStyles = "flex justify-center border rounded-md shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors";
     
     const variants = {
       primary: "border-transparent text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500",
@@ -16,11 +17,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       outline: "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500"
     };
 
+    const sizes = {
+      sm: "py-1 px-3 text-xs",
+      md: "py-2 px-4 text-sm",
+      lg: "py-2.5 px-6 text-base"
+    };
+
     return (
       <button
         ref={ref}
         disabled={disabled || isLoading}
-        className={cn(baseStyles, variants[variant], className)}
+        className={cn(baseStyles, variants[variant], sizes[size], className)}
         {...props}
       >
         {isLoading ? (

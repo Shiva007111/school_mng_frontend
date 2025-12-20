@@ -5,6 +5,10 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import LoginPage from '@/pages/auth/LoginPage';
 import LandingPage from '@/pages/LandingPage';
 import DashboardHomePage from '@/pages/dashboard/DashboardHomePage';
+import StudentListPage from '@/pages/dashboard/students/StudentListPage';
+import StudentDetailPage from '@/pages/dashboard/students/StudentDetailPage';
+import AddStudentPage from '@/pages/dashboard/students/AddStudentPage';
+import EditStudentPage from '@/pages/dashboard/students/EditStudentPage';
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
@@ -43,7 +47,19 @@ const router = createBrowserRouter([
           // Placeholder routes for future pages
           {
             path: 'students',
-            element: <div className="p-8"><h1>Students (Coming Soon)</h1></div>,
+            element: <StudentListPage />,
+          },
+          {
+            path: 'students/new',
+            element: <AddStudentPage />,
+          },
+          {
+            path: 'students/:id',
+            element: <StudentDetailPage />,
+          },
+          {
+            path: 'students/:id/edit',
+            element: <EditStudentPage />,
           },
           {
             path: 'teachers',
