@@ -9,6 +9,10 @@ import StudentListPage from '@/pages/dashboard/students/StudentListPage';
 import StudentDetailPage from '@/pages/dashboard/students/StudentDetailPage';
 import AddStudentPage from '@/pages/dashboard/students/AddStudentPage';
 import EditStudentPage from '@/pages/dashboard/students/EditStudentPage';
+import TeacherListPage from '@/pages/dashboard/teachers/TeacherListPage';
+import TeacherDetailPage from '@/pages/dashboard/teachers/TeacherDetailPage';
+import AddTeacherPage from '@/pages/dashboard/teachers/AddTeacherPage';
+import EditTeacherPage from '@/pages/dashboard/teachers/EditTeacherPage';
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
@@ -63,7 +67,19 @@ const router = createBrowserRouter([
           },
           {
             path: 'teachers',
-            element: <div className="p-8"><h1>Teachers (Coming Soon)</h1></div>,
+            element: <TeacherListPage />,
+          },
+          {
+            path: 'teachers/new',
+            element: <AddTeacherPage />,
+          },
+          {
+            path: 'teachers/:id',
+            element: <TeacherDetailPage />,
+          },
+          {
+            path: 'teachers/:id/edit',
+            element: <EditTeacherPage />,
           },
           {
             path: 'classes',
