@@ -13,6 +13,9 @@ import TeacherListPage from '@/pages/dashboard/teachers/TeacherListPage';
 import TeacherDetailPage from '@/pages/dashboard/teachers/TeacherDetailPage';
 import AddTeacherPage from '@/pages/dashboard/teachers/AddTeacherPage';
 import EditTeacherPage from '@/pages/dashboard/teachers/EditTeacherPage';
+import SubjectListPage from '@/pages/dashboard/academic/SubjectListPage';
+import ClassSectionListPage from '@/pages/dashboard/academic/ClassSectionListPage';
+import ClassSectionDetailPage from '@/pages/dashboard/academic/ClassSectionDetailPage';
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
@@ -82,8 +85,20 @@ const router = createBrowserRouter([
             element: <EditTeacherPage />,
           },
           {
+            path: 'academic/subjects',
+            element: <SubjectListPage />,
+          },
+          {
+            path: 'academic/sections',
+            element: <ClassSectionListPage />,
+          },
+          {
+            path: 'academic/sections/:id',
+            element: <ClassSectionDetailPage />,
+          },
+          {
             path: 'classes',
-            element: <div className="p-8"><h1>Classes (Coming Soon)</h1></div>,
+            element: <Navigate to="/dashboard/academic/sections" replace />,
           },
           {
             path: 'timetable',
