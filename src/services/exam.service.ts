@@ -8,7 +8,8 @@ import type {
   CreateExamSessionRequest,
   CreateExamRequest,
   CreateExamSubjectRequest,
-  BulkMarkEntryRequest
+  BulkMarkEntryRequest,
+  ReportCard
 } from '@/types/exam.types';
 
 export const examService = {
@@ -80,6 +81,11 @@ export const examService = {
 
   getStudentMarks: async (studentId: string, examId: string): Promise<ApiResponse<StudentMark[]>> => {
     const response = await apiClient.get<ApiResponse<StudentMark[]>>(`/student-marks/student/${studentId}/exam/${examId}`);
+    return response.data;
+  },
+
+  getReportCard: async (studentId: string, examSessionId: string): Promise<ApiResponse<ReportCard>> => {
+    const response = await apiClient.get<ApiResponse<ReportCard>>(`/exams/report-card/${studentId}/${examSessionId}`);
     return response.data;
   },
 };

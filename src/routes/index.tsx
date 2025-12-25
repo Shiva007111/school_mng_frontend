@@ -22,6 +22,8 @@ import { AttendanceReportPage } from '@/pages/dashboard/attendance/AttendanceRep
 import { ExamSessionPage } from '@/pages/dashboard/exams/ExamSessionPage';
 import { ExamManagementPage } from '@/pages/dashboard/exams/ExamManagementPage';
 import { MarkEntryPage } from '@/pages/dashboard/exams/MarkEntryPage';
+import { ReportCardPage } from '@/pages/dashboard/exams/ReportCardPage';
+import { SessionReportListPage } from '@/pages/dashboard/exams/SessionReportListPage';
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
@@ -129,6 +131,14 @@ const router = createBrowserRouter([
           {
             path: 'exams/:examId/marks/:examSubjectId',
             element: <MarkEntryPage />,
+          },
+          {
+            path: 'exams/report-card/:studentId/:sessionId',
+            element: <ReportCardPage />,
+          },
+          {
+            path: 'exams/:sessionId/reports',
+            element: <SessionReportListPage />,
           },
           {
             path: 'grades',

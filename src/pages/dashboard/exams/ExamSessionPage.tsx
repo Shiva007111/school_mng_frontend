@@ -215,13 +215,21 @@ export const ExamSessionPage: React.FC = () => {
                 )}>
                   {session.publishAt ? 'Published' : 'Draft'}
                 </span>
-                <button 
-                  onClick={() => navigate(`/dashboard/exams/${session.id}`)}
-                  className="text-indigo-600 text-sm font-semibold flex items-center hover:gap-1 transition-all"
-                >
-                  Manage Exams
-                  <ChevronRight className="h-4 w-4" />
-                </button>
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => navigate(`/dashboard/exams/${session.id}/reports`)}
+                    className="text-gray-600 text-sm font-semibold flex items-center hover:text-indigo-600 transition-all"
+                  >
+                    Report Cards
+                  </button>
+                  <button 
+                    onClick={() => navigate(`/dashboard/exams/${session.id}`)}
+                    className="text-indigo-600 text-sm font-semibold flex items-center hover:gap-1 transition-all"
+                  >
+                    Manage Exams
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

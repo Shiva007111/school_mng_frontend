@@ -87,6 +87,26 @@ export interface CreateExamSubjectRequest {
   weight?: number;
 }
 
+export interface SubjectResult {
+  subjectId: string;
+  subjectName: string;
+  marks: Array<{
+    examTitle: string;
+    score: number;
+    maxScore: number;
+  }>;
+  totalObtained: number;
+  totalMax: number;
+}
+
+export interface ReportCard {
+  studentId: string;
+  examSessionId: string;
+  subjects: SubjectResult[];
+  overallTotalObtained: number;
+  overallTotalMax: number;
+}
+
 export interface MarkEntry {
   studentId: string;
   examSubjectId: string;
