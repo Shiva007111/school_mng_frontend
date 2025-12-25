@@ -1,5 +1,15 @@
 import type { Teacher } from './teacher.types';
 
+export interface AcademicYear {
+  id: string;
+  schoolId: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface GradeLevel {
   id: string;
   code: string;
@@ -93,6 +103,23 @@ export interface Enrollment {
   };
 }
 
+export interface TimetablePeriod {
+  id: string;
+  classSectionId: string;
+  weekday: number;
+  startTime: string;
+  endTime: string;
+  classSubjectId: string;
+  roomId?: string;
+  createdAt: string;
+  updatedAt: string;
+  
+  // Relations
+  classSection?: ClassSection;
+  classSubject?: ClassSubject;
+  room?: ClassRoom;
+}
+
 // Request Types
 export interface CreateSubjectRequest {
   code: string;
@@ -132,4 +159,21 @@ export interface AssignSubjectToClassRequest {
 export interface UpdateClassSubjectRequest {
   teacherSubjectId?: string;
   weeklyPeriods?: number;
+}
+
+export interface CreateTimetablePeriodRequest {
+  classSectionId: string;
+  weekday: number;
+  startTime: string;
+  endTime: string;
+  classSubjectId: string;
+  roomId?: string;
+}
+
+export interface UpdateTimetablePeriodRequest {
+  weekday?: number;
+  startTime?: string;
+  endTime?: string;
+  classSubjectId?: string;
+  roomId?: string;
 }

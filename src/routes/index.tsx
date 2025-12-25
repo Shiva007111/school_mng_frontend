@@ -16,6 +16,12 @@ import EditTeacherPage from '@/pages/dashboard/teachers/EditTeacherPage';
 import SubjectListPage from '@/pages/dashboard/academic/SubjectListPage';
 import ClassSectionListPage from '@/pages/dashboard/academic/ClassSectionListPage';
 import ClassSectionDetailPage from '@/pages/dashboard/academic/ClassSectionDetailPage';
+import { TimetablePage } from '@/pages/dashboard/academic/TimetablePage';
+import { AttendanceMarkingPage } from '@/pages/dashboard/attendance/AttendanceMarkingPage';
+import { AttendanceReportPage } from '@/pages/dashboard/attendance/AttendanceReportPage';
+import { ExamSessionPage } from '@/pages/dashboard/exams/ExamSessionPage';
+import { ExamManagementPage } from '@/pages/dashboard/exams/ExamManagementPage';
+import { MarkEntryPage } from '@/pages/dashboard/exams/MarkEntryPage';
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
@@ -102,11 +108,27 @@ const router = createBrowserRouter([
           },
           {
             path: 'timetable',
-            element: <div className="p-8"><h1>Timetable (Coming Soon)</h1></div>,
+            element: <TimetablePage />,
           },
           {
             path: 'attendance',
-            element: <div className="p-8"><h1>Attendance (Coming Soon)</h1></div>,
+            element: <AttendanceMarkingPage />,
+          },
+          {
+            path: 'attendance/report',
+            element: <AttendanceReportPage />,
+          },
+          {
+            path: 'exams',
+            element: <ExamSessionPage />,
+          },
+          {
+            path: 'exams/:sessionId',
+            element: <ExamManagementPage />,
+          },
+          {
+            path: 'exams/:examId/marks/:examSubjectId',
+            element: <MarkEntryPage />,
           },
           {
             path: 'grades',

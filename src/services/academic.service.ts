@@ -5,13 +5,17 @@ import type {
   Subject, 
   ClassSection, 
   ClassSubject,
+  ClassRoom,
   Enrollment,
   CreateSubjectRequest,
   UpdateSubjectRequest,
   CreateClassSectionRequest,
   UpdateClassSectionRequest,
   AssignSubjectToClassRequest,
-  UpdateClassSubjectRequest
+  UpdateClassSubjectRequest,
+  TimetablePeriod,
+  CreateTimetablePeriodRequest,
+  UpdateTimetablePeriodRequest
 } from '../types/academic.types';
 
 export interface AcademicYear {
@@ -125,6 +129,39 @@ export const academicService = {
     const response = await apiClient.get<ApiResponse<Enrollment[]>>('/enrollments', {
       params: filters,
     });
+    return response.data;
+  },
+
+  // Rooms
+  getRooms: async (): Promise<ApiResponse<ClassRoom[]>> => {
+    const response = await apiClient.get<ApiResponse<ClassRoom[]>>('/class-rooms');
+    return response.data;
+  },
+
+  // Timetable
+  getTimetablePeriods: async (filters?: { 
+    classSectionId?: string; 
+    teacherId?: string; 
+    weekday?: number; 
+  }): Promise<ApiResponse<TimetablePeriod[]>> => {
+    const response = await apiClient.get<ApiResponse<TimetablePeriod[]>>('/timetable-periods', {
+      params: filters,
+    });
+    return response.data;
+  },
+
+  createTimetablePeriod: async (data: CreateTimetablePeriodRequest): Promise<ApiResponse<TimetablePeriod>> => {
+    const response = await apiClient.post<ApiResponse<TimetablePeriod>>('/timetable-periods', data);
+    return response.data;
+  },
+
+  updateTimetablePeriod: async (id: string, data: UpdateTimetablePeriodRequest): Promise<ApiResponse<TimetablePeriod>> => {
+    const response = await apiClient.put<ApiResponse<TimetablePeriod>>(`/timetable-periods/${id}`, data);
+    return response.data;
+  },
+
+  deleteTimetablePeriod: async (id: string): Promise<ApiResponse<void>> => {
+    const response = await apiClient.delete<ApiResponse<void>>(`/timetable-periods/${id}`);
     return response.data;
   },
 };

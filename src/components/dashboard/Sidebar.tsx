@@ -26,7 +26,7 @@ const navigation = [
   { name: 'Subjects', href: '/dashboard/academic/subjects', icon: BookOpen, roles: ['admin'] },
   { name: 'Timetable', href: '/dashboard/timetable', icon: Calendar, roles: ['admin', 'teacher', 'student'] },
   { name: 'Attendance', href: '/dashboard/attendance', icon: ClipboardList, roles: ['admin', 'teacher'] },
-  { name: 'Grades', href: '/dashboard/grades', icon: BarChart3, roles: ['admin', 'teacher', 'student'] },
+  { name: 'Grades', href: '/dashboard/exams', icon: BarChart3, roles: ['admin', 'teacher', 'student'] },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['admin'] },
 ];
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { academicService } from '@/services/academic.service';
 import { teacherService } from '@/services/teacher.service';
@@ -17,6 +17,7 @@ import {
 
 export default function ClassSectionDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedTeacherId, setSelectedTeacherId] = useState('');
@@ -121,6 +122,16 @@ export default function ClassSectionDetailPage() {
             Class Teacher: {section.classTeacher?.user?.email || 'Not Assigned'}
           </p>
         </div>
+        <div className="ml-auto flex gap-3">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={() => navigate(`/dashboard/timetable?sectionId=${id}`)}
+          >
+            <Clock className="h-4 w-4" />
+            Manage Timetable
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -219,7 +230,12 @@ export default function ClassSectionDetailPage() {
                 <Users className="h-5 w-5 text-emerald-600" />
                 <h3 className="font-bold text-gray-900">Enrolled Students</h3>
               </div>
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-2"
+                onClick={() => navigate('/dashboard/students/new')}
+              >
                 <Plus className="h-4 w-4" />
                 Enroll Student
               </Button>
@@ -249,7 +265,12 @@ export default function ClassSectionDetailPage() {
                         </div>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" className="opacity-0 group-hover:opacity-100 transition-all">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="opacity-0 group-hover:opacity-100 transition-all"
+                      onClick={() => navigate(`/dashboard/students/${enrollment.studentId}`)}
+                    >
                       View Profile
                     </Button>
                   </div>
