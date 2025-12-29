@@ -20,13 +20,33 @@ interface SidebarProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['admin', 'teacher', 'student', 'parent'] },
-  { name: 'Students', href: '/dashboard/students', icon: Users, roles: ['admin', 'teacher'] },
+  { name: 'Students', href: '/dashboard/students', icon: Users, roles: ['admin'] },
   { name: 'Teachers', href: '/dashboard/teachers', icon: GraduationCap, roles: ['admin'] },
-  { name: 'Classes', href: '/dashboard/academic/sections', icon: BookOpen, roles: ['admin', 'teacher'] },
+  { name: 'Classes', href: '/dashboard/academic/sections', icon: BookOpen, roles: ['admin'] },
   { name: 'Subjects', href: '/dashboard/academic/subjects', icon: BookOpen, roles: ['admin'] },
-  { name: 'Timetable', href: '/dashboard/timetable', icon: Calendar, roles: ['admin', 'teacher', 'student'] },
-  { name: 'Attendance', href: '/dashboard/attendance', icon: ClipboardList, roles: ['admin', 'teacher'] },
-  { name: 'Grades', href: '/dashboard/exams', icon: BarChart3, roles: ['admin', 'teacher', 'student'] },
+  { name: 'Timetable', href: '/dashboard/timetable', icon: Calendar, roles: ['admin', 'teacher', 'student', 'parent'] },
+  { 
+    name: 'Attendance', 
+    href: '/dashboard/attendance', 
+    icon: ClipboardList, 
+    roles: ['admin', 'teacher', 'parent'],
+    getHref: (role: string) => {
+      if (role === 'admin') return '/dashboard/attendance/report';
+      if (role === 'parent') return '/dashboard/attendance/my-children';
+      return '/dashboard/attendance'; // Teacher
+    }
+  },
+  { 
+    name: 'Grades', 
+    href: '/dashboard/exams', 
+    icon: BarChart3, 
+    roles: ['admin', 'teacher', 'parent'],
+    getHref: (role: string) => {
+      if (role === 'teacher') return '/dashboard/exams/my-grading';
+      if (role === 'parent') return '/dashboard/exams/my-children';
+      return '/dashboard/exams'; // Admin
+    }
+  },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['admin'] },
 ];
 
@@ -76,11 +96,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* Navigation */}
           <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
             {filteredNavigation.map((item) => {
-              const isActive = location.pathname === item.href;
+              const href = item.getHref ? item.getHref(userRole!) : item.href;
+              const isActive = location.pathname === href;
               return (
                 <Link
                   key={item.name}
-                  to={item.href}
+                  to={href}
                   className={cn(
                     "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors",
                     isActive

@@ -24,6 +24,9 @@ import { ExamManagementPage } from '@/pages/dashboard/exams/ExamManagementPage';
 import { MarkEntryPage } from '@/pages/dashboard/exams/MarkEntryPage';
 import { ReportCardPage } from '@/pages/dashboard/exams/ReportCardPage';
 import { SessionReportListPage } from '@/pages/dashboard/exams/SessionReportListPage';
+import { TeacherGradingPage } from '@/pages/dashboard/exams/TeacherGradingPage';
+import { ParentReportCardListPage } from '@/pages/dashboard/exams/ParentReportCardListPage';
+import { ParentAttendancePage } from '@/pages/dashboard/attendance/ParentAttendancePage';
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
@@ -121,6 +124,10 @@ const router = createBrowserRouter([
             element: <AttendanceReportPage />,
           },
           {
+            path: 'attendance/my-children',
+            element: <ParentAttendancePage />,
+          },
+          {
             path: 'exams',
             element: <ExamSessionPage />,
           },
@@ -139,6 +146,14 @@ const router = createBrowserRouter([
           {
             path: 'exams/:sessionId/reports',
             element: <SessionReportListPage />,
+          },
+          {
+            path: 'exams/my-grading',
+            element: <TeacherGradingPage />,
+          },
+          {
+            path: 'exams/my-children',
+            element: <ParentReportCardListPage />,
           },
           {
             path: 'grades',

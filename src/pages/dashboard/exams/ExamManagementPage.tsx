@@ -7,11 +7,14 @@ import {
   BookOpen,
   LayoutGrid,
   Settings,
-  ArrowLeft
+  ArrowLeft,
+  Edit2,
+  CheckCircle
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { academicService } from '@/services/academic.service';
 import { examService } from '@/services/exam.service';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { toast } from 'react-hot-toast';
@@ -20,6 +23,10 @@ export const ExamManagementPage: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const userRole = user?.roles[0]?.role?.name;
+  const isAdmin = userRole === 'Admin';
+  
   const [isExamModalOpen, setIsExamModalOpen] = useState(false);
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
   const [selectedExam, setSelectedExam] = useState<any>(null);
@@ -88,6 +95,37 @@ export const ExamManagementPage: React.FC = () => {
     },
   });
 
+  const addAllSubjectsMutation = useMutation({
+    mutationFn: async (exam: any) => {
+      // Fetch class subjects for this exam's class section
+      const subjects = await academicService.getClassSubjects(exam.classSectionId);
+      const existingSubjectIds = exam.examSubjects?.map((es: any) => es.classSubjectId) || [];
+      
+      const newSubjects = subjects.data.filter((cs: any) => !existingSubjectIds.includes(cs.id));
+      
+      if (newSubjects.length === 0) {
+        throw new Error('All class subjects are already added to this exam');
+      }
+
+      // Add each subject
+      for (const subject of newSubjects) {
+        await examService.createExamSubject({
+          examId: exam.id,
+          classSubjectId: subject.id,
+          maxScore: 100,
+          weight: 1
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exams', sessionId] });
+      toast.success('All class subjects added successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to add subjects');
+    }
+  });
+
   const handleOpenExamModal = (exam?: any) => {
     if (exam) {
       setExamFormData({
@@ -136,10 +174,12 @@ export const ExamManagementPage: React.FC = () => {
 
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold text-gray-900">Scheduled Exams</h2>
-        <Button onClick={() => handleOpenExamModal()} className="bg-indigo-600 hover:bg-indigo-700 text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Exam
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => handleOpenExamModal()} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Exam
+          </Button>
+        )}
       </div>
 
       {isLoadingExams ? (
@@ -169,17 +209,32 @@ export const ExamManagementPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleOpenSubjectModal(exam)}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Subject
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-4 w-4" />
-                  </Button>
+                  {isAdmin && (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => addAllSubjectsMutation.mutate(exam)}
+                        isLoading={addAllSubjectsMutation.isPending && selectedExam?.id === exam.id}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Add All Subjects
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleOpenSubjectModal(exam)}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add Subject
+                      </Button>
+                    </>
+                  )}
+                  {isAdmin && (
+                    <Button variant="outline" size="sm">
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
               
@@ -197,14 +252,17 @@ export const ExamManagementPage: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => navigate(`/dashboard/exams/${exam.id}/marks/${es.id}`)}
-                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors flex items-center gap-2"
                             title="Enter Marks"
                           >
                             <Edit2 className="h-4 w-4" />
+                            <span className="text-xs font-medium">Enter Marks</span>
                           </button>
-                          <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          {isAdmin && (
+                            <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))}
