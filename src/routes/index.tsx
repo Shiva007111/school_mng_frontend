@@ -9,6 +9,9 @@ import StudentListPage from '@/pages/dashboard/students/StudentListPage';
 import StudentDetailPage from '@/pages/dashboard/students/StudentDetailPage';
 import AddStudentPage from '@/pages/dashboard/students/AddStudentPage';
 import EditStudentPage from '@/pages/dashboard/students/EditStudentPage';
+import { PromotionPage } from '@/pages/dashboard/students/PromotionPage';
+import { AnnouncementManagementPage } from '@/pages/dashboard/announcements/AnnouncementManagementPage';
+import { ReportsPage } from '@/pages/dashboard/reports/ReportsPage';
 import TeacherListPage from '@/pages/dashboard/teachers/TeacherListPage';
 import TeacherDetailPage from '@/pages/dashboard/teachers/TeacherDetailPage';
 import AddTeacherPage from '@/pages/dashboard/teachers/AddTeacherPage';
@@ -27,6 +30,8 @@ import { SessionReportListPage } from '@/pages/dashboard/exams/SessionReportList
 import { TeacherGradingPage } from '@/pages/dashboard/exams/TeacherGradingPage';
 import { ParentReportCardListPage } from '@/pages/dashboard/exams/ParentReportCardListPage';
 import { ParentAttendancePage } from '@/pages/dashboard/attendance/ParentAttendancePage';
+import { FeeStructurePage } from '@/pages/dashboard/fees/FeeStructurePage';
+import { StudentFeePage } from '@/pages/dashboard/fees/StudentFeePage';
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
@@ -78,6 +83,10 @@ const router = createBrowserRouter([
           {
             path: 'students/:id/edit',
             element: <EditStudentPage />,
+          },
+          {
+            path: 'students/promotion',
+            element: <PromotionPage />,
           },
           {
             path: 'teachers',
@@ -156,8 +165,24 @@ const router = createBrowserRouter([
             element: <ParentReportCardListPage />,
           },
           {
+            path: 'fees/structures',
+            element: <FeeStructurePage />,
+          },
+          {
+            path: 'fees/students',
+            element: <StudentFeePage />,
+          },
+          {
             path: 'grades',
             element: <div className="p-8"><h1>Grades (Coming Soon)</h1></div>,
+          },
+          {
+            path: 'announcements',
+            element: <AnnouncementManagementPage />,
+          },
+          {
+            path: 'reports',
+            element: <ReportsPage />,
           },
           {
             path: 'settings',

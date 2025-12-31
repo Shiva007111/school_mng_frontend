@@ -9,7 +9,10 @@ import {
   ClipboardList, 
   BarChart3, 
   Settings,
-  X
+  X,
+  IndianRupee,
+  ArrowRight,
+  Megaphone
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
@@ -21,6 +24,9 @@ interface SidebarProps {
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['admin', 'teacher', 'student', 'parent'] },
   { name: 'Students', href: '/dashboard/students', icon: Users, roles: ['admin'] },
+  { name: 'Promotion', href: '/dashboard/students/promotion', icon: ArrowRight, roles: ['admin'] },
+  { name: 'Announcements', href: '/dashboard/announcements', icon: Megaphone, roles: ['admin'] },
+  { name: 'Reports', href: '/dashboard/reports', icon: BarChart3, roles: ['admin', 'teacher'] },
   { name: 'Teachers', href: '/dashboard/teachers', icon: GraduationCap, roles: ['admin'] },
   { name: 'Classes', href: '/dashboard/academic/sections', icon: BookOpen, roles: ['admin'] },
   { name: 'Subjects', href: '/dashboard/academic/subjects', icon: BookOpen, roles: ['admin'] },
@@ -36,17 +42,9 @@ const navigation = [
       return '/dashboard/attendance'; // Teacher
     }
   },
-  { 
-    name: 'Grades', 
-    href: '/dashboard/exams', 
-    icon: BarChart3, 
-    roles: ['admin', 'teacher', 'parent'],
-    getHref: (role: string) => {
-      if (role === 'teacher') return '/dashboard/exams/my-grading';
-      if (role === 'parent') return '/dashboard/exams/my-children';
-      return '/dashboard/exams'; // Admin
-    }
-  },
+  { name: 'Grades', href: '/dashboard/exams', icon: BarChart3, roles: ['admin', 'teacher', 'parent'], getHref: (role: string) => role === 'teacher' ? '/dashboard/exams/my-grading' : role === 'parent' ? '/dashboard/exams/my-children' : '/dashboard/exams' },
+  { name: 'Fee Structures', href: '/dashboard/fees/structures', icon: IndianRupee, roles: ['admin'] },
+  { name: 'Student Fees', href: '/dashboard/fees/students', icon: IndianRupee, roles: ['admin'] },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['admin'] },
 ];
 

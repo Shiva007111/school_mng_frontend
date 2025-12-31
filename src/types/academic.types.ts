@@ -101,6 +101,7 @@ export interface Enrollment {
       email: string;
     };
   };
+  classSection?: ClassSection;
 }
 
 export interface TimetablePeriod {
