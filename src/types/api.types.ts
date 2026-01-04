@@ -14,6 +14,8 @@ export interface User {
   id: string;
   email: string;
   phone?: string;
+  firstName?: string;
+  lastName?: string;
   status: 'active' | 'inactive' | 'suspended';
   roles: UserRole[];
   createdAt?: string;

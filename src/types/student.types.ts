@@ -16,7 +16,7 @@ export interface Student {
   createdAt: string;
   updatedAt: string;
   enrollments?: Enrollment[];
-  parents?: StudentParent[];
+  studentParents?: StudentParent[];
 }
 
 export interface Enrollment {

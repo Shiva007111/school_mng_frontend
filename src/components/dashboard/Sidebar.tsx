@@ -24,6 +24,7 @@ interface SidebarProps {
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['admin', 'teacher', 'student', 'parent'] },
   { name: 'Students', href: '/dashboard/students', icon: Users, roles: ['admin'] },
+  { name: 'Parents', href: '/dashboard/parents', icon: Users, roles: ['admin'] },
   { name: 'Promotion', href: '/dashboard/students/promotion', icon: ArrowRight, roles: ['admin'] },
   { name: 'Announcements', href: '/dashboard/announcements', icon: Megaphone, roles: ['admin'] },
   { name: 'Reports', href: '/dashboard/reports', icon: BarChart3, roles: ['admin', 'teacher'] },

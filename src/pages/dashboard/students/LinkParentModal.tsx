@@ -3,9 +3,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { parentService } from '@/services/parent.service';
 import { studentService } from '@/services/student.service';
 import { Button } from '@/components/Button';
-import { X, Loader2, Search } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Input } from '@/components/Input';
+import CreateParentModal from './CreateParentModal';
+import { UserPlus, X, Loader2, Search } from 'lucide-react';
 
 interface LinkParentModalProps {
     studentId: string;
@@ -18,6 +19,7 @@ export default function LinkParentModal({ studentId, studentName, onClose }: Lin
     const [parentId, setParentId] = useState('');
     const [relationship, setRelationship] = useState('father');
     const [search, setSearch] = useState('');
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     // Fetch all parents
     const { data: parentsData, isLoading } = useQuery({
@@ -62,6 +64,18 @@ export default function LinkParentModal({ studentId, studentName, onClose }: Lin
                     </button>
                 </div>
 
+                <div className="px-6 pt-4">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full border-dashed border-2 hover:border-indigo-500 hover:text-indigo-600 group"
+                        onClick={() => setIsCreateModalOpen(true)}
+                    >
+                        <UserPlus className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+                        Create New Parent
+                    </Button>
+                </div>
+
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div>
                         <p className="text-sm text-gray-500 mb-4">
@@ -96,7 +110,7 @@ export default function LinkParentModal({ studentId, studentName, onClose }: Lin
                             ) : (
                                 filteredParents.map((parent) => (
                                     <option key={parent.id} value={parent.id}>
-                                        {parent.user.email} {parent.user.phone ? `(${parent.user.phone})` : ''}
+                                        {parent.user.firstName} {parent.user.lastName} ({parent.user.email})
                                     </option>
                                 ))
                             )}
@@ -135,6 +149,16 @@ export default function LinkParentModal({ studentId, studentName, onClose }: Lin
                     </div>
                 </form>
             </div>
+
+            {isCreateModalOpen && (
+                <CreateParentModal
+                    onClose={() => setIsCreateModalOpen(false)}
+                    onSuccess={(newParentId) => {
+                        setParentId(newParentId);
+                        setSearch(''); // Clear search to show the new parent if needed
+                    }}
+                />
+            )}
         </div>
     );
 }

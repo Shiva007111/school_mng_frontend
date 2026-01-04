@@ -61,7 +61,7 @@ export default function TeacherDetailPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Teacher Details</h1>
-            <p className="text-sm text-gray-500">Viewing profile for {teacher.user.email}</p>
+            <p className="text-sm text-gray-500">Viewing profile for {teacher.user.firstName} {teacher.user.lastName}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -82,7 +82,7 @@ export default function TeacherDetailPage() {
               <div className="h-24 w-24 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
                 <UserCheck className="h-12 w-12 text-indigo-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">{teacher.user.email}</h2>
+              <h2 className="text-xl font-bold text-gray-900">{teacher.user.firstName} {teacher.user.lastName}</h2>
               <p className="text-sm text-gray-500 mb-4">{teacher.employeeCode || 'No Employee Code'}</p>
               <span className={cn(
                 "px-3 py-1 text-xs font-semibold rounded-full",
@@ -185,7 +185,7 @@ export default function TeacherDetailPage() {
       {isAssignModalOpen && (
         <AssignClassModal
           teacherId={teacher.id}
-          teacherName={teacher.user?.email || teacher.employeeCode || 'Teacher'}
+          teacherName={`${teacher.user.firstName} ${teacher.user.lastName}`}
           onClose={() => setIsAssignModalOpen(false)}
         />
       )}
