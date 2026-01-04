@@ -75,7 +75,6 @@ export default function LinkParentModal({ studentId, studentName, onClose }: Lin
                         Create New Parent
                     </Button>
                 </div>
-
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div>
                         <p className="text-sm text-gray-500 mb-4">
@@ -110,12 +109,13 @@ export default function LinkParentModal({ studentId, studentName, onClose }: Lin
                             ) : (
                                 filteredParents.map((parent) => (
                                     <option key={parent.id} value={parent.id}>
-                                        {parent.user.firstName} {parent.user.lastName} ({parent.user.email})
-                                    </option>
+                                        {parent.user.email} {parent.user.phone ? `(${parent.user.phone})` : ''}
+                                    </option >
                                 ))
-                            )}
-                        </select>
-                    </div>
+                            )
+                            }
+                        </select >
+                    </div >
 
                     <div className="space-y-1">
                         <label className="text-sm font-medium text-gray-700">Relationship</label>
@@ -147,18 +147,20 @@ export default function LinkParentModal({ studentId, studentName, onClose }: Lin
                             )}
                         </Button>
                     </div>
-                </form>
-            </div>
+                </form >
+            </div >
 
-            {isCreateModalOpen && (
-                <CreateParentModal
-                    onClose={() => setIsCreateModalOpen(false)}
-                    onSuccess={(newParentId) => {
-                        setParentId(newParentId);
-                        setSearch(''); // Clear search to show the new parent if needed
-                    }}
-                />
-            )}
-        </div>
+            {
+                isCreateModalOpen && (
+                    <CreateParentModal
+                        onClose={() => setIsCreateModalOpen(false)}
+                        onSuccess={(newParentId) => {
+                            setParentId(newParentId);
+                            setSearch(''); // Clear search to show the new parent if needed
+                        }}
+                    />
+                )
+            }
+        </div >
     );
 }

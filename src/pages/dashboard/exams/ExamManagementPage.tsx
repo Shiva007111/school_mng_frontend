@@ -390,149 +390,153 @@ export const ExamManagementPage: React.FC = () => {
                             </button>
                           )}
                         </div>
-                      </div>
+                      </div >
                     ))}
-                  </div>
+                  </div >
                 )}
-              </div>
-            </div>
+              </div >
+            </div >
           ))}
-        </div>
+        </div >
       )}
 
       {/* Exam Modal */}
-      {isExamModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-              <h3 className="text-lg font-bold text-gray-900">Add Exam</h3>
-              <button onClick={() => setIsExamModalOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <Plus className="h-6 w-6 rotate-45" />
-              </button>
-            </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (examFormData.classSectionIds.length === 0) {
-                  toast.error('Please select at least one class section');
-                  return;
-                }
-                if (selectedExam) {
-                  updateExamMutation.mutate({ id: selectedExam.id, data: examFormData });
-                } else {
-                  createExamMutation.mutate(examFormData);
-                }
-              }}
-              className="p-6 space-y-4"
-            >
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Exam Title</label>
-                <Input
-                  required
-                  placeholder="e.g. Mid-Term Examination"
-                  value={examFormData.title}
-                  onChange={(e) => setExamFormData({ ...examFormData, title: e.target.value })}
-                />
+      {
+        isExamModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                <h3 className="text-lg font-bold text-gray-900">Add Exam</h3>
+                <button onClick={() => setIsExamModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <Plus className="h-6 w-6 rotate-45" />
+                </button>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Class Sections</label>
-                <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-2 bg-white">
-                  {sections.map(s => (
-                    <label key={s.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={examFormData.classSectionIds.includes(s.id)}
-                        onChange={(e) => {
-                          const ids = e.target.checked
-                            ? [...examFormData.classSectionIds, s.id]
-                            : examFormData.classSectionIds.filter(id => id !== s.id);
-                          setExamFormData({ ...examFormData, classSectionIds: ids });
-                        }}
-                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm text-gray-700 font-medium">
-                        {s.gradeLevel?.displayName} - {s.section}
-                      </span>
-                    </label>
-                  ))}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (examFormData.classSectionIds.length === 0) {
+                    toast.error('Please select at least one class section');
+                    return;
+                  }
+                  if (selectedExam) {
+                    updateExamMutation.mutate({ id: selectedExam.id, data: examFormData });
+                  } else {
+                    createExamMutation.mutate(examFormData);
+                  }
+                }}
+                className="p-6 space-y-4"
+              >
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Exam Title</label>
+                  <Input
+                    required
+                    placeholder="e.g. Mid-Term Examination"
+                    value={examFormData.title}
+                    onChange={(e) => setExamFormData({ ...examFormData, title: e.target.value })}
+                  />
                 </div>
-                {examFormData.classSectionIds.length === 0 && (
-                  <p className="mt-1 text-xs text-red-500">Please select at least one class section.</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Exam Date</label>
-                <input
-                  type="date"
-                  required
-                  value={examFormData.examDate}
-                  onChange={(e) => setExamFormData({ ...examFormData, examDate: e.target.value })}
-                  className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                />
-              </div>
-              <div className="pt-4 flex gap-3">
-                <Button type="button" variant="outline" onClick={() => setIsExamModalOpen(false)} className="flex-1">Cancel</Button>
-                <Button type="submit" isLoading={createExamMutation.isPending || updateExamMutation.isPending} className="flex-1 bg-indigo-600 text-white">
-                  {selectedExam ? 'Update Exam' : 'Create Exam'}
-                </Button>
-              </div>
-            </form>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Class Sections</label>
+                  <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-2 bg-white">
+                    {sections.map(s => (
+                      <label key={s.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={examFormData.classSectionIds.includes(s.id)}
+                          onChange={(e) => {
+                            const ids = e.target.checked
+                              ? [...examFormData.classSectionIds, s.id]
+                              : examFormData.classSectionIds.filter(id => id !== s.id);
+                            setExamFormData({ ...examFormData, classSectionIds: ids });
+                          }}
+                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                        />
+                        <span className="text-sm text-gray-700 font-medium">
+                          {s.gradeLevel?.displayName} - {s.section}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  {examFormData.classSectionIds.length === 0 && (
+                    <p className="mt-1 text-xs text-red-500">Please select at least one class section.</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Exam Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={examFormData.examDate}
+                    onChange={(e) => setExamFormData({ ...examFormData, examDate: e.target.value })}
+                    className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+                  />
+                </div>
+                <div className="pt-4 flex gap-3">
+                  <Button type="button" variant="outline" onClick={() => setIsExamModalOpen(false)} className="flex-1">Cancel</Button>
+                  <Button type="submit" isLoading={createExamMutation.isPending || updateExamMutation.isPending} className="flex-1 bg-indigo-600 text-white">
+                    {selectedExam ? 'Update Exam' : 'Create Exam'}
+                  </Button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Subject Modal */}
-      {isSubjectModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-              <h3 className="text-lg font-bold text-gray-900">Add Subject to {selectedExam?.title}</h3>
-              <button onClick={() => setIsSubjectModalOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <Plus className="h-6 w-6 rotate-45" />
-              </button>
+      {
+        isSubjectModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                <h3 className="text-lg font-bold text-gray-900">Add Subject to {selectedExam?.title}</h3>
+                <button onClick={() => setIsSubjectModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <Plus className="h-6 w-6 rotate-45" />
+                </button>
+              </div>
+              <form onSubmit={(e) => { e.preventDefault(); addSubjectMutation.mutate(subjectFormData); }} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                  <select
+                    required
+                    value={subjectFormData.classSubjectId}
+                    onChange={(e) => setSubjectFormData({ ...subjectFormData, classSubjectId: e.target.value })}
+                    className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+                  >
+                    <option value="">Select Subject</option>
+                    {classSubjects.map(cs => (
+                      <option key={cs.id} value={cs.id}>{cs.subject?.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Maximum Score</label>
+                  <Input
+                    type="number"
+                    required
+                    value={subjectFormData.maxScore}
+                    onChange={(e) => setSubjectFormData({ ...subjectFormData, maxScore: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Exam Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={subjectFormData.examDate}
+                    onChange={(e) => setSubjectFormData({ ...subjectFormData, examDate: e.target.value })}
+                    className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+                  />
+                </div>
+                <div className="pt-4 flex gap-3">
+                  <Button type="button" variant="outline" onClick={() => setIsSubjectModalOpen(false)} className="flex-1">Cancel</Button>
+                  <Button type="submit" isLoading={addSubjectMutation.isPending} className="flex-1 bg-indigo-600 text-white">Add Subject</Button>
+                </div>
+              </form>
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); addSubjectMutation.mutate(subjectFormData); }} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                <select
-                  required
-                  value={subjectFormData.classSubjectId}
-                  onChange={(e) => setSubjectFormData({ ...subjectFormData, classSubjectId: e.target.value })}
-                  className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                >
-                  <option value="">Select Subject</option>
-                  {classSubjects.map(cs => (
-                    <option key={cs.id} value={cs.id}>{cs.subject?.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Maximum Score</label>
-                <Input
-                  type="number"
-                  required
-                  value={subjectFormData.maxScore}
-                  onChange={(e) => setSubjectFormData({ ...subjectFormData, maxScore: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Exam Date</label>
-                <input
-                  type="date"
-                  required
-                  value={subjectFormData.examDate}
-                  onChange={(e) => setSubjectFormData({ ...subjectFormData, examDate: e.target.value })}
-                  className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                />
-              </div>
-              <div className="pt-4 flex gap-3">
-                <Button type="button" variant="outline" onClick={() => setIsSubjectModalOpen(false)} className="flex-1">Cancel</Button>
-                <Button type="submit" isLoading={addSubjectMutation.isPending} className="flex-1 bg-indigo-600 text-white">Add Subject</Button>
-              </div>
-            </form>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };

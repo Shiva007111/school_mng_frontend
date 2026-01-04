@@ -218,9 +218,8 @@ export default function StudentListPage() {
                           <User className="h-6 w-6 text-indigo-600" />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {student.user?.firstName} {student.user?.lastName}
-                          </div>
+                          <div className="text-sm font-medium text-gray-900">{student.user?.email || 'No Email'}</div>
+                          <div className="text-sm text-gray-500">{student.user?.phone || 'No phone'}</div>
                         </div>
                       </div>
                     </td>
