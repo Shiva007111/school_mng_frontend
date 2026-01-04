@@ -11,6 +11,8 @@ import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest } from '@/type
 const teacherSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   employeeCode: z.string().min(3, 'Employee code is required'),
   hireDate: z.string().min(1, 'Hire date is required'),
   qualification: z.string().min(2, 'Qualification is required'),
@@ -38,6 +40,8 @@ export default function TeacherForm({ initialData, isEdit }: TeacherFormProps) {
     defaultValues: initialData ? {
       email: initialData.user.email,
       phone: initialData.user.phone || '',
+      firstName: initialData.user.firstName || '',
+      lastName: initialData.user.lastName || '',
       employeeCode: initialData.employeeCode || '',
       hireDate: initialData.hireDate ? initialData.hireDate.split('T')[0] : '',
       qualification: initialData.qualification || '',
@@ -83,6 +87,20 @@ export default function TeacherForm({ initialData, isEdit }: TeacherFormProps) {
               error={errors.email?.message}
               placeholder="teacher@school.com"
             />
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="First Name"
+                {...register('firstName')}
+                error={errors.firstName?.message}
+                placeholder="John"
+              />
+              <Input
+                label="Last Name"
+                {...register('lastName')}
+                error={errors.lastName?.message}
+                placeholder="Doe"
+              />
+            </div>
             {!isEdit && (
               <Input
                 label="Password"

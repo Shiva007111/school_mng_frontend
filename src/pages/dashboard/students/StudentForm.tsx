@@ -11,6 +11,8 @@ import type { Student, CreateStudentRequest } from '@/types/student.types';
 const studentSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   admissionNo: z.string().min(3, 'Admission number is required'),
   dob: z.string().min(1, 'Date of birth is required'),
   gender: z.enum(['Male', 'Female', 'Other']),
@@ -39,6 +41,8 @@ export default function StudentForm({ initialData, isEdit }: StudentFormProps) {
     defaultValues: initialData ? {
       email: initialData.user.email,
       phone: initialData.user.phone,
+      firstName: initialData.user.firstName || '',
+      lastName: initialData.user.lastName || '',
       admissionNo: initialData.admissionNo,
       dob: initialData.dob.split('T')[0],
       gender: initialData.gender,
@@ -86,6 +90,20 @@ export default function StudentForm({ initialData, isEdit }: StudentFormProps) {
               error={errors.email?.message}
               placeholder="student@school.com"
             />
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="First Name"
+                {...register('firstName')}
+                error={errors.firstName?.message}
+                placeholder="John"
+              />
+              <Input
+                label="Last Name"
+                {...register('lastName')}
+                error={errors.lastName?.message}
+                placeholder="Doe"
+              />
+            </div>
             {!isEdit && (
               <Input
                 label="Password"

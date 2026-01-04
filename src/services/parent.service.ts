@@ -14,4 +14,10 @@ export const parentService = {
     const response = await apiClient.get<ApiResponse<Student[]>>('/parents/me/children');
     return response.data;
   },
+
+  // Create a new parent
+  createParent: async (data: any): Promise<ApiResponse<Parent>> => {
+    const response = await apiClient.post<ApiResponse<Parent>>('/parents', data);
+    return response.data;
+  },
 };

@@ -10,6 +10,7 @@ import StudentDetailPage from '@/pages/dashboard/students/StudentDetailPage';
 import AddStudentPage from '@/pages/dashboard/students/AddStudentPage';
 import EditStudentPage from '@/pages/dashboard/students/EditStudentPage';
 import { PromotionPage } from '@/pages/dashboard/students/PromotionPage';
+import ParentListPage from '@/pages/dashboard/students/ParentListPage';
 import { AnnouncementManagementPage } from '@/pages/dashboard/announcements/AnnouncementManagementPage';
 import { ReportsPage } from '@/pages/dashboard/reports/ReportsPage';
 import TeacherListPage from '@/pages/dashboard/teachers/TeacherListPage';
@@ -87,6 +88,10 @@ const router = createBrowserRouter([
           {
             path: 'students/promotion',
             element: <PromotionPage />,
+          },
+          {
+            path: 'parents',
+            element: <ParentListPage />,
           },
           {
             path: 'teachers',

@@ -62,7 +62,7 @@ export default function StudentDetailPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Student Details</h1>
-            <p className="text-sm text-gray-500">Viewing profile for {student.user?.email || 'N/A'}</p>
+            <p className="text-sm text-gray-500">Viewing profile for {student.user?.firstName} {student.user?.lastName}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -81,7 +81,7 @@ export default function StudentDetailPage() {
               <div className="h-24 w-24 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
                 <User className="h-12 w-12 text-indigo-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">{student.user?.email || 'No Email'}</h2>
+              <h2 className="text-xl font-bold text-gray-900">{student.user?.firstName} {student.user?.lastName}</h2>
               <p className="text-sm text-gray-500 mb-4">{student.admissionNo}</p>
               <span className={cn(
                 "px-3 py-1 text-xs font-semibold rounded-full",
@@ -114,15 +114,17 @@ export default function StudentDetailPage() {
           {/* Parents Info */}
           <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Parents / Guardians</h3>
-            {student.parents && student.parents.length > 0 ? (
+            {student.studentParents && student.studentParents.length > 0 ? (
               <div className="space-y-4">
-                {student.parents.map((sp) => (
+                {student.studentParents.map((sp) => (
                   <div key={sp.parentId} className="flex items-start gap-3 p-3 rounded-md bg-gray-50">
                     <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
                       <User className="h-4 w-4 text-gray-500" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{sp.parent.user.email}</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {sp.parent.user.firstName} {sp.parent.user.lastName}
+                      </p>
                       <p className="text-xs text-gray-500 capitalize">{sp.relationship}</p>
                     </div>
                   </div>

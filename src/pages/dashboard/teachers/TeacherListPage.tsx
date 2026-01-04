@@ -83,7 +83,8 @@ export default function TeacherListPage() {
           <table className="min-w-full divide-y divide-gray-200 text-left">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Teacher</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Employee Code</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Qualification</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -118,10 +119,14 @@ export default function TeacherListPage() {
                           <UserCheck className="h-6 w-6 text-indigo-600" />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{teacher.user.email}</div>
-                          <div className="text-sm text-gray-500">{teacher.user.phone || 'No phone'}</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {teacher.user.firstName} {teacher.user.lastName}
+                          </div>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {teacher.user.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {teacher.employeeCode || 'N/A'}
