@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { academicService } from '@/services/academic.service';
 import { attendanceService } from '@/services/attendance.service';
+import { teacherService } from '@/services/teacher.service';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import type { AttendanceStatus } from '@/types/attendance.types';
@@ -24,15 +26,26 @@ import { cn } from '@/utils/cn';
 export const AttendanceMarkingPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [selectedSectionId, setSelectedSectionId] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toLocaleDateString('en-CA'));
   const [searchQuery, setSearchQuery] = useState('');
   const [localAttendance, setLocalAttendance] = useState<Record<string, { status: AttendanceStatus, remarks?: string }>>({});
 
+  // Fetch Teacher Profile if user is a teacher
+  const { data: teacherData } = useQuery({
+    queryKey: ['teacher-profile', user?.id],
+    queryFn: () => teacherService.getTeachers({ userId: user?.id }),
+    enabled: !!user?.roles.some(r => r.role.name === 'Teacher'),
+  });
+
+  const teacherId = teacherData?.data?.[0]?.id;
+
   // Fetch Class Sections
   const { data: sectionsData } = useQuery({
-    queryKey: ['class-sections'],
-    queryFn: () => academicService.getClassSections(),
+    queryKey: ['class-sections', teacherId],
+    queryFn: () => academicService.getClassSections(teacherId ? { classTeacherId: teacherId } : undefined),
+    enabled: user?.roles.some(r => r.role.name === 'Admin') || !!teacherId,
   });
 
   // Fetch Students & Current Attendance
@@ -160,6 +173,7 @@ export const AttendanceMarkingPage: React.FC = () => {
         <input
           type="date"
           value={selectedDate}
+          max={new Date().toISOString().split('T')[0]}
           onChange={(e) => setSelectedDate(e.target.value)}
           className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
         />
