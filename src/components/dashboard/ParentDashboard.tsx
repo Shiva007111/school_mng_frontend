@@ -1,15 +1,23 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, User, ChevronRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, User, ChevronRight, CheckCircle2, AlertCircle, Megaphone } from 'lucide-react';
 import { dashboardService } from '@/services/dashboard.service';
+import { announcementService } from '@/services/announcement.service';
 import { useNavigate } from 'react-router-dom';
 
 export const ParentDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { data: childrenData, isLoading } = useQuery({
+  const { data: childrenData, isLoading: childrenLoading } = useQuery({
     queryKey: ['parent-stats'],
     queryFn: () => dashboardService.getParentStats(),
   });
+
+  const { data: announcementsData, isLoading: announcementsLoading } = useQuery({
+    queryKey: ['announcements', 'Parent'],
+    queryFn: () => announcementService.getAnnouncements({ role: 'Parent' }),
+  });
+
+  const isLoading = childrenLoading || announcementsLoading;
 
   if (isLoading) {
     return (
@@ -27,6 +35,37 @@ export const ParentDashboard: React.FC = () => {
         <h2 className="text-xl font-bold text-gray-900">Children Summary</h2>
         <p className="text-sm text-gray-500">Quick overview of your children's performance and attendance.</p>
       </div>
+
+      {/* Announcements Section */}
+      {announcementsData?.data && announcementsData.data.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-50 flex items-center gap-2">
+            <Megaphone className="h-5 w-5 text-indigo-600" />
+            <h3 className="text-lg font-bold text-gray-900">Announcements</h3>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {announcementsData.data.slice(0, 3).map((announcement) => (
+              <div key={announcement.id} className="p-6 hover:bg-gray-50 transition-colors">
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="text-base font-semibold text-gray-900">{announcement.title}</h4>
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${announcement.priority === 'high' ? 'bg-red-50 text-red-600' :
+                      announcement.priority === 'medium' ? 'bg-amber-50 text-amber-600' :
+                        'bg-blue-50 text-blue-600'
+                    }`}>
+                    {announcement.priority.charAt(0).toUpperCase() + announcement.priority.slice(1)}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">{announcement.content}</p>
+                <div className="flex items-center gap-4 text-xs text-gray-400">
+                  <span>{new Date(announcement.publishedAt).toLocaleDateString()}</span>
+                  <span>•</span>
+                  <span>{announcement.author?.email.split('@')[0] || 'Admin'}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {children.map((child: any) => (
@@ -81,13 +120,12 @@ export const ParentDashboard: React.FC = () => {
                     <p className="text-xs text-gray-400 italic">No attendance records yet.</p>
                   ) : (
                     child.recentAttendance.map((event: any) => (
-                      <div 
-                        key={event.id} 
-                        className={`h-8 w-8 rounded-lg flex items-center justify-center border ${
-                          event.status === 'present' ? 'bg-green-50 border-green-100 text-green-600' : 
-                          event.status === 'absent' ? 'bg-red-50 border-red-100 text-red-600' : 
-                          'bg-amber-50 border-amber-100 text-amber-600'
-                        }`}
+                      <div
+                        key={event.id}
+                        className={`h-8 w-8 rounded-lg flex items-center justify-center border ${event.status === 'present' ? 'bg-green-50 border-green-100 text-green-600' :
+                            event.status === 'absent' ? 'bg-red-50 border-red-100 text-red-600' :
+                              'bg-amber-50 border-amber-100 text-amber-600'
+                          }`}
                         title={`${new Date(event.date).toLocaleDateString()}: ${event.status}`}
                       >
                         {event.status === 'present' ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
@@ -99,7 +137,7 @@ export const ParentDashboard: React.FC = () => {
             </div>
 
             <div className="p-4 bg-gray-50 border-t border-gray-100">
-              <button 
+              <button
                 onClick={() => navigate(`/dashboard/students/${child.studentId}`)}
                 className="w-full flex items-center justify-center gap-2 py-2 text-sm font-bold text-indigo-600 hover:bg-white rounded-xl transition-all"
               >

@@ -1,15 +1,23 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Calendar, TrendingUp, BookOpen, Loader2, Clock, MapPin, CheckCircle2 } from 'lucide-react';
+import { Calendar, TrendingUp, BookOpen, Loader2, Clock, MapPin, CheckCircle2, Megaphone } from 'lucide-react';
 import { dashboardService } from '@/services/dashboard.service';
+import { announcementService } from '@/services/announcement.service';
 import { useNavigate } from 'react-router-dom';
 
 export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { data: statsData, isLoading } = useQuery({
+  const { data: statsData, isLoading: statsLoading } = useQuery({
     queryKey: ['student-stats'],
     queryFn: () => dashboardService.getStudentStats(),
   });
+
+  const { data: announcementsData, isLoading: announcementsLoading } = useQuery({
+    queryKey: ['announcements', 'Student'],
+    queryFn: () => announcementService.getAnnouncements({ role: 'Student' }),
+  });
+
+  const isLoading = statsLoading || announcementsLoading;
 
   if (isLoading) {
     return (
@@ -55,6 +63,37 @@ export const StudentDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Announcements Section */}
+      {announcementsData?.data && announcementsData.data.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-50 flex items-center gap-2">
+            <Megaphone className="h-5 w-5 text-indigo-600" />
+            <h3 className="text-lg font-bold text-gray-900">Announcements</h3>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {announcementsData.data.slice(0, 3).map((announcement) => (
+              <div key={announcement.id} className="p-6 hover:bg-gray-50 transition-colors">
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="text-base font-semibold text-gray-900">{announcement.title}</h4>
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${announcement.priority === 'high' ? 'bg-red-50 text-red-600' :
+                      announcement.priority === 'medium' ? 'bg-amber-50 text-amber-600' :
+                        'bg-blue-50 text-blue-600'
+                    }`}>
+                    {announcement.priority.charAt(0).toUpperCase() + announcement.priority.slice(1)}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">{announcement.content}</p>
+                <div className="flex items-center gap-4 text-xs text-gray-400">
+                  <span>{new Date(announcement.publishedAt).toLocaleDateString()}</span>
+                  <span>•</span>
+                  <span>{announcement.author?.email.split('@')[0] || 'Admin'}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Today's Timetable */}
