@@ -168,7 +168,11 @@ export default function ClassSectionListPage() {
                 <div className="pt-2 border-t border-gray-50">
                   <p className="text-xs text-gray-400 uppercase font-semibold">Class Teacher</p>
                   <p className="text-sm text-gray-700 font-medium truncate">
-                    {section.classTeacher?.user?.email || 'Not Assigned'}
+                    {section.classTeacher?.user ? (
+                      section.classTeacher.user.firstName || section.classTeacher.user.lastName ?
+                        `${section.classTeacher.user.firstName || ''} ${section.classTeacher.user.lastName || ''}`.trim() :
+                        section.classTeacher.user.email
+                    ) : 'Not Assigned'}
                   </p>
                 </div>
 
