@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Search, 
-  Loader2, 
-  User, 
+import {
+  Search,
+  Loader2,
+  User,
   IndianRupee,
   ChevronRight,
   Receipt,
@@ -55,7 +55,7 @@ export const StudentFeePage: React.FC = () => {
     }
   });
 
-  const filteredStudents = studentsData?.data?.filter(s => 
+  const filteredStudents = studentsData?.data?.filter(s =>
     s.student?.user?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.student?.admissionNo.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
@@ -76,13 +76,12 @@ export const StudentFeePage: React.FC = () => {
       <div className="lg:col-span-1 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
         <div className="p-4 border-b border-gray-100 space-y-4">
           <h2 className="font-bold text-gray-900">Students</h2>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input 
+          <div>
+            <Input
               placeholder="Search students..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              leftIcon={<Search className="h-4 w-4" />}
             />
           </div>
         </div>
@@ -98,8 +97,8 @@ export const StudentFeePage: React.FC = () => {
                 onClick={() => setSelectedStudent(enrollment)}
                 className={clsx(
                   "w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group",
-                  selectedStudent?.id === enrollment.id 
-                    ? "bg-indigo-50 border-indigo-100" 
+                  selectedStudent?.id === enrollment.id
+                    ? "bg-indigo-50 border-indigo-100"
                     : "hover:bg-gray-50 border-transparent"
                 )}
               >
@@ -160,7 +159,7 @@ export const StudentFeePage: React.FC = () => {
                   {invoicesData?.data?.map((invoice) => {
                     const totalPaid = invoice.payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
                     const balance = Number(invoice.totalAmount) - totalPaid;
-                    
+
                     return (
                       <div key={invoice.id} className="border border-gray-200 rounded-2xl overflow-hidden">
                         <div className="p-4 bg-gray-50/50 flex items-center justify-between border-b border-gray-100">
@@ -176,8 +175,8 @@ export const StudentFeePage: React.FC = () => {
                           <div className={clsx(
                             "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider",
                             invoice.status === 'paid' ? "bg-green-100 text-green-700" :
-                            invoice.status === 'partial' ? "bg-amber-100 text-amber-700" :
-                            "bg-red-100 text-red-700"
+                              invoice.status === 'partial' ? "bg-amber-100 text-amber-700" :
+                                "bg-red-100 text-red-700"
                           )}>
                             {invoice.status}
                           </div>
@@ -198,8 +197,8 @@ export const StudentFeePage: React.FC = () => {
                         </div>
                         <div className="px-4 py-3 bg-gray-50/30 border-t border-gray-100 flex justify-end gap-2">
                           {invoice.status !== 'paid' && (
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               className="bg-indigo-600 hover:bg-indigo-700 text-white"
                               onClick={() => handleRecordPayment(invoice)}
                             >
@@ -208,8 +207,8 @@ export const StudentFeePage: React.FC = () => {
                             </Button>
                           )}
                           {invoice.payments.length > 0 && (
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="outline"
                               onClick={() => setShowReceipt({ invoice, student: selectedStudent })}
                             >
@@ -254,19 +253,16 @@ export const StudentFeePage: React.FC = () => {
             <div className="p-6 space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Amount to Pay</label>
-                <div className="relative">
-                  <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input 
-                    type="number"
-                    value={paymentData.amount}
-                    onChange={(e) => setPaymentData({ ...paymentData, amount: Number(e.target.value) })}
-                    className="pl-10"
-                  />
-                </div>
+                <Input
+                  type="number"
+                  value={paymentData.amount}
+                  onChange={(e) => setPaymentData({ ...paymentData, amount: Number(e.target.value) })}
+                  leftIcon={<IndianRupee className="h-4 w-4" />}
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Payment Method</label>
-                <select 
+                <select
                   className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   value={paymentData.method}
                   onChange={(e) => setPaymentData({ ...paymentData, method: e.target.value })}
@@ -279,7 +275,7 @@ export const StudentFeePage: React.FC = () => {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Transaction Reference (Optional)</label>
-                <Input 
+                <Input
                   placeholder="e.g. TXN123456"
                   value={paymentData.transactionRef}
                   onChange={(e) => setPaymentData({ ...paymentData, transactionRef: e.target.value })}
@@ -288,7 +284,7 @@ export const StudentFeePage: React.FC = () => {
             </div>
             <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-3">
               <Button variant="outline" onClick={() => setIsRecordingPayment(false)}>Cancel</Button>
-              <Button 
+              <Button
                 onClick={() => paymentMutation.mutate(paymentData)}
                 isLoading={paymentMutation.isPending}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white"
@@ -302,10 +298,10 @@ export const StudentFeePage: React.FC = () => {
 
       {/* Receipt Preview Modal */}
       {showReceipt && (
-        <FeeReceipt 
-          invoice={showReceipt.invoice} 
-          student={showReceipt.student} 
-          onClose={() => setShowReceipt(null)} 
+        <FeeReceipt
+          invoice={showReceipt.invoice}
+          student={showReceipt.student}
+          onClose={() => setShowReceipt(null)}
         />
       )}
     </div>

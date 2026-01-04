@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Plus, 
-  Loader2, 
-  IndianRupee, 
+import {
+  Plus,
+  Loader2,
+  IndianRupee,
   Calendar,
   Trash2,
   Save,
@@ -98,7 +98,7 @@ export const FeeStructurePage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Fee Structures</h1>
           <p className="text-gray-500">Define and manage school fee components per grade.</p>
         </div>
-        <Button 
+        <Button
           onClick={() => setIsAdding(true)}
           className="bg-indigo-600 hover:bg-indigo-700 text-white"
         >
@@ -112,7 +112,7 @@ export const FeeStructurePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Structure Name</label>
-              <Input 
+              <Input
                 placeholder="e.g. Annual Fees 2024"
                 value={newStructure.name}
                 onChange={(e) => setNewStructure({ ...newStructure, name: e.target.value })}
@@ -120,7 +120,7 @@ export const FeeStructurePage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Academic Year</label>
-              <select 
+              <select
                 className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 value={newStructure.academicYearId}
                 onChange={(e) => setNewStructure({ ...newStructure, academicYearId: e.target.value })}
@@ -133,7 +133,7 @@ export const FeeStructurePage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Grade Level (Optional)</label>
-              <select 
+              <select
                 className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 value={newStructure.gradeLevelId}
                 onChange={(e) => setNewStructure({ ...newStructure, gradeLevelId: e.target.value })}
@@ -146,7 +146,7 @@ export const FeeStructurePage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Frequency</label>
-              <select 
+              <select
                 className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 value={newStructure.frequency}
                 onChange={(e) => setNewStructure({ ...newStructure, frequency: e.target.value as any })}
@@ -161,9 +161,9 @@ export const FeeStructurePage: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Fee Components</h3>
-              <Button 
+              <Button
                 type="button"
-                variant="outline" 
+                variant="outline"
                 size="sm"
                 onClick={handleAddComponent}
               >
@@ -171,27 +171,25 @@ export const FeeStructurePage: React.FC = () => {
                 Add Component
               </Button>
             </div>
-            
+
             <div className="space-y-3">
               {newStructure.components.map((comp, index) => (
                 <div key={index} className="flex items-center gap-3 animate-in fade-in slide-in-from-left-2">
-                  <Input 
+                  <Input
                     placeholder="Component Label (e.g. Tuition Fee)"
                     value={comp.label}
                     onChange={(e) => handleComponentChange(index, 'label', e.target.value)}
                     className="flex-1"
                   />
-                  <div className="relative w-40">
-                    <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input 
-                      type="number"
-                      placeholder="Amount"
-                      value={comp.amount}
-                      onChange={(e) => handleComponentChange(index, 'amount', Number(e.target.value))}
-                      className="pl-10"
-                    />
-                  </div>
-                  <button 
+                  <Input
+                    type="number"
+                    placeholder="Amount"
+                    value={comp.amount}
+                    onChange={(e) => handleComponentChange(index, 'amount', Number(e.target.value))}
+                    leftIcon={<IndianRupee className="h-4 w-4" />}
+                    className="w-40"
+                  />
+                  <button
                     onClick={() => handleRemoveComponent(index)}
                     className="p-2 text-gray-400 hover:text-red-500 transition-colors"
                   >
@@ -204,7 +202,7 @@ export const FeeStructurePage: React.FC = () => {
 
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
             <Button variant="outline" onClick={() => setIsAdding(false)}>Cancel</Button>
-            <Button 
+            <Button
               onClick={handleSave}
               isLoading={createMutation.isPending}
               className="bg-indigo-600 hover:bg-indigo-700 text-white"
@@ -267,8 +265,8 @@ export const FeeStructurePage: React.FC = () => {
               <p className="text-gray-500 max-w-xs mx-auto mt-1">
                 Start by creating a fee structure for an academic year or specific grade.
               </p>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="mt-6"
                 onClick={() => setIsAdding(true)}
               >

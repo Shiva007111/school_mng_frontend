@@ -11,7 +11,7 @@ export default function SubjectListPage() {
   const [search, setSearch] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | undefined>(undefined);
-  
+
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
@@ -20,8 +20,8 @@ export default function SubjectListPage() {
   });
 
   const subjects = data?.data || [];
-  const filteredSubjects = subjects.filter(s => 
-    s.name.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredSubjects = subjects.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase()) ||
     s.code.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -86,11 +86,10 @@ export default function SubjectListPage() {
 
       {/* Search */}
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="max-w-md">
           <Input
             placeholder="Search by name or code..."
-            className="pl-10"
+            leftIcon={<Search className="h-4 w-4" />}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -113,13 +112,13 @@ export default function SubjectListPage() {
                   <BookOpen className="h-6 w-6 text-indigo-600" />
                 </div>
                 <div className="flex gap-2">
-                  <button 
+                  <button
                     onClick={() => handleEdit(subject)}
                     className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                   >
                     <Edit2 className="h-4 w-4" />
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleDelete(subject.id)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   >
@@ -154,7 +153,7 @@ export default function SubjectListPage() {
               <h2 className="text-lg font-bold text-gray-900">
                 {editingSubject ? 'Edit Subject' : 'Add New Subject'}
               </h2>
-              <button 
+              <button
                 onClick={() => setIsFormOpen(false)}
                 className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
               >

@@ -1,19 +1,35 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { teacherService } from '@/services/teacher.service';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Search, Plus, Filter, MoreVertical, UserCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { cn } from '@/utils/cn';
+import { Dropdown } from '@/components/Dropdown';
+import { Eye, Edit, Trash2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 export default function TeacherListPage() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<string | undefined>(undefined);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['teachers', { search, status }],
     queryFn: () => teacherService.getTeachers({ search, status: status || undefined }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => teacherService.deleteTeacher(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teachers'] });
+      toast.success('Teacher deleted successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to delete teacher');
+    },
   });
 
   const teachers = data?.data || [];
@@ -35,11 +51,10 @@ export default function TeacherListPage() {
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="flex-1">
           <Input
             placeholder="Search by name, email or employee code..."
-            className="pl-10"
+            leftIcon={<Search className="h-4 w-4" />}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -118,8 +133,8 @@ export default function TeacherListPage() {
                       <span className={cn(
                         "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
                         teacher.user.status === 'active' ? "bg-green-100 text-green-800" :
-                        teacher.user.status === 'inactive' ? "bg-gray-100 text-gray-800" :
-                        "bg-red-100 text-red-800"
+                          teacher.user.status === 'inactive' ? "bg-gray-100 text-gray-800" :
+                            "bg-red-100 text-red-800"
                       )}>
                         {teacher.user.status}
                       </span>
@@ -129,9 +144,35 @@ export default function TeacherListPage() {
                         <Link to={`/dashboard/teachers/${teacher.id}`}>
                           <Button variant="outline" size="sm">View</Button>
                         </Link>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <MoreVertical className="h-5 w-5" />
-                        </button>
+                        <Dropdown
+                          trigger={
+                            <button className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+                              <MoreVertical className="h-5 w-5" />
+                            </button>
+                          }
+                          items={[
+                            {
+                              label: 'View Details',
+                              icon: <Eye className="h-4 w-4" />,
+                              onClick: () => navigate(`/dashboard/teachers/${teacher.id}`)
+                            },
+                            {
+                              label: 'Edit Teacher',
+                              icon: <Edit className="h-4 w-4" />,
+                              onClick: () => navigate(`/dashboard/teachers/${teacher.id}/edit`)
+                            },
+                            {
+                              label: 'Delete Teacher',
+                              icon: <Trash2 className="h-4 w-4" />,
+                              variant: 'danger',
+                              onClick: () => {
+                                if (window.confirm('Are you sure you want to delete this teacher?')) {
+                                  deleteMutation.mutate(teacher.id);
+                                }
+                              }
+                            }
+                          ]}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -140,7 +181,7 @@ export default function TeacherListPage() {
             </tbody>
           </table>
         </div>
-        
+
         {/* Pagination placeholder */}
         <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
           <div className="flex items-center justify-between">

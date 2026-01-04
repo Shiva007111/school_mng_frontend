@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Save, 
-  Search, 
+import {
+  Save,
+  Search,
   Loader2,
   AlertCircle,
   CheckCircle2,
@@ -59,7 +59,7 @@ export const MarkEntryPage: React.FC = () => {
   }, [marksData]);
 
   const students = studentsData?.data || [];
-  
+
   const bulkSaveMutation = useMutation({
     mutationFn: (marks: any[]) => examService.bulkEnterMarks({ marks }),
     onSuccess: () => {
@@ -79,7 +79,7 @@ export const MarkEntryPage: React.FC = () => {
       setLocalMarks(newMarks);
       return;
     }
-    
+
     if (score > maxScore) {
       toast.error(`Score cannot exceed maximum (${maxScore})`);
       return;
@@ -103,7 +103,7 @@ export const MarkEntryPage: React.FC = () => {
     bulkSaveMutation.mutate(marksToSave);
   };
 
-  const filteredStudents = students.filter(s => 
+  const filteredStudents = students.filter(s =>
     s.student?.user?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.rollNumber?.toString().includes(searchQuery)
   );
@@ -111,7 +111,7 @@ export const MarkEntryPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
@@ -126,17 +126,16 @@ export const MarkEntryPage: React.FC = () => {
       </div>
 
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-wrap items-center justify-between gap-4">
-        <div className="relative flex-1 min-w-[300px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="flex-1 min-w-[300px]">
           <Input
             placeholder="Search students by name or roll number..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            leftIcon={<Search className="h-4 w-4" />}
           />
         </div>
-        <Button 
-          onClick={handleSave} 
+        <Button
+          onClick={handleSave}
           isLoading={bulkSaveMutation.isPending}
           className="bg-indigo-600 hover:bg-indigo-700 text-white"
         >

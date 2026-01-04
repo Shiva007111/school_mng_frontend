@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  BarChart3, 
-  Calendar, 
-  Filter, 
+import {
+  BarChart3,
+  Calendar,
+  Filter,
   Loader2,
   Search,
   Download,
@@ -41,7 +41,7 @@ export const AttendanceReportPage: React.FC = () => {
   const sections = sectionsData?.data || [];
   const students = reportData?.data || [];
 
-  const filteredStudents = students.filter(item => 
+  const filteredStudents = students.filter(item =>
     item.student.user?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.student.admissionNo.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -55,8 +55,8 @@ export const AttendanceReportPage: React.FC = () => {
     notMarked: students.filter(a => !a.attendance).length,
   };
 
-  const attendancePercentage = stats.total > 0 
-    ? Math.round(((stats.present + stats.late) / stats.total) * 100) 
+  const attendancePercentage = stats.total > 0
+    ? Math.round(((stats.present + stats.late) / stats.total) * 100)
     : 0;
 
   return (
@@ -67,8 +67,8 @@ export const AttendanceReportPage: React.FC = () => {
           <p className="text-gray-500">View and analyze attendance data across classes.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => navigate('/dashboard/attendance')}
             className="text-gray-600"
           >
@@ -94,7 +94,7 @@ export const AttendanceReportPage: React.FC = () => {
           <Filter className="h-4 w-4 text-gray-400" />
           <span className="text-sm font-medium text-gray-700">Filters:</span>
         </div>
-        
+
         <select
           value={selectedSectionId}
           onChange={(e) => setSelectedSectionId(e.target.value)}
@@ -115,13 +115,12 @@ export const AttendanceReportPage: React.FC = () => {
           className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
         />
 
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="flex-1 min-w-[200px]">
           <Input
             placeholder="Search students..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            leftIcon={<Search className="h-4 w-4" />}
           />
         </div>
       </div>

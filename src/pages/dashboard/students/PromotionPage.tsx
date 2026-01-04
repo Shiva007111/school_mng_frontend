@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Users, 
-  ArrowRight, 
-  AlertCircle, 
+import {
+  Users,
+  ArrowRight,
+  AlertCircle,
   Loader2,
   Search,
   Filter,
@@ -48,15 +48,15 @@ export const PromotionPage: React.FC = () => {
     }
   });
 
-  const filteredStudents = studentsData?.data?.filter(s => 
-    s.student?.user?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.student?.admissionNo.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredStudents = studentsData?.data?.filter(s =>
+    (s.student?.user?.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (s.student?.admissionNo || '').toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
   const handleToggleStudent = (studentId: string) => {
-    setSelectedStudents(prev => 
-      prev.includes(studentId) 
-        ? prev.filter(id => id !== studentId) 
+    setSelectedStudents(prev =>
+      prev.includes(studentId)
+        ? prev.filter(id => id !== studentId)
         : [...prev, studentId]
     );
   };
@@ -106,11 +106,11 @@ export const PromotionPage: React.FC = () => {
               <Filter className="h-4 w-4 text-indigo-600" />
               Promotion Setup
             </h3>
-            
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Source Class (Current)</label>
-                <select 
+                <select
                   className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   value={sourceClassId}
                   onChange={(e) => setSourceClassId(e.target.value)}
@@ -132,7 +132,7 @@ export const PromotionPage: React.FC = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Target Class (Next)</label>
-                <select 
+                <select
                   className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   value={targetClassId}
                   onChange={(e) => setTargetClassId(e.target.value)}
@@ -148,7 +148,7 @@ export const PromotionPage: React.FC = () => {
             </div>
 
             <div className="pt-4 border-t border-gray-100">
-              <Button 
+              <Button
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
                 onClick={handlePromote}
                 disabled={!sourceClassId || !targetClassId || selectedStudents.length === 0}
@@ -171,21 +171,20 @@ export const PromotionPage: React.FC = () => {
         {/* Student Selection Panel */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
           <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input 
+            <div className="flex-1 max-w-md">
+              <Input
                 placeholder="Search students..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                leftIcon={<Search className="h-4 w-4" />}
               />
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-500">
                 {selectedStudents.length} of {filteredStudents.length} selected
               </span>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={handleSelectAll}
                 disabled={filteredStudents.length === 0}
@@ -215,8 +214,8 @@ export const PromotionPage: React.FC = () => {
                 <thead className="bg-gray-50 sticky top-0 z-10">
                   <tr>
                     <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-10">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                         checked={selectedStudents.length === filteredStudents.length && filteredStudents.length > 0}
                         onChange={handleSelectAll}
@@ -229,7 +228,7 @@ export const PromotionPage: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filteredStudents.map((enrollment) => (
-                    <tr 
+                    <tr
                       key={enrollment.id}
                       className={clsx(
                         "hover:bg-gray-50 transition-colors cursor-pointer",
@@ -238,8 +237,8 @@ export const PromotionPage: React.FC = () => {
                       onClick={() => handleToggleStudent(enrollment.studentId)}
                     >
                       <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                           checked={selectedStudents.includes(enrollment.studentId)}
                           onChange={() => handleToggleStudent(enrollment.studentId)}
@@ -251,7 +250,7 @@ export const PromotionPage: React.FC = () => {
                             <Users className="h-4 w-4" />
                           </div>
                           <span className="text-sm font-medium text-gray-900">
-                            {enrollment.student?.user?.email.split('@')[0]}
+                            {enrollment.student?.user?.email ? enrollment.student.user.email.split('@')[0] : 'No Email'}
                           </span>
                         </div>
                       </td>

@@ -30,7 +30,7 @@ export const Hero = () => {
                   </Button>
                 </div>
               </div>
-              
+
               <div className="mt-8 border-t border-gray-100 pt-8">
                 <p className="text-sm text-gray-500 font-medium uppercase tracking-wide mb-4">Trusted by leading institutions</p>
                 <div className="flex gap-4 text-gray-400">
@@ -46,7 +46,7 @@ export const Hero = () => {
       <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
         <img
           className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-          src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1350&auto=format&fit=crop"
+          src="/hero.png"
           alt="Students learning"
         />
       </div>

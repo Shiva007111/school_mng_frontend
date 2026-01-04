@@ -178,3 +178,10 @@ export interface UpdateTimetablePeriodRequest {
   classSubjectId?: string;
   roomId?: string;
 }
+
+export interface CreateEnrollmentRequest {
+  studentId: string;
+  classSectionId: string;
+  rollNumber?: number;
+  joinedOn?: string;
+}

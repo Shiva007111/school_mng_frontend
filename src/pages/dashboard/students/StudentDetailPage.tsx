@@ -1,15 +1,18 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { studentService } from '@/services/student.service';
 import { Button } from '@/components/Button';
-import { 
-  User, 
-  Calendar, 
-  Mail, 
-  Phone, 
-  ArrowLeft, 
-  Edit, 
-  GraduationCap, 
+import EnrollmentModal from './EnrollmentModal';
+import LinkParentModal from './LinkParentModal';
+import {
+  User,
+  Calendar,
+  Mail,
+  Phone,
+  ArrowLeft,
+  Edit,
+  GraduationCap,
   Users,
   Clock
 } from 'lucide-react';
@@ -17,6 +20,8 @@ import { cn } from '@/utils/cn';
 
 export default function StudentDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
+  const [isLinkParentModalOpen, setIsLinkParentModalOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['student', id],
@@ -57,7 +62,7 @@ export default function StudentDetailPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Student Details</h1>
-            <p className="text-sm text-gray-500">Viewing profile for {student.user.email}</p>
+            <p className="text-sm text-gray-500">Viewing profile for {student.user?.email || 'N/A'}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -76,7 +81,7 @@ export default function StudentDetailPage() {
               <div className="h-24 w-24 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
                 <User className="h-12 w-12 text-indigo-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">{student.user.email}</h2>
+              <h2 className="text-xl font-bold text-gray-900">{student.user?.email || 'No Email'}</h2>
               <p className="text-sm text-gray-500 mb-4">{student.admissionNo}</p>
               <span className={cn(
                 "px-3 py-1 text-xs font-semibold rounded-full",
@@ -89,11 +94,11 @@ export default function StudentDetailPage() {
             <div className="mt-8 space-y-4">
               <div className="flex items-center gap-3 text-sm text-gray-600">
                 <Mail className="h-4 w-4 text-gray-400" />
-                {student.user.email}
+                {student.user?.email || 'No Email'}
               </div>
               <div className="flex items-center gap-3 text-sm text-gray-600">
                 <Phone className="h-4 w-4 text-gray-400" />
-                {student.user.phone || 'No phone provided'}
+                {student.user?.phone || 'No phone provided'}
               </div>
               <div className="flex items-center gap-3 text-sm text-gray-600">
                 <Calendar className="h-4 w-4 text-gray-400" />
@@ -126,7 +131,7 @@ export default function StudentDetailPage() {
             ) : (
               <p className="text-sm text-gray-500">No parent information linked.</p>
             )}
-            <Button variant="outline" size="sm" className="w-full mt-4">
+            <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => setIsLinkParentModalOpen(true)}>
               Link Parent
             </Button>
           </div>
@@ -170,7 +175,7 @@ export default function StudentDetailPage() {
             ) : (
               <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
                 <p className="text-sm text-gray-500 mb-4">Student is not currently enrolled in any class.</p>
-                <Button size="sm">Enroll Now</Button>
+                <Button size="sm" onClick={() => setIsEnrollModalOpen(true)}>Enroll Now</Button>
               </div>
             )}
           </div>
@@ -189,6 +194,21 @@ export default function StudentDetailPage() {
           </div>
         </div>
       </div>
+
+      {isEnrollModalOpen && (
+        <EnrollmentModal
+          studentId={student.id}
+          studentName={student.user?.email || student.admissionNo}
+          onClose={() => setIsEnrollModalOpen(false)}
+        />
+      )}
+      {isLinkParentModalOpen && (
+        <LinkParentModal
+          studentId={student.id}
+          studentName={student.user?.email || student.admissionNo}
+          onClose={() => setIsLinkParentModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

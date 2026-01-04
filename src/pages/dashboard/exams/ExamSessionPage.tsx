@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Plus, 
-  Calendar, 
-  Edit2, 
-  Trash2, 
-  Search, 
+import {
+  Plus,
+  Calendar,
+  Edit2,
+  Trash2,
+  Search,
   Loader2,
   CheckCircle2,
   ChevronRight,
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { academicService } from '@/services/academic.service';
 import { examService } from '@/services/exam.service';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { toast } from 'react-hot-toast';
@@ -22,6 +23,10 @@ import { cn } from '@/utils/cn';
 export const ExamSessionPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const userRole = user?.roles[0]?.role?.name;
+  const isAdmin = userRole === 'Admin';
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,7 +68,7 @@ export const ExamSessionPage: React.FC = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string, data: any }) => 
+    mutationFn: ({ id, data }: { id: string, data: any }) =>
       examService.updateExamSession(id, data), // Note: Need to add update to service
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exam-sessions'] });
@@ -117,7 +122,7 @@ export const ExamSessionPage: React.FC = () => {
     }
   };
 
-  const filteredSessions = sessions.filter(s => 
+  const filteredSessions = sessions.filter(s =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -128,21 +133,22 @@ export const ExamSessionPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Exam Sessions</h1>
           <p className="text-gray-500">Manage terms and examination periods.</p>
         </div>
-        <Button onClick={() => handleOpenModal()} className="bg-indigo-600 hover:bg-indigo-700 text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          New Session
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => handleOpenModal()} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Plus className="h-4 w-4 mr-2" />
+            New Session
+          </Button>
+        )}
       </div>
 
       {/* Search & Filters */}
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-wrap items-center gap-4">
-        <div className="relative flex-1 min-w-[300px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="flex-1 min-w-[300px]">
           <Input
             placeholder="Search sessions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            leftIcon={<Search className="h-4 w-4" />}
           />
         </div>
       </div>
@@ -159,10 +165,12 @@ export const ExamSessionPage: React.FC = () => {
           <p className="text-gray-500 max-w-xs mx-auto mt-2">
             Get started by creating your first exam session (e.g., "First Term 2024").
           </p>
-          <Button onClick={() => handleOpenModal()} variant="outline" className="mt-6">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Session
-          </Button>
+          {isAdmin && (
+            <Button onClick={() => handleOpenModal()} variant="outline" className="mt-6">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Session
+            </Button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -174,28 +182,32 @@ export const ExamSessionPage: React.FC = () => {
                     <FileText className="h-6 w-6" />
                   </div>
                   <div className="flex gap-1">
-                    <button 
-                      onClick={() => handleOpenModal(session)}
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => {
-                        if (window.confirm('Are you sure? This will delete all exams in this session.')) {
-                          deleteMutation.mutate(session.id);
-                        }
-                      }}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    {isAdmin && (
+                      <>
+                        <button
+                          onClick={() => handleOpenModal(session)}
+                          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm('Are you sure? This will delete all exams in this session.')) {
+                              deleteMutation.mutate(session.id);
+                            }
+                          }}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
-                
+
                 <h3 className="text-lg font-bold text-gray-900 mb-1">{session.name}</h3>
                 <p className="text-sm text-gray-500 mb-4">{session.academicYear?.name}</p>
-                
+
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Calendar className="h-4 w-4 text-gray-400" />
@@ -207,7 +219,7 @@ export const ExamSessionPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
                 <span className={cn(
                   "px-2.5 py-1 rounded-full text-xs font-medium border",
@@ -216,13 +228,13 @@ export const ExamSessionPage: React.FC = () => {
                   {session.publishAt ? 'Published' : 'Draft'}
                 </span>
                 <div className="flex gap-4">
-                  <button 
+                  <button
                     onClick={() => navigate(`/dashboard/exams/${session.id}/reports`)}
                     className="text-gray-600 text-sm font-semibold flex items-center hover:text-indigo-600 transition-all"
                   >
                     Report Cards
                   </button>
-                  <button 
+                  <button
                     onClick={() => navigate(`/dashboard/exams/${session.id}`)}
                     className="text-indigo-600 text-sm font-semibold flex items-center hover:gap-1 transition-all"
                   >
@@ -248,7 +260,7 @@ export const ExamSessionPage: React.FC = () => {
                 <Plus className="h-6 w-6 rotate-45" />
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Session Name</label>
@@ -312,8 +324,8 @@ export const ExamSessionPage: React.FC = () => {
                 <Button type="button" variant="outline" onClick={handleCloseModal} className="flex-1">
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   isLoading={createMutation.isPending || updateMutation.isPending}
                   className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
                 >

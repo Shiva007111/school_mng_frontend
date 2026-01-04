@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Plus, 
-  Trash2, 
+import {
+  Plus,
+  Trash2,
   Loader2,
   BookOpen,
   LayoutGrid,
@@ -26,7 +26,10 @@ export const ExamManagementPage: React.FC = () => {
   const { user } = useAuth();
   const userRole = user?.roles[0]?.role?.name;
   const isAdmin = userRole === 'Admin';
-  
+  const isTeacher = userRole === 'Teacher';
+  const canManageExams = isAdmin || isTeacher;
+  const canCreateExams = isAdmin || isTeacher;
+
   const [isExamModalOpen, setIsExamModalOpen] = useState(false);
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
   const [selectedExam, setSelectedExam] = useState<any>(null);
@@ -49,7 +52,7 @@ export const ExamManagementPage: React.FC = () => {
   // Fetch Session Details
   const { data: sessionData } = useQuery({
     queryKey: ['exam-session', sessionId],
-    queryFn: () => examService.getExamSessionById(sessionId!), 
+    queryFn: () => examService.getExamSessionById(sessionId!),
     enabled: !!sessionId,
   });
 
@@ -100,9 +103,9 @@ export const ExamManagementPage: React.FC = () => {
       // Fetch class subjects for this exam's class section
       const subjects = await academicService.getClassSubjects(exam.classSectionId);
       const existingSubjectIds = exam.examSubjects?.map((es: any) => es.classSubjectId) || [];
-      
+
       const newSubjects = subjects.data.filter((cs: any) => !existingSubjectIds.includes(cs.id));
-      
+
       if (newSubjects.length === 0) {
         throw new Error('All class subjects are already added to this exam');
       }
@@ -158,7 +161,7 @@ export const ExamManagementPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <button 
+        <button
           onClick={() => navigate('/dashboard/exams')}
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
@@ -174,7 +177,7 @@ export const ExamManagementPage: React.FC = () => {
 
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold text-gray-900">Scheduled Exams</h2>
-        {isAdmin && (
+        {canCreateExams && (
           <Button onClick={() => handleOpenExamModal()} className="bg-indigo-600 hover:bg-indigo-700 text-white">
             <Plus className="h-4 w-4 mr-2" />
             Add Exam
@@ -209,10 +212,10 @@ export const ExamManagementPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  {isAdmin && (
+                  {canManageExams && (
                     <>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => addAllSubjectsMutation.mutate(exam)}
                         isLoading={addAllSubjectsMutation.isPending && selectedExam?.id === exam.id}
@@ -220,8 +223,8 @@ export const ExamManagementPage: React.FC = () => {
                         <CheckCircle className="h-4 w-4 mr-1" />
                         Add All Subjects
                       </Button>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => handleOpenSubjectModal(exam)}
                       >
@@ -237,7 +240,7 @@ export const ExamManagementPage: React.FC = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className="p-6">
                 {exam.examSubjects?.length === 0 ? (
                   <p className="text-sm text-gray-500 italic text-center py-4">No subjects added to this exam yet.</p>
@@ -250,7 +253,7 @@ export const ExamManagementPage: React.FC = () => {
                           <p className="text-xs text-gray-500">Max Score: {es.maxScore}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button 
+                          <button
                             onClick={() => navigate(`/dashboard/exams/${exam.id}/marks/${es.id}`)}
                             className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors flex items-center gap-2"
                             title="Enter Marks"
@@ -258,7 +261,7 @@ export const ExamManagementPage: React.FC = () => {
                             <Edit2 className="h-4 w-4" />
                             <span className="text-xs font-medium">Enter Marks</span>
                           </button>
-                          {isAdmin && (
+                          {canManageExams && (
                             <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                               <Trash2 className="h-4 w-4" />
                             </button>

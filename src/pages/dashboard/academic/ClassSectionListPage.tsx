@@ -13,7 +13,7 @@ export default function ClassSectionListPage() {
   const [search, setSearch] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSection, setEditingSection] = useState<ClassSection | undefined>(undefined);
-  
+
   const queryClient = useQueryClient();
 
   // Queries
@@ -42,8 +42,8 @@ export default function ClassSectionListPage() {
   const academicYears = academicYearsData?.data || [];
   const teachers = teachersData?.data || [];
 
-  const filteredSections = sections.filter(s => 
-    s.gradeLevel?.displayName.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredSections = sections.filter(s =>
+    s.gradeLevel?.displayName.toLowerCase().includes(search.toLowerCase()) ||
     s.section.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -113,11 +113,10 @@ export default function ClassSectionListPage() {
 
       {/* Search */}
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="max-w-md">
           <Input
             placeholder="Search by grade or section..."
-            className="pl-10"
+            leftIcon={<Search className="h-4 w-4" />}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -132,8 +131,8 @@ export default function ClassSectionListPage() {
           <div className="col-span-full text-center py-10 text-gray-500">No class sections found.</div>
         ) : (
           filteredSections.map((section) => (
-            <Link 
-              key={section.id} 
+            <Link
+              key={section.id}
               to={`/dashboard/academic/sections/${section.id}`}
               className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-indigo-200 transition-all"
             >
@@ -142,13 +141,13 @@ export default function ClassSectionListPage() {
                   <Users className="h-6 w-6 text-indigo-600" />
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button 
+                  <button
                     onClick={(e) => handleEdit(e, section)}
                     className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                   >
                     <Edit2 className="h-4 w-4" />
                   </button>
-                  <button 
+                  <button
                     onClick={(e) => handleDelete(e, section.id)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   >
@@ -165,7 +164,7 @@ export default function ClassSectionListPage() {
                     {academicYears.find(ay => ay.id === section.academicYearId)?.name || 'Current Year'}
                   </p>
                 </div>
-                
+
                 <div className="pt-2 border-t border-gray-50">
                   <p className="text-xs text-gray-400 uppercase font-semibold">Class Teacher</p>
                   <p className="text-sm text-gray-700 font-medium truncate">
@@ -191,7 +190,7 @@ export default function ClassSectionListPage() {
               <h2 className="text-lg font-bold text-gray-900">
                 {editingSection ? 'Edit Class Section' : 'Add New Class Section'}
               </h2>
-              <button 
+              <button
                 onClick={() => setIsFormOpen(false)}
                 className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
               >

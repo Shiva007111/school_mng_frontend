@@ -1,9 +1,9 @@
 import apiClient from './api';
 import type { ApiResponse } from '../types/api.types';
-import type { 
-  GradeLevel, 
-  Subject, 
-  ClassSection, 
+import type {
+  GradeLevel,
+  Subject,
+  ClassSection,
   ClassSubject,
   ClassRoom,
   Enrollment,
@@ -70,10 +70,10 @@ export const academicService = {
   },
 
   // Class Sections
-  getClassSections: async (filters?: { 
-    academicYearId?: string; 
-    gradeLevelId?: string; 
-    classTeacherId?: string; 
+  getClassSections: async (filters?: {
+    academicYearId?: string;
+    gradeLevelId?: string;
+    classTeacherId?: string;
   }): Promise<ApiResponse<ClassSection[]>> => {
     const response = await apiClient.get<ApiResponse<ClassSection[]>>('/class-sections', {
       params: filters,
@@ -132,6 +132,11 @@ export const academicService = {
     return response.data;
   },
 
+  enrollStudent: async (data: any): Promise<ApiResponse<Enrollment>> => {
+    const response = await apiClient.post<ApiResponse<Enrollment>>('/enrollments', data);
+    return response.data;
+  },
+
   // Rooms
   getRooms: async (): Promise<ApiResponse<ClassRoom[]>> => {
     const response = await apiClient.get<ApiResponse<ClassRoom[]>>('/class-rooms');
@@ -139,10 +144,10 @@ export const academicService = {
   },
 
   // Timetable
-  getTimetablePeriods: async (filters?: { 
-    classSectionId?: string; 
-    teacherId?: string; 
-    weekday?: number; 
+  getTimetablePeriods: async (filters?: {
+    classSectionId?: string;
+    teacherId?: string;
+    weekday?: number;
   }): Promise<ApiResponse<TimetablePeriod[]>> => {
     const response = await apiClient.get<ApiResponse<TimetablePeriod[]>>('/timetable-periods', {
       params: filters,

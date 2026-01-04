@@ -1,15 +1,17 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { teacherService } from '@/services/teacher.service';
 import { Button } from '@/components/Button';
-import { 
-  UserCheck, 
-  Calendar, 
-  Mail, 
-  Phone, 
-  ArrowLeft, 
-  Edit, 
-  BookOpen, 
+import AssignClassModal from './AssignClassModal';
+import {
+  UserCheck,
+  Calendar,
+  Mail,
+  Phone,
+  ArrowLeft,
+  Edit,
+  BookOpen,
   Briefcase,
   Clock,
   Award
@@ -18,6 +20,7 @@ import { cn } from '@/utils/cn';
 
 export default function TeacherDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['teacher', id],
@@ -159,7 +162,7 @@ export default function TeacherDetailPage() {
             ) : (
               <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
                 <p className="text-sm text-gray-500 mb-4">Teacher is not currently assigned as a class teacher.</p>
-                <Button size="sm">Assign Class</Button>
+                <Button size="sm" onClick={() => setIsAssignModalOpen(true)}>Assign Class</Button>
               </div>
             )}
           </div>
@@ -178,6 +181,14 @@ export default function TeacherDetailPage() {
           </div>
         </div>
       </div>
+
+      {isAssignModalOpen && (
+        <AssignClassModal
+          teacherId={teacher.id}
+          teacherName={teacher.user?.email || teacher.employeeCode || 'Teacher'}
+          onClose={() => setIsAssignModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

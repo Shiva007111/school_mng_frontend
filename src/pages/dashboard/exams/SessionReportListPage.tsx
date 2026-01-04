@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  Search, 
+import {
+  Search,
   Loader2,
   User,
   FileText,
@@ -36,7 +36,7 @@ export const SessionReportListPage: React.FC = () => {
   const students = studentsData?.data || [];
   const session = sessionData?.data;
 
-  const filteredStudents = students.filter((s: Student) => 
+  const filteredStudents = students.filter((s: Student) =>
     s.user?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.admissionNo.includes(searchQuery)
   );
@@ -44,7 +44,7 @@ export const SessionReportListPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <button 
+        <button
           onClick={() => navigate('/dashboard/exams')}
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
@@ -57,13 +57,12 @@ export const SessionReportListPage: React.FC = () => {
       </div>
 
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="max-w-md">
           <Input
             placeholder="Search students by name or admission no..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            leftIcon={<Search className="h-4 w-4" />}
           />
         </div>
       </div>
@@ -99,8 +98,8 @@ export const SessionReportListPage: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => navigate(`/dashboard/exams/report-card/${student.id}/${sessionId}`)}
                     >

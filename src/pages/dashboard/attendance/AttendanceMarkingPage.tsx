@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  CheckCircle2, 
-  XCircle, 
-  Clock, 
-  AlertCircle, 
-  Save, 
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  AlertCircle,
+  Save,
   Filter,
   Loader2,
   Search,
@@ -95,7 +95,7 @@ export const AttendanceMarkingPage: React.FC = () => {
     bulkMarkMutation.mutate({ events });
   };
 
-  const filteredStudents = students.filter(item => 
+  const filteredStudents = students.filter(item =>
     item.student.user?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.student.admissionNo.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -116,8 +116,8 @@ export const AttendanceMarkingPage: React.FC = () => {
           <p className="text-gray-500">Record daily attendance for your class sections.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => navigate('/dashboard/attendance/report')}
             className="text-gray-600"
           >
@@ -125,8 +125,8 @@ export const AttendanceMarkingPage: React.FC = () => {
             View Reports
           </Button>
           {selectedSectionId && (
-            <Button 
-              onClick={handleSave} 
+            <Button
+              onClick={handleSave}
               isLoading={bulkMarkMutation.isPending}
               className="bg-indigo-600 hover:bg-indigo-700 text-white"
             >
@@ -143,7 +143,7 @@ export const AttendanceMarkingPage: React.FC = () => {
           <Filter className="h-4 w-4 text-gray-400" />
           <span className="text-sm font-medium text-gray-700">Filters:</span>
         </div>
-        
+
         <select
           value={selectedSectionId}
           onChange={(e) => setSelectedSectionId(e.target.value)}
@@ -164,13 +164,12 @@ export const AttendanceMarkingPage: React.FC = () => {
           className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
         />
 
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="flex-1 min-w-[200px]">
           <Input
             placeholder="Search students..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            leftIcon={<Search className="h-4 w-4" />}
           />
         </div>
       </div>
@@ -245,8 +244,8 @@ export const AttendanceMarkingPage: React.FC = () => {
                             onClick={() => handleStatusChange(item.student.id, 'present')}
                             className={cn(
                               "p-2 rounded-lg transition-all",
-                              current.status === 'present' 
-                                ? "bg-green-100 text-green-700 ring-1 ring-green-200" 
+                              current.status === 'present'
+                                ? "bg-green-100 text-green-700 ring-1 ring-green-200"
                                 : "text-gray-400 hover:bg-gray-100"
                             )}
                             title="Present"
@@ -257,8 +256,8 @@ export const AttendanceMarkingPage: React.FC = () => {
                             onClick={() => handleStatusChange(item.student.id, 'absent')}
                             className={cn(
                               "p-2 rounded-lg transition-all",
-                              current.status === 'absent' 
-                                ? "bg-red-100 text-red-700 ring-1 ring-red-200" 
+                              current.status === 'absent'
+                                ? "bg-red-100 text-red-700 ring-1 ring-red-200"
                                 : "text-gray-400 hover:bg-gray-100"
                             )}
                             title="Absent"
@@ -269,8 +268,8 @@ export const AttendanceMarkingPage: React.FC = () => {
                             onClick={() => handleStatusChange(item.student.id, 'late')}
                             className={cn(
                               "p-2 rounded-lg transition-all",
-                              current.status === 'late' 
-                                ? "bg-amber-100 text-amber-700 ring-1 ring-amber-200" 
+                              current.status === 'late'
+                                ? "bg-amber-100 text-amber-700 ring-1 ring-amber-200"
                                 : "text-gray-400 hover:bg-gray-100"
                             )}
                             title="Late"
@@ -281,8 +280,8 @@ export const AttendanceMarkingPage: React.FC = () => {
                             onClick={() => handleStatusChange(item.student.id, 'excused')}
                             className={cn(
                               "p-2 rounded-lg transition-all",
-                              current.status === 'excused' 
-                                ? "bg-blue-100 text-blue-700 ring-1 ring-blue-200" 
+                              current.status === 'excused'
+                                ? "bg-blue-100 text-blue-700 ring-1 ring-blue-200"
                                 : "text-gray-400 hover:bg-gray-100"
                             )}
                             title="Excused"
