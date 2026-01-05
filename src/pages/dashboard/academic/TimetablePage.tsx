@@ -21,7 +21,9 @@ export const TimetablePage: React.FC = () => {
 
   const isStudent = user?.roles?.some(r => r.role.name === 'Student');
   const isParent = user?.roles?.some(r => r.role.name === 'Parent');
-  const isAdminOrTeacher = user?.roles?.some(r => ['Admin', 'Teacher', 'Super Admin'].includes(r.role.name));
+  const isAdmin = user?.roles?.some(r => ['Admin', 'Super Admin'].includes(r.role.name));
+  const isTeacher = user?.roles?.some(r => r.role.name === 'Teacher');
+  const canManage = isAdmin; // Only Admins can manage timetable
 
   // Sync selectedSectionId with URL
   useEffect(() => {
@@ -51,7 +53,7 @@ export const TimetablePage: React.FC = () => {
   const { data: sectionsData } = useQuery({
     queryKey: ['class-sections'],
     queryFn: () => academicService.getClassSections(),
-    enabled: !!isAdminOrTeacher,
+    enabled: !!(isAdmin || isTeacher),
   });
 
   // Fetch Children (Only for Parent)
@@ -89,7 +91,7 @@ export const TimetablePage: React.FC = () => {
 
   // Helper to get display name for selected section
   const getSelectedSectionName = () => {
-    if (isAdminOrTeacher) {
+    if (isAdmin || isTeacher) {
       const section = sections.find(s => s.id === selectedSectionId);
       return section ? `${section.gradeLevel?.displayName} - ${section.section}` : '';
     }
@@ -215,7 +217,7 @@ export const TimetablePage: React.FC = () => {
           >
             <option value="">{isParent ? 'Choose a child...' : 'Choose a section...'}</option>
 
-            {isAdminOrTeacher && sections.map((section) => (
+            {isAdmin || isTeacher && sections.map((section) => (
               <option key={section.id} value={section.id}>
                 {section.gradeLevel?.displayName} - {section.section}
               </option>
@@ -234,7 +236,7 @@ export const TimetablePage: React.FC = () => {
             })}
           </select>
 
-          {selectedSection && isAdminOrTeacher && (
+          {selectedSection && (isAdmin || isTeacher) && (
             <div className="flex items-center gap-4 ml-auto">
               <div className="text-sm">
                 <span className="text-gray-500">Class Teacher: </span>
@@ -268,8 +270,8 @@ export const TimetablePage: React.FC = () => {
       ) : (
         <TimetableGrid
           periods={periods}
-          onPeriodClick={handlePeriodClick}
-          onSlotClick={handleSlotClick}
+          onPeriodClick={canManage ? handlePeriodClick : undefined}
+          onSlotClick={canManage ? handleSlotClick : undefined}
         />
       )}
 
