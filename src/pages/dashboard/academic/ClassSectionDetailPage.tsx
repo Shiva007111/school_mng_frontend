@@ -4,13 +4,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { academicService } from '@/services/academic.service';
 import { teacherService } from '@/services/teacher.service';
 import { Button } from '@/components/Button';
-import { 
-  ArrowLeft, 
-  Users, 
-  BookOpen, 
-  Plus, 
-  Trash2, 
-  User, 
+import {
+  ArrowLeft,
+  Users,
+  BookOpen,
+  Plus,
+  Trash2,
+  User,
   Clock,
   X
 } from 'lucide-react';
@@ -22,7 +22,7 @@ export default function ClassSectionDetailPage() {
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedTeacherId, setSelectedTeacherId] = useState('');
   const [weeklyPeriods, setWeeklyPeriods] = useState(5);
-  
+
   const queryClient = useQueryClient();
 
   // Queries
@@ -80,15 +80,15 @@ export default function ClassSectionDetailPage() {
 
   const handleAssign = () => {
     if (!selectedSubjectId || !selectedTeacherId) return;
-    
+
     // Note: In a real app, we'd need the teacherSubjectId. 
     // For now, I'll assume the backend handles finding/creating the teacherSubject link 
     // or I'll need to fetch teacher-subjects first.
     // Based on the schema, ClassSubject needs teacherSubjectId.
-    
+
     // Let's assume for this demo we just need to pass the IDs and the backend handles it,
     // or we'd need a more complex UI to select from teacher's expertise.
-    
+
     assignMutation.mutate({
       classSectionId: id!,
       subjectId: selectedSubjectId,
@@ -119,12 +119,16 @@ export default function ClassSectionDetailPage() {
             {section.gradeLevel?.displayName} - {section.section}
           </h1>
           <p className="text-sm text-gray-500">
-            Class Teacher: {section.classTeacher?.user?.email || 'Not Assigned'}
+            Class Teacher: {section.classTeacher?.user ? (
+              section.classTeacher.user.firstName || section.classTeacher.user.lastName ?
+                `${section.classTeacher.user.firstName || ''} ${section.classTeacher.user.lastName || ''}`.trim() :
+                section.classTeacher.user.email
+            ) : 'Not Assigned'}
           </p>
         </div>
         <div className="ml-auto flex gap-3">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="flex items-center gap-2"
             onClick={() => navigate(`/dashboard/timetable?sectionId=${id}`)}
           >
@@ -182,7 +186,7 @@ export default function ClassSectionDetailPage() {
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="overflow-y-auto divide-y divide-gray-100 flex-1">
               {isLoadingSubjects ? (
                 <div className="p-6 text-center text-gray-500">Loading...</div>
@@ -200,7 +204,11 @@ export default function ClassSectionDetailPage() {
                         <div className="flex flex-col gap-0.5 text-[10px] text-gray-500">
                           <span className="flex items-center gap-1 truncate">
                             <User className="h-2.5 w-2.5" />
-                            {cs.teacherSubject?.teacher?.user?.email || 'No Teacher'}
+                            {cs.teacherSubject?.teacher?.user ? (
+                              cs.teacherSubject.teacher.user.firstName || cs.teacherSubject.teacher.user.lastName ?
+                                `${cs.teacherSubject.teacher.user.firstName || ''} ${cs.teacherSubject.teacher.user.lastName || ''}`.trim() :
+                                cs.teacherSubject.teacher.user.email
+                            ) : 'No Teacher'}
                           </span>
                           <span className="flex items-center gap-1">
                             <Clock className="h-2.5 w-2.5" />
@@ -209,7 +217,7 @@ export default function ClassSectionDetailPage() {
                         </div>
                       </div>
                     </div>
-                    <button 
+                    <button
                       onClick={() => removeMutation.mutate(cs.id)}
                       className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all flex-shrink-0"
                     >
@@ -230,9 +238,9 @@ export default function ClassSectionDetailPage() {
                 <Users className="h-5 w-5 text-emerald-600" />
                 <h3 className="font-bold text-gray-900">Enrolled Students</h3>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="flex items-center gap-2"
                 onClick={() => navigate('/dashboard/students/new')}
               >
@@ -265,9 +273,9 @@ export default function ClassSectionDetailPage() {
                         </div>
                       </div>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="opacity-0 group-hover:opacity-100 transition-all"
                       onClick={() => navigate(`/dashboard/students/${enrollment.studentId}`)}
                     >
@@ -287,7 +295,7 @@ export default function ClassSectionDetailPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
               <h2 className="text-lg font-bold text-gray-900">Assign Subject to Class</h2>
-              <button 
+              <button
                 onClick={() => setIsAssignModalOpen(false)}
                 className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
               >
@@ -318,7 +326,13 @@ export default function ClassSectionDetailPage() {
                 >
                   <option value="">Select Teacher</option>
                   {teachers.map((t) => (
-                    <option key={t.id} value={t.id}>{t.user?.email || 'Unknown'}</option>
+                    <option key={t.id} value={t.id}>
+                      {t.user ? (
+                        t.user.firstName || t.user.lastName ?
+                          `${t.user.firstName || ''} ${t.user.lastName || ''}`.trim() :
+                          t.user.email
+                      ) : 'Unknown'}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -339,8 +353,8 @@ export default function ClassSectionDetailPage() {
                 <Button variant="outline" onClick={() => setIsAssignModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button 
-                  onClick={handleAssign} 
+                <Button
+                  onClick={handleAssign}
                   isLoading={assignMutation.isPending}
                   disabled={!selectedSubjectId || !selectedTeacherId}
                 >

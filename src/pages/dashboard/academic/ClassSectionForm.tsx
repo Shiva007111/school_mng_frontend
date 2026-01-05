@@ -27,14 +27,14 @@ interface ClassSectionFormProps {
   onCancel: () => void;
 }
 
-export default function ClassSectionForm({ 
-  initialData, 
-  gradeLevels, 
-  academicYears, 
+export default function ClassSectionForm({
+  initialData,
+  gradeLevels,
+  academicYears,
   teachers,
-  onSubmit, 
-  isLoading, 
-  onCancel 
+  onSubmit,
+  isLoading,
+  onCancel
 }: ClassSectionFormProps) {
   const {
     register,
@@ -97,7 +97,13 @@ export default function ClassSectionForm({
           >
             <option value="">Select Class Teacher</option>
             {teachers.map((t) => (
-              <option key={t.id} value={t.id}>{t.user?.email || 'Unknown'} ({t.employeeCode})</option>
+              <option key={t.id} value={t.id}>
+                {t.user ? (
+                  t.user.firstName || t.user.lastName ?
+                    `${t.user.firstName || ''} ${t.user.lastName || ''}`.trim() :
+                    t.user.email
+                ) : 'Unknown'} ({t.employeeCode})
+              </option>
             ))}
           </select>
           {errors.classTeacherId && <p className="text-sm text-red-600">{errors.classTeacherId.message}</p>}
