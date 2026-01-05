@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { studentService } from '@/services/student.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Student, CreateStudentRequest } from '@/types/student.types';
+import { toast } from 'react-hot-toast';
 
 const studentSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -66,7 +67,12 @@ export default function StudentForm({ initialData, isEdit }: StudentFormProps) {
       if (isEdit) {
         queryClient.invalidateQueries({ queryKey: ['student', initialData?.id] });
       }
+      toast.success(isEdit ? 'Student updated successfully' : 'Student created successfully');
       navigate('/dashboard/students');
+    },
+    onError: (error: any) => {
+      console.error('Student mutation error:', error);
+      toast.error(error.response?.data?.message || 'Failed to save student details');
     },
   });
 

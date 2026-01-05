@@ -5,8 +5,10 @@ import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { useNavigate } from 'react-router-dom';
 import { teacherService } from '@/services/teacher.service';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { academicService } from '@/services/academic.service';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest } from '@/types/teacher.types';
+import { toast } from 'react-hot-toast';
 
 const teacherSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -18,6 +20,7 @@ const teacherSchema = z.object({
   qualification: z.string().min(2, 'Qualification is required'),
   status: z.enum(['active', 'inactive', 'suspended']),
   password: z.string().min(6, 'Password must be at least 6 characters').optional(),
+  subjectIds: z.array(z.string()).optional(),
 });
 
 type TeacherFormData = z.infer<typeof teacherSchema>;
@@ -30,6 +33,14 @@ interface TeacherFormProps {
 export default function TeacherForm({ initialData, isEdit }: TeacherFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  // Fetch subjects
+  const { data: subjectsData } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: () => academicService.getSubjects(),
+  });
+
+  const subjects = subjectsData?.data || [];
 
   const {
     register,
@@ -63,7 +74,12 @@ export default function TeacherForm({ initialData, isEdit }: TeacherFormProps) {
       if (isEdit) {
         queryClient.invalidateQueries({ queryKey: ['teacher', initialData?.id] });
       }
+      toast.success(isEdit ? 'Teacher updated successfully' : 'Teacher created successfully');
       navigate('/dashboard/teachers');
+    },
+    onError: (error: any) => {
+      console.error('Teacher mutation error:', error);
+      toast.error(error.response?.data?.message || 'Failed to save teacher details');
     },
   });
 
@@ -166,6 +182,23 @@ export default function TeacherForm({ initialData, isEdit }: TeacherFormProps) {
               error={errors.qualification?.message}
               placeholder="e.g. M.Sc. Mathematics, B.Ed."
             />
+            {!isEdit && (
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">Assign Subjects (Optional)</label>
+                <select
+                  multiple
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border h-32"
+                  {...register('subjectIds')}
+                >
+                  {subjects.map((subject) => (
+                    <option key={subject.id} value={subject.id}>
+                      {subject.name} ({subject.code})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500">Hold Ctrl/Cmd to select multiple subjects</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

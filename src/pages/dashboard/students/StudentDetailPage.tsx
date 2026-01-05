@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { studentService } from '@/services/student.service';
 import { Button } from '@/components/Button';
@@ -20,6 +20,7 @@ import { cn } from '@/utils/cn';
 
 export default function StudentDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [isLinkParentModalOpen, setIsLinkParentModalOpen] = useState(false);
 
@@ -66,7 +67,7 @@ export default function StudentDetailPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`/dashboard/students/${id}/edit`)}>
             <Edit className="h-4 w-4" />
             Edit Profile
           </Button>
