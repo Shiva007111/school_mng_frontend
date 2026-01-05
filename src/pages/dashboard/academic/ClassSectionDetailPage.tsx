@@ -92,7 +92,7 @@ export default function ClassSectionDetailPage() {
     assignMutation.mutate({
       classSectionId: id!,
       subjectId: selectedSubjectId,
-      teacherSubjectId: selectedTeacherId, // This might need to be a real teacherSubjectId
+      teacherId: selectedTeacherId,
       weeklyPeriods,
     });
   };

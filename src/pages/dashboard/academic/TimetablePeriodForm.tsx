@@ -4,10 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/Button';
-import type { 
-  ClassSubject, 
-  ClassRoom, 
-  TimetablePeriod 
+import type {
+  ClassSubject,
+  ClassRoom,
+  TimetablePeriod
 } from '@/types/academic.types';
 
 const periodSchema = z.object({
@@ -118,12 +118,23 @@ export const TimetablePeriodForm: React.FC<TimetablePeriodFormProps> = ({
               <option value="">Select Subject</option>
               {classSubjects.map((cs) => (
                 <option key={cs.id} value={cs.id}>
-                  {cs.subject?.name} ({cs.teacherSubject?.teacher?.user?.email || 'No Teacher'})
+                  {cs.subject?.name} ({cs.teacherSubject?.teacher?.user ?
+                    `${cs.teacherSubject.teacher.user.firstName} ${cs.teacherSubject.teacher.user.lastName}` :
+                    (cs.teacherSubject?.teacher?.user?.email || 'No Teacher')})
                 </option>
               ))}
             </select>
             {errors.classSubjectId && (
               <p className="mt-1 text-xs text-red-600">{errors.classSubjectId.message}</p>
+            )}
+            {classSubjects.length === 0 && (
+              <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-700">
+                <p className="font-medium">No subjects assigned!</p>
+                <p className="mt-1">
+                  You need to assign subjects to this class section before you can schedule them.
+                  Go to the Class Section details page to assign subjects.
+                </p>
+              </div>
             )}
           </div>
 
@@ -201,8 +212,8 @@ export const TimetablePeriodForm: React.FC<TimetablePeriodFormProps> = ({
               </Button>
               <Button
                 type="submit"
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
-                disabled={isLoading || isDeleting}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white disabled:bg-indigo-400"
+                disabled={isLoading || isDeleting || classSubjects.length === 0}
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -213,7 +224,7 @@ export const TimetablePeriodForm: React.FC<TimetablePeriodFormProps> = ({
                 )}
               </Button>
             </div>
-            
+
             {initialData && onDelete && (
               <Button
                 type="button"

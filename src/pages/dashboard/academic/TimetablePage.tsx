@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import { Calendar, Filter, Loader2 } from 'lucide-react';
+import { Calendar, Filter, Loader2, User as UserIcon } from 'lucide-react';
 import { academicService } from '@/services/academic.service';
+import { parentService } from '@/services/parent.service';
+import { useAuth } from '@/context/AuthContext';
 import { TimetableGrid } from '@/components/academic/TimetableGrid';
 import { TimetablePeriodForm } from './TimetablePeriodForm';
 import type { TimetablePeriod } from '@/types/academic.types';
 import { toast } from 'react-hot-toast';
 
 export const TimetablePage: React.FC = () => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedSectionId, setSelectedSectionId] = useState<string>(searchParams.get('sectionId') || '');
   const [isPeriodModalOpen, setIsPeriodModalOpen] = useState(false);
   const [editingPeriod, setEditingPeriod] = useState<TimetablePeriod | null>(null);
   const [clickedSlot, setClickedSlot] = useState<{ weekday: number, time: string } | null>(null);
+
+  const isStudent = user?.roles?.some(r => r.role.name === 'Student');
+  const isParent = user?.roles?.some(r => r.role.name === 'Parent');
+  const isAdminOrTeacher = user?.roles?.some(r => ['Admin', 'Teacher', 'Super Admin'].includes(r.role.name));
 
   // Sync selectedSectionId with URL
   useEffect(() => {
@@ -24,19 +31,34 @@ export const TimetablePage: React.FC = () => {
     }
   }, [searchParams]);
 
+  // For Student: Automatically set a dummy section ID to trigger the query (backend handles the actual filtering)
+  useEffect(() => {
+    if (isStudent && !selectedSectionId) {
+      setSelectedSectionId('my-section');
+    }
+  }, [isStudent, selectedSectionId]);
+
   const handleSectionChange = (id: string) => {
     setSelectedSectionId(id);
-    if (id) {
+    if (id && !isStudent) {
       setSearchParams({ sectionId: id });
     } else {
       setSearchParams({});
     }
   };
 
-  // Fetch Class Sections
+  // Fetch Class Sections (Only for Admin/Teacher)
   const { data: sectionsData } = useQuery({
     queryKey: ['class-sections'],
     queryFn: () => academicService.getClassSections(),
+    enabled: !!isAdminOrTeacher,
+  });
+
+  // Fetch Children (Only for Parent)
+  const { data: childrenData } = useQuery({
+    queryKey: ['my-children'],
+    queryFn: () => parentService.getMyChildren(),
+    enabled: !!isParent,
   });
 
   // Fetch Timetable Periods for selected section
@@ -60,9 +82,24 @@ export const TimetablePage: React.FC = () => {
   });
 
   const sections = sectionsData?.data || [];
+  const children = childrenData?.data || [];
   const periods = periodsData?.data || [];
   const classSubjects = classSubjectsData?.data || [];
   const rooms = roomsData?.data || [];
+
+  // Helper to get display name for selected section
+  const getSelectedSectionName = () => {
+    if (isAdminOrTeacher) {
+      const section = sections.find(s => s.id === selectedSectionId);
+      return section ? `${section.gradeLevel?.displayName} - ${section.section}` : '';
+    }
+    if (isParent) {
+      const child = children.find(c => c.enrollments?.some(e => e.classSectionId === selectedSectionId));
+      return child ? `${child.user?.firstName}'s Class` : '';
+    }
+    return 'My Timetable';
+  };
+
   const selectedSection = sections.find(s => s.id === selectedSectionId);
 
   // Mutations
@@ -79,7 +116,7 @@ export const TimetablePage: React.FC = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string, data: any }) => 
+    mutationFn: ({ id, data }: { id: string, data: any }) =>
       academicService.updateTimetablePeriod(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timetable-periods', selectedSectionId] });
@@ -124,10 +161,10 @@ export const TimetablePage: React.FC = () => {
     const today = new Date();
     const [startH, startM] = data.startTime.split(':');
     const [endH, endM] = data.endTime.split(':');
-    
+
     const startTime = new Date(today);
     startTime.setHours(parseInt(startH, 10), parseInt(startM, 10), 0, 0);
-    
+
     const endTime = new Date(today);
     endTime.setHours(parseInt(endH, 10), parseInt(endM, 10), 0, 0);
 
@@ -150,40 +187,69 @@ export const TimetablePage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Timetable Management</h1>
-          <p className="text-gray-500">Create and manage weekly schedules for class sections.</p>
+          <p className="text-gray-500">
+            {isStudent ? 'View your weekly class schedule.' : 'Create and manage weekly schedules for class sections.'}
+          </p>
         </div>
-      </div>
-
-      {/* Filters & Selection */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-400" />
-          <span className="text-sm font-medium text-gray-700">Select Class:</span>
-        </div>
-        <select
-          value={selectedSectionId}
-          onChange={(e) => handleSectionChange(e.target.value)}
-          className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-        >
-          <option value="">Choose a section...</option>
-          {sections.map((section) => (
-            <option key={section.id} value={section.id}>
-              {section.gradeLevel?.displayName} - {section.section}
-            </option>
-          ))}
-        </select>
-
-        {selectedSection && (
-          <div className="flex items-center gap-4 ml-auto">
-            <div className="text-sm">
-              <span className="text-gray-500">Class Teacher: </span>
-              <span className="font-semibold text-gray-900">
-                {selectedSection.classTeacher?.user?.email || 'Not Assigned'}
-              </span>
-            </div>
+        {selectedSectionId && (
+          <div className="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg font-medium text-sm border border-indigo-100">
+            {getSelectedSectionName()}
           </div>
         )}
       </div>
+
+      {/* Filters & Selection */}
+      {!isStudent && (
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            {isParent ? <UserIcon className="h-4 w-4 text-gray-400" /> : <Filter className="h-4 w-4 text-gray-400" />}
+            <span className="text-sm font-medium text-gray-700">
+              {isParent ? 'Select Child:' : 'Select Class:'}
+            </span>
+          </div>
+
+          <select
+            value={selectedSectionId}
+            onChange={(e) => handleSectionChange(e.target.value)}
+            className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+          >
+            <option value="">{isParent ? 'Choose a child...' : 'Choose a section...'}</option>
+
+            {isAdminOrTeacher && sections.map((section) => (
+              <option key={section.id} value={section.id}>
+                {section.gradeLevel?.displayName} - {section.section}
+              </option>
+            ))}
+
+            {isParent && children.map((child) => {
+              // Find active enrollment to get classSectionId
+              const enrollment = child.enrollments?.find(e => e.status === 'active' || !e.status);
+              if (!enrollment) return null;
+
+              return (
+                <option key={child.id} value={enrollment.classSectionId}>
+                  {child.user?.firstName} {child.user?.lastName} ({enrollment.classSection?.gradeLevel?.displayName})
+                </option>
+              );
+            })}
+          </select>
+
+          {selectedSection && isAdminOrTeacher && (
+            <div className="flex items-center gap-4 ml-auto">
+              <div className="text-sm">
+                <span className="text-gray-500">Class Teacher: </span>
+                <span className="font-semibold text-gray-900">
+                  {selectedSection.classTeacher?.user ? (
+                    `${selectedSection.classTeacher.user.firstName} ${selectedSection.classTeacher.user.lastName}`
+                  ) : (
+                    selectedSection.classTeacher?.user?.email || 'Not Assigned'
+                  )}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Timetable Grid */}
       {!selectedSectionId ? (
@@ -200,8 +266,8 @@ export const TimetablePage: React.FC = () => {
           <p className="text-gray-500">Loading timetable...</p>
         </div>
       ) : (
-        <TimetableGrid 
-          periods={periods} 
+        <TimetableGrid
+          periods={periods}
           onPeriodClick={handlePeriodClick}
           onSlotClick={handleSlotClick}
         />

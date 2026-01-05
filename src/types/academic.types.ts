@@ -38,7 +38,7 @@ export interface ClassSection {
   roomId?: string;
   createdAt: string;
   updatedAt: string;
-  
+
   // Relations
   gradeLevel?: GradeLevel;
   classTeacher?: Teacher;
@@ -62,7 +62,7 @@ export interface ClassSubject {
   weeklyPeriods: number;
   createdAt: string;
   updatedAt: string;
-  
+
   // Relations
   subject?: Subject;
   teacher?: Teacher;
@@ -77,7 +77,7 @@ export interface TeacherSubject {
   isPrimary: boolean;
   createdAt: string;
   updatedAt: string;
-  
+
   // Relations
   teacher?: Teacher;
   subject?: Subject;
@@ -92,7 +92,7 @@ export interface Enrollment {
   leftOn?: string;
   createdAt: string;
   updatedAt: string;
-  
+
   // Relations
   student?: {
     id: string;
@@ -114,7 +114,7 @@ export interface TimetablePeriod {
   roomId?: string;
   createdAt: string;
   updatedAt: string;
-  
+
   // Relations
   classSection?: ClassSection;
   classSubject?: ClassSubject;
@@ -153,7 +153,8 @@ export interface UpdateClassSectionRequest {
 export interface AssignSubjectToClassRequest {
   classSectionId: string;
   subjectId: string;
-  teacherSubjectId: string;
+  teacherSubjectId?: string;
+  teacherId?: string;
   weeklyPeriods: number;
 }
 
