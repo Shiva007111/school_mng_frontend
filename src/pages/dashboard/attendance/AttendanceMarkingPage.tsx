@@ -113,6 +113,25 @@ export const AttendanceMarkingPage: React.FC = () => {
     item.student.admissionNo.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Check if attendance is already marked for this date
+  const isAlreadyMarked = students.length > 0 && students.some(item => item.attendance?.markedAt);
+  const markedAtTimestamp = students.find(item => item.attendance?.markedAt)?.attendance?.markedAt;
+
+  // Format marking timestamp
+  const formatMarkingTime = (timestamp?: string) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   const stats = {
     total: students.length,
     present: Object.values(localAttendance).filter(a => a.status === 'present').length,
@@ -141,10 +160,11 @@ export const AttendanceMarkingPage: React.FC = () => {
             <Button
               onClick={handleSave}
               isLoading={bulkMarkMutation.isPending}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              disabled={isAlreadyMarked}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="h-4 w-4 mr-2" />
-              Save Attendance
+              {isAlreadyMarked ? 'Already Marked' : 'Save Attendance'}
             </Button>
           )}
         </div>
@@ -187,6 +207,19 @@ export const AttendanceMarkingPage: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Already Marked Alert */}
+      {isAlreadyMarked && markedAtTimestamp && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-blue-900">Attendance Already Marked</p>
+            <p className="text-sm text-blue-700 mt-1">
+              Marked on {formatMarkingTime(markedAtTimestamp)}
+            </p>
+          </div>
+        </div>
+      )}
 
       {!selectedSectionId ? (
         <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-20 text-center">
@@ -245,7 +278,9 @@ export const AttendanceMarkingPage: React.FC = () => {
                             {item.student.user?.email[0]?.toUpperCase()}
                           </div>
                           <span className="text-sm font-medium text-gray-900">
-                            {item.student.user?.email.split('@')[0]}
+                            {item.student.user?.firstName || item.student.user?.lastName ?
+                              `${item.student.user.firstName || ''} ${item.student.user.lastName || ''}`.trim() :
+                              item.student.user?.email.split('@')[0]}
                           </span>
                         </div>
                       </td>

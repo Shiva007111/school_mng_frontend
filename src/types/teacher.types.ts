@@ -36,6 +36,7 @@ export interface UpdateTeacherRequest {
 export interface TeacherFilters {
   search?: string;
   status?: string;
+  userId?: string;
   page?: number;
   limit?: number;
 }

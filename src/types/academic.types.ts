@@ -99,6 +99,8 @@ export interface Enrollment {
     admissionNo: string;
     user?: {
       email: string;
+      firstName?: string;
+      lastName?: string;
     };
   };
   classSection?: ClassSection;

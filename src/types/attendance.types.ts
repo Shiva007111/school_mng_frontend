@@ -7,9 +7,11 @@ export interface AttendanceEvent {
   date: string;
   status: AttendanceStatus;
   remarks?: string;
+  markedAt?: string;
+  markedBy?: string;
   createdAt: string;
   updatedAt: string;
-  
+
   // Relations
   student?: {
     id: string;
@@ -17,6 +19,8 @@ export interface AttendanceEvent {
     user?: {
       email: string;
       phone?: string;
+      firstName?: string;
+      lastName?: string;
     };
   };
 }
@@ -40,6 +44,8 @@ export interface StudentAttendanceReport {
     user?: {
       email: string;
       phone?: string;
+      firstName?: string;
+      lastName?: string;
     };
   };
   attendance: AttendanceEvent | null;

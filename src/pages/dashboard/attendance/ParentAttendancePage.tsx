@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  User, 
+import {
+  User,
   Calendar,
   CheckCircle2,
   XCircle,
@@ -38,7 +38,7 @@ export const ParentAttendancePage: React.FC = () => {
   });
 
   const attendanceEvents = attendanceData?.data || [];
-  
+
   // Calculate stats
   const stats = {
     present: attendanceEvents.filter(e => e.status === 'present').length,
@@ -47,8 +47,8 @@ export const ParentAttendancePage: React.FC = () => {
     total: attendanceEvents.length,
   };
 
-  const attendancePercentage = stats.total > 0 
-    ? Math.round(((stats.present + stats.late) / stats.total) * 100) 
+  const attendancePercentage = stats.total > 0
+    ? Math.round(((stats.present + stats.late) / stats.total) * 100)
     : 0;
 
   if (isLoadingChildren) {
@@ -105,7 +105,9 @@ export const ParentAttendancePage: React.FC = () => {
                   "text-sm font-semibold",
                   selectedChildId === child.id ? "text-indigo-900" : "text-gray-900"
                 )}>
-                  {child.user?.email.split('@')[0]}
+                  {child.user?.firstName || child.user?.lastName ?
+                    `${child.user.firstName || ''} ${child.user.lastName || ''}`.trim() :
+                    child.user?.email.split('@')[0]}
                 </p>
                 <p className="text-xs text-gray-500">{child.admissionNo}</p>
               </div>
@@ -148,7 +150,9 @@ export const ParentAttendancePage: React.FC = () => {
         <div className="p-6 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <Calendar className="h-5 w-5 text-indigo-600" />
-            Attendance History for {selectedChild?.user?.email.split('@')[0]}
+            Attendance History for {selectedChild?.user?.firstName || selectedChild?.user?.lastName ?
+              `${selectedChild.user.firstName || ''} ${selectedChild.user.lastName || ''}`.trim() :
+              selectedChild?.user?.email.split('@')[0]}
           </h2>
         </div>
 
@@ -177,6 +181,15 @@ export const ParentAttendancePage: React.FC = () => {
                     <p className="font-medium text-gray-900">
                       {new Date(event.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>
+                    {event.markedAt && (
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        Marked at {new Date(event.markedAt).toLocaleString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
+                      </p>
+                    )}
                     {event.remarks && (
                       <p className="text-sm text-gray-500">{event.remarks}</p>
                     )}

@@ -217,7 +217,7 @@ export const TimetablePage: React.FC = () => {
           >
             <option value="">{isParent ? 'Choose a child...' : 'Choose a section...'}</option>
 
-            {isAdmin || isTeacher && sections.map((section) => (
+            {(isAdmin || isTeacher) && sections.map((section) => (
               <option key={section.id} value={section.id}>
                 {section.gradeLevel?.displayName} - {section.section}
               </option>

@@ -265,7 +265,9 @@ export default function ClassSectionDetailPage() {
                       </div>
                       <div>
                         <h4 className="font-bold text-gray-900">
-                          {enrollment.student?.user?.email || `Student ${enrollment.student?.admissionNo}`}
+                          {enrollment.student?.user?.firstName || enrollment.student?.user?.lastName ?
+                            `${enrollment.student.user.firstName || ''} ${enrollment.student.user.lastName || ''}`.trim() :
+                            `Student ${enrollment.student?.admissionNo}`}
                         </h4>
                         <div className="flex items-center gap-3 text-xs text-gray-500">
                           <span>Roll No: {enrollment.rollNumber || 'N/A'}</span>

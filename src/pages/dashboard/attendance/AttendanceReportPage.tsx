@@ -191,7 +191,9 @@ export const AttendanceReportPage: React.FC = () => {
                           {item.student.user?.email[0]?.toUpperCase()}
                         </div>
                         <span className="text-sm font-medium text-gray-900">
-                          {item.student.user?.email.split('@')[0]}
+                          {item.student.user?.firstName || item.student.user?.lastName ?
+                            `${item.student.user.firstName || ''} ${item.student.user.lastName || ''}`.trim() :
+                            item.student.user?.email.split('@')[0]}
                         </span>
                       </div>
                     </td>
