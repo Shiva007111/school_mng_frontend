@@ -30,7 +30,9 @@ import { ReportCardPage } from '@/pages/dashboard/exams/ReportCardPage';
 import { SessionReportListPage } from '@/pages/dashboard/exams/SessionReportListPage';
 import { TeacherGradingPage } from '@/pages/dashboard/exams/TeacherGradingPage';
 import { ParentReportCardListPage } from '@/pages/dashboard/exams/ParentReportCardListPage';
+import { StudentGradesPage } from '@/pages/dashboard/exams/StudentGradesPage';
 import { ParentAttendancePage } from '@/pages/dashboard/attendance/ParentAttendancePage';
+import { StudentAttendancePage } from '@/pages/dashboard/attendance/StudentAttendancePage';
 import { FeeStructurePage } from '@/pages/dashboard/fees/FeeStructurePage';
 import { StudentFeePage } from '@/pages/dashboard/fees/StudentFeePage';
 
@@ -142,6 +144,10 @@ const router = createBrowserRouter([
             element: <ParentAttendancePage />,
           },
           {
+            path: 'attendance/my-attendance',
+            element: <StudentAttendancePage />,
+          },
+          {
             path: 'exams',
             element: <ExamSessionPage />,
           },
@@ -168,6 +174,10 @@ const router = createBrowserRouter([
           {
             path: 'exams/my-children',
             element: <ParentReportCardListPage />,
+          },
+          {
+            path: 'exams/my-grades',
+            element: <StudentGradesPage />,
           },
           {
             path: 'fees/structures',

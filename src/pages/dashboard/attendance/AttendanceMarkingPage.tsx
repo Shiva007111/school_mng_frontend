@@ -42,10 +42,11 @@ export const AttendanceMarkingPage: React.FC = () => {
   const teacherId = teacherData?.data?.[0]?.id;
 
   // Fetch Class Sections
+  const isAdmin = user?.roles.some(r => r.role.name === 'Admin');
   const { data: sectionsData } = useQuery({
-    queryKey: ['class-sections', teacherId],
-    queryFn: () => academicService.getClassSections(teacherId ? { classTeacherId: teacherId } : undefined),
-    enabled: user?.roles.some(r => r.role.name === 'Admin') || !!teacherId,
+    queryKey: ['class-sections', teacherId, isAdmin],
+    queryFn: () => academicService.getClassSections(!isAdmin && teacherId ? { classTeacherId: teacherId } : undefined),
+    enabled: isAdmin || !!teacherId,
   });
 
   // Fetch Students & Current Attendance
@@ -57,6 +58,7 @@ export const AttendanceMarkingPage: React.FC = () => {
 
   const sections = sectionsData?.data || [];
   const students = reportData?.data || [];
+  const isAlreadyMarked = students.length > 0 && students.some(item => !!item.attendance);
 
   // Initialize local state when data loads
   React.useEffect(() => {
@@ -144,14 +146,14 @@ export const AttendanceMarkingPage: React.FC = () => {
               className="bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               <Save className="h-4 w-4 mr-2" />
-              Save Attendance
-            </Button>
+              {isAlreadyMarked ? 'Update Attendance' : 'Save Attendance'}
+            </Button >
           )}
-        </div>
-      </div>
+        </div >
+      </div >
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-wrap items-center gap-4">
+      < div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-wrap items-center gap-4" >
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-gray-400" />
           <span className="text-sm font-medium text-gray-700">Filters:</span>
@@ -186,7 +188,7 @@ export const AttendanceMarkingPage: React.FC = () => {
             leftIcon={<Search className="h-4 w-4" />}
           />
         </div>
-      </div>
+      </div >
 
       {!selectedSectionId ? (
         <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-20 text-center">
@@ -326,6 +328,6 @@ export const AttendanceMarkingPage: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </div >
   );
 };

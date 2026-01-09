@@ -6,7 +6,12 @@ import { StudentDashboard } from '@/components/dashboard/StudentDashboard';
 
 export default function DashboardHomePage() {
   const { user } = useAuth();
-  const userRole = user?.roles[0]?.role?.name;
+  // Prioritize roles: Admin > Teacher > Parent > Student
+  const roles = user?.roles.map(r => r.role.name) || [];
+  const userRole = roles.includes('Admin') ? 'Admin' :
+    roles.includes('Teacher') ? 'Teacher' :
+      roles.includes('Parent') ? 'Parent' :
+        roles.includes('Student') ? 'Student' : undefined;
 
   const renderDashboard = () => {
     switch (userRole) {

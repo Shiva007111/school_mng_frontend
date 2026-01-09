@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { studentService } from '@/services/student.service';
 import { Button } from '@/components/Button';
@@ -23,6 +23,8 @@ export default function StudentDetailPage() {
   const navigate = useNavigate();
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [isLinkParentModalOpen, setIsLinkParentModalOpen] = useState(false);
+  const location = useLocation();
+  const from = location.state?.from;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['student', id],
@@ -66,12 +68,18 @@ export default function StudentDetailPage() {
             <p className="text-sm text-gray-500">Viewing profile for {student.user?.firstName} {student.user?.lastName}</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`/dashboard/students/${id}/edit`)}>
-            <Edit className="h-4 w-4" />
-            Edit Profile
-          </Button>
-        </div>
+        {from !== 'parent' && (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => navigate(`/dashboard/students/${id}/edit`)}
+            >
+              <Edit className="h-4 w-4" />
+              Edit Profile
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">

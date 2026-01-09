@@ -49,8 +49,8 @@ export const ParentDashboard: React.FC = () => {
                 <div className="flex items-start justify-between mb-2">
                   <h4 className="text-base font-semibold text-gray-900">{announcement.title}</h4>
                   <span className={`text-xs px-2 py-1 rounded-full font-medium ${announcement.priority === 'high' ? 'bg-red-50 text-red-600' :
-                      announcement.priority === 'medium' ? 'bg-amber-50 text-amber-600' :
-                        'bg-blue-50 text-blue-600'
+                    announcement.priority === 'medium' ? 'bg-amber-50 text-amber-600' :
+                      'bg-blue-50 text-blue-600'
                     }`}>
                     {announcement.priority.charAt(0).toUpperCase() + announcement.priority.slice(1)}
                   </span>
@@ -123,8 +123,8 @@ export const ParentDashboard: React.FC = () => {
                       <div
                         key={event.id}
                         className={`h-8 w-8 rounded-lg flex items-center justify-center border ${event.status === 'present' ? 'bg-green-50 border-green-100 text-green-600' :
-                            event.status === 'absent' ? 'bg-red-50 border-red-100 text-red-600' :
-                              'bg-amber-50 border-amber-100 text-amber-600'
+                          event.status === 'absent' ? 'bg-red-50 border-red-100 text-red-600' :
+                            'bg-amber-50 border-amber-100 text-amber-600'
                           }`}
                         title={`${new Date(event.date).toLocaleDateString()}: ${event.status}`}
                       >
@@ -138,7 +138,7 @@ export const ParentDashboard: React.FC = () => {
 
             <div className="p-4 bg-gray-50 border-t border-gray-100">
               <button
-                onClick={() => navigate(`/dashboard/students/${child.studentId}`)}
+                onClick={() => navigate(`/dashboard/students/${child.studentId}`, { state: { from: 'parent' } })}
                 className="w-full flex items-center justify-center gap-2 py-2 text-sm font-bold text-indigo-600 hover:bg-white rounded-xl transition-all"
               >
                 View Full Profile
