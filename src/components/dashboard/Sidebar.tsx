@@ -46,7 +46,6 @@ const navigation = [
   },
   {
     name: 'Grades', href: '/dashboard/exams', icon: BarChart3, roles: ['admin', 'teacher', 'parent', 'student'], getHref: (role: string) => {
-      if (role === 'teacher') return '/dashboard/exams/my-grading';
       if (role === 'parent') return '/dashboard/exams/my-children';
       if (role === 'student') return '/dashboard/exams/my-grades';
       return '/dashboard/exams';

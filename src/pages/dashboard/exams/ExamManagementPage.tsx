@@ -359,15 +359,19 @@ export const ExamManagementPage: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           {!isViewOnly && (
-                            <button
-                              onClick={() => navigate(`/dashboard/exams/${exam.id}/marks/${es.id}`)}
-                              className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors flex items-center gap-2"
-                              title="Enter Marks"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                              <span className="text-xs font-medium">Enter Marks</span>
-                            </button>
-                          )}
+                            !isTeacher ||
+                            es.classSubject?.teacherId === user?.teacher?.id ||
+                            es.classSubject?.teacherSubject?.teacherId === user?.teacher?.id
+                          ) && (
+                              <button
+                                onClick={() => navigate(`/dashboard/exams/${exam.id}/marks/${es.id}`)}
+                                className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors flex items-center gap-2"
+                                title="Enter Marks"
+                              >
+                                <Edit2 className="h-4 w-4" />
+                                <span className="text-xs font-medium">Enter Marks</span>
+                              </button>
+                            )}
                           {canManageExams && (
                             <button
                               onClick={() => {
