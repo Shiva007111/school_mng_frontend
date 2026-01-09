@@ -1,10 +1,10 @@
 import apiClient from './api';
 import type { ApiResponse } from '@/types/api.types';
-import type { 
-  Student, 
-  StudentFilters, 
-  CreateStudentRequest, 
-  UpdateStudentRequest 
+import type {
+  Student,
+  StudentFilters,
+  CreateStudentRequest,
+  UpdateStudentRequest
 } from '@/types/student.types';
 
 export const studentService = {
@@ -13,6 +13,12 @@ export const studentService = {
     const response = await apiClient.get<ApiResponse<Student[]>>('/students', {
       params: filters,
     });
+    return response.data;
+  },
+
+  // Get current student profile
+  getMe: async (): Promise<ApiResponse<Student>> => {
+    const response = await apiClient.get<ApiResponse<Student>>('/students/me');
     return response.data;
   },
 
@@ -42,8 +48,8 @@ export const studentService = {
 
   // Link parent to student
   linkParent: async (
-    studentId: string, 
-    parentId: string, 
+    studentId: string,
+    parentId: string,
     relationship: string
   ): Promise<ApiResponse<void>> => {
     const response = await apiClient.post<ApiResponse<void>>(`/students/${studentId}/parents`, {

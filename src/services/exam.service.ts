@@ -1,9 +1,9 @@
 import apiClient from './api';
 import type { ApiResponse } from '@/types/api.types';
-import type { 
-  ExamSession, 
-  Exam, 
-  ExamSubject, 
+import type {
+  ExamSession,
+  Exam,
+  ExamSubject,
   StudentMark,
   CreateExamSessionRequest,
   CreateExamRequest,
@@ -57,6 +57,11 @@ export const examService = {
     return response.data;
   },
 
+  updateExam: async (id: string, data: Partial<CreateExamRequest>): Promise<ApiResponse<Exam>> => {
+    const response = await apiClient.put<ApiResponse<Exam>>(`/exams/${id}`, data);
+    return response.data;
+  },
+
   // Exam Subjects
   getExamSubjects: async (examId: string): Promise<ApiResponse<ExamSubject[]>> => {
     const response = await apiClient.get<ApiResponse<ExamSubject[]>>(`/exam-subjects/exam/${examId}`);
@@ -65,6 +70,11 @@ export const examService = {
 
   createExamSubject: async (data: CreateExamSubjectRequest): Promise<ApiResponse<ExamSubject>> => {
     const response = await apiClient.post<ApiResponse<ExamSubject>>('/exam-subjects', data);
+    return response.data;
+  },
+
+  deleteExamSubject: async (id: string): Promise<ApiResponse<void>> => {
+    const response = await apiClient.delete<ApiResponse<void>>(`/exam-subjects/${id}`);
     return response.data;
   },
 

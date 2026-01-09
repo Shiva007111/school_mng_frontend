@@ -42,10 +42,11 @@ export const AttendanceMarkingPage: React.FC = () => {
   const teacherId = teacherData?.data?.[0]?.id;
 
   // Fetch Class Sections
+  const isAdmin = user?.roles.some(r => r.role.name === 'Admin');
   const { data: sectionsData } = useQuery({
-    queryKey: ['class-sections', teacherId],
-    queryFn: () => academicService.getClassSections(teacherId ? { classTeacherId: teacherId } : undefined),
-    enabled: user?.roles.some(r => r.role.name === 'Admin') || !!teacherId,
+    queryKey: ['class-sections', teacherId, isAdmin],
+    queryFn: () => academicService.getClassSections(!isAdmin && teacherId ? { classTeacherId: teacherId } : undefined),
+    enabled: isAdmin || !!teacherId,
   });
 
   // Fetch Students & Current Attendance
@@ -160,11 +161,10 @@ export const AttendanceMarkingPage: React.FC = () => {
             <Button
               onClick={handleSave}
               isLoading={bulkMarkMutation.isPending}
-              disabled={isAlreadyMarked}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               <Save className="h-4 w-4 mr-2" />
-              {isAlreadyMarked ? 'Already Marked' : 'Save Attendance'}
+              {isAlreadyMarked ? 'Update Attendance' : 'Save Attendance'}
             </Button>
           )}
         </div>

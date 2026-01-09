@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  User, 
-  FileText, 
-  ChevronRight, 
+import {
+  User,
+  FileText,
+  ChevronRight,
   Loader2,
   Calendar
 } from 'lucide-react';
@@ -37,7 +37,7 @@ export const ParentReportCardListPage: React.FC = () => {
     queryFn: () => examService.getExamSessions(),
   });
 
-  const sessions = sessionsData?.data?.filter(s => s.publishAt) || [];
+  const allSessions = sessionsData?.data || [];
 
   if (isLoadingChildren) {
     return (
@@ -75,21 +75,18 @@ export const ParentReportCardListPage: React.FC = () => {
             <button
               key={child.id}
               onClick={() => setSelectedChildId(child.id)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all min-w-[200px] ${
-                selectedChildId === child.id
-                  ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200'
-                  : 'bg-white border-gray-200 hover:border-indigo-200'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all min-w-[200px] ${selectedChildId === child.id
+                ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200'
+                : 'bg-white border-gray-200 hover:border-indigo-200'
+                }`}
             >
-              <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                selectedChildId === child.id ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500'
-              }`}>
+              <div className={`h-10 w-10 rounded-full flex items-center justify-center ${selectedChildId === child.id ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500'
+                }`}>
                 <User className="h-5 w-5" />
               </div>
               <div className="text-left">
-                <p className={`text-sm font-semibold ${
-                  selectedChildId === child.id ? 'text-indigo-900' : 'text-gray-900'
-                }`}>
+                <p className={`text-sm font-semibold ${selectedChildId === child.id ? 'text-indigo-900' : 'text-gray-900'
+                  }`}>
                   {child.user?.email.split('@')[0]}
                 </p>
                 <p className="text-xs text-gray-500">{child.admissionNo}</p>
@@ -104,7 +101,7 @@ export const ParentReportCardListPage: React.FC = () => {
         <div className="p-6 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <FileText className="h-5 w-5 text-indigo-600" />
-            Report Cards for {selectedChild?.user?.email.split('@')[0]}
+            Report Cards & Exam Schedules for {selectedChild?.user?.email.split('@')[0]}
           </h2>
         </div>
 
@@ -112,28 +109,46 @@ export const ParentReportCardListPage: React.FC = () => {
           <div className="p-8 text-center">
             <Loader2 className="h-6 w-6 text-indigo-600 animate-spin mx-auto" />
           </div>
-        ) : sessions.length > 0 ? (
+        ) : allSessions.length > 0 ? (
           <div className="divide-y divide-gray-50">
-            {sessions.map((session) => (
+            {allSessions.map((session) => (
               <div key={session.id} className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+                  <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${session.publishAt ? 'bg-indigo-50 text-indigo-600' : 'bg-amber-50 text-amber-600'}`}>
                     <Calendar className="h-6 w-6" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">{session.name}</h3>
                     <p className="text-sm text-gray-500">
-                      Published on {new Date(session.publishAt!).toLocaleDateString()}
+                      {session.publishAt
+                        ? `Published on ${new Date(session.publishAt).toLocaleDateString()}`
+                        : `Scheduled: ${new Date(session.startDate).toLocaleDateString()} - ${new Date(session.endDate).toLocaleDateString()}`
+                      }
                     </p>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate(`/dashboard/exams/report-card/${selectedChildId}/${session.id}`)}
-                >
-                  View Report
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const classSectionId = selectedChild?.enrollments?.[0]?.classSectionId;
+                      navigate(`/dashboard/exams/${session.id}?viewOnly=true${classSectionId ? `&classSectionId=${classSectionId}` : ''}&studentId=${selectedChildId}`);
+                    }}
+                  >
+                    View Schedule
+                  </Button>
+                  {session.publishAt && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/dashboard/exams/report-card/${selectedChildId}/${session.id}`)}
+                    >
+                      View Report
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

@@ -10,7 +10,7 @@ export interface ExamSession {
   publishAt?: string;
   createdAt: string;
   updatedAt: string;
-  
+
   // Relations
   academicYear?: AcademicYear;
   _count?: {
@@ -27,7 +27,7 @@ export interface Exam {
   maxTotal?: number;
   createdAt: string;
   updatedAt: string;
-  
+
   // Relations
   examSession?: ExamSession;
   classSection?: ClassSection;
@@ -40,9 +40,10 @@ export interface ExamSubject {
   classSubjectId: string;
   maxScore: number;
   weight?: number;
+  examDate?: string;
   createdAt: string;
   updatedAt: string;
-  
+
   // Relations
   exam?: Exam;
   classSubject?: ClassSubject;
@@ -58,7 +59,7 @@ export interface StudentMark {
   gradeBandId?: string;
   createdAt: string;
   updatedAt: string;
-  
+
   // Relations
   student?: Student;
   examSubject?: ExamSubject;
@@ -74,7 +75,8 @@ export interface CreateExamSessionRequest {
 
 export interface CreateExamRequest {
   examSessionId: string;
-  classSectionId: string;
+  classSectionId?: string;
+  classSectionIds?: string[];
   title: string;
   examDate: string;
   maxTotal?: number;
@@ -85,6 +87,7 @@ export interface CreateExamSubjectRequest {
   classSubjectId: string;
   maxScore: number;
   weight?: number;
+  examDate?: string;
 }
 
 export interface SubjectResult {

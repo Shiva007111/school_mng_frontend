@@ -1,13 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  Home, 
-  Users, 
-  GraduationCap, 
-  BookOpen, 
-  Calendar, 
-  ClipboardList, 
-  BarChart3, 
+import {
+  Home,
+  Users,
+  GraduationCap,
+  BookOpen,
+  Calendar,
+  ClipboardList,
+  BarChart3,
   Settings,
   X,
   IndianRupee,
@@ -32,18 +32,26 @@ const navigation = [
   { name: 'Classes', href: '/dashboard/academic/sections', icon: BookOpen, roles: ['admin'] },
   { name: 'Subjects', href: '/dashboard/academic/subjects', icon: BookOpen, roles: ['admin'] },
   { name: 'Timetable', href: '/dashboard/timetable', icon: Calendar, roles: ['admin', 'teacher', 'student', 'parent'] },
-  { 
-    name: 'Attendance', 
-    href: '/dashboard/attendance', 
-    icon: ClipboardList, 
-    roles: ['admin', 'teacher', 'parent'],
+  {
+    name: 'Attendance',
+    href: '/dashboard/attendance',
+    icon: ClipboardList,
+    roles: ['admin', 'teacher', 'parent', 'student'],
     getHref: (role: string) => {
       if (role === 'admin') return '/dashboard/attendance/report';
       if (role === 'parent') return '/dashboard/attendance/my-children';
+      if (role === 'student') return '/dashboard/attendance/my-attendance';
       return '/dashboard/attendance'; // Teacher
     }
   },
-  { name: 'Grades', href: '/dashboard/exams', icon: BarChart3, roles: ['admin', 'teacher', 'parent'], getHref: (role: string) => role === 'teacher' ? '/dashboard/exams/my-grading' : role === 'parent' ? '/dashboard/exams/my-children' : '/dashboard/exams' },
+  {
+    name: 'Grades', href: '/dashboard/exams', icon: BarChart3, roles: ['admin', 'teacher', 'parent', 'student'], getHref: (role: string) => {
+      if (role === 'teacher') return '/dashboard/exams/my-grading';
+      if (role === 'parent') return '/dashboard/exams/my-children';
+      if (role === 'student') return '/dashboard/exams/my-grades';
+      return '/dashboard/exams';
+    }
+  },
   { name: 'Fee Structures', href: '/dashboard/fees/structures', icon: IndianRupee, roles: ['admin'] },
   { name: 'Student Fees', href: '/dashboard/fees/students', icon: IndianRupee, roles: ['admin'] },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['admin'] },
@@ -53,10 +61,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
   const { user } = useAuth();
 
-  // Get user's primary role (first role in array)
-  const userRole = user?.roles?.[0]?.role?.name?.toLowerCase();
+  // Get user's primary role with prioritization
+  const roles = user?.roles.map(r => r.role.name.toLowerCase()) || [];
+  const userRole = roles.includes('admin') ? 'admin' :
+    roles.includes('teacher') ? 'teacher' :
+      roles.includes('parent') ? 'parent' :
+        roles.includes('student') ? 'student' : undefined;
 
-  const filteredNavigation = navigation.filter(item => 
+  const filteredNavigation = navigation.filter(item =>
     userRole && item.roles.includes(userRole)
   );
 
@@ -64,7 +76,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     <>
       {/* Mobile sidebar backdrop */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
           onClick={onClose}
         />

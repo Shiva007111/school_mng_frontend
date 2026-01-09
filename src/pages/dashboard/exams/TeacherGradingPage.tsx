@@ -1,8 +1,8 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  BookOpen, 
-  ChevronRight, 
+import {
+  BookOpen,
+  ChevronRight,
   ClipboardCheck,
   Calendar,
   Users,
@@ -32,7 +32,9 @@ export const TeacherGradingPage: React.FC = () => {
   });
 
   const sections = sectionsData?.data || [];
-  const activeSessions = sessionsData?.data?.filter(s => !s.publishAt) || [];
+  const allSessions = sessionsData?.data || [];
+  const activeSessions = allSessions.filter(s => !s.publishAt);
+  const pastSessions = allSessions.filter(s => s.publishAt);
 
   if (isLoadingSections) {
     return (
@@ -86,13 +88,50 @@ export const TeacherGradingPage: React.FC = () => {
         </div>
       )}
 
+      {pastSessions.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-gray-400" />
+            Past Exam Sessions
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {pastSessions.map((session) => (
+              <div key={session.id} className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow opacity-75 hover:opacity-100">
+                <h3 className="font-bold text-gray-900">{session.name}</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  Published: {new Date(session.publishAt!).toLocaleDateString()}
+                </p>
+                <div className="mt-6 space-y-3">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">View Results</p>
+                  {sections.map((section) => (
+                    <button
+                      key={section.id}
+                      onClick={() => navigate(`/dashboard/exams/${session.id}?classSectionId=${section.id}&viewOnly=true`)}
+                      className="w-full flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-indigo-50 hover:text-indigo-600 transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-white flex items-center justify-center shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                          <BookOpen className="h-4 w-4" />
+                        </div>
+                        <span className="text-sm font-medium">{section.gradeLevel?.displayName} - {section.section}</span>
+                      </div>
+                      <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
           <ClipboardCheck className="h-5 w-5 text-green-600" />
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button 
+          <button
             onClick={() => navigate('/dashboard/attendance')}
             className="flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-indigo-200 hover:bg-indigo-50/30 transition-all text-left"
           >
@@ -104,7 +143,7 @@ export const TeacherGradingPage: React.FC = () => {
               <p className="text-sm text-gray-500">Quickly mark daily attendance for your class.</p>
             </div>
           </button>
-          <button 
+          <button
             onClick={() => navigate('/dashboard/timetable')}
             className="flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-blue-200 hover:bg-blue-50/30 transition-all text-left"
           >
