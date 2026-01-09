@@ -18,6 +18,7 @@ export interface User {
   lastName?: string;
   status: 'active' | 'inactive' | 'suspended';
   roles: UserRole[];
+  teacher?: { id: string };
   createdAt?: string;
   updatedAt?: string;
 }

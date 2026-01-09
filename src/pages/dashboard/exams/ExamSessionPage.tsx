@@ -24,8 +24,10 @@ export const ExamSessionPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const userRole = user?.roles[0]?.role?.name;
-  const isAdmin = userRole === 'Admin';
+  const roles = user?.roles.map(r => r.role.name) || [];
+  const isAdmin = roles.includes('Admin');
+  const isTeacher = roles.includes('Teacher');
+  const canViewSessions = isAdmin || isTeacher;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<any>(null);

@@ -142,7 +142,12 @@ export default function StudentDetailPage() {
             ) : (
               <p className="text-sm text-gray-500">No parent information linked.</p>
             )}
-            <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => setIsLinkParentModalOpen(true)}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full mt-4"
+              disabled
+            >
               Link Parent
             </Button>
           </div>

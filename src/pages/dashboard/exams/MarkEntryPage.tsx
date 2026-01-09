@@ -12,6 +12,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { academicService } from '@/services/academic.service';
 import { examService } from '@/services/exam.service';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { toast } from 'react-hot-toast';
@@ -20,8 +21,13 @@ export const MarkEntryPage: React.FC = () => {
   const { examId, examSubjectId } = useParams<{ examId: string, examSubjectId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [localMarks, setLocalMarks] = useState<Record<string, number>>({});
+
+  const roles = user?.roles.map(r => r.role.name) || [];
+  const isTeacher = roles.includes('Teacher');
+  const isAdmin = roles.includes('Admin');
 
   // Fetch Exam Subject Details
   const { data: examSubjectData } = useQuery({
@@ -31,6 +37,21 @@ export const MarkEntryPage: React.FC = () => {
   });
 
   const currentExamSubject = examSubjectData?.data?.find(es => es.id === examSubjectId);
+
+  // Authorization check
+  React.useEffect(() => {
+    if (currentExamSubject && isTeacher && !isAdmin) {
+      const isSubjectTeacher =
+        currentExamSubject.classSubject?.teacherId === user?.teacher?.id ||
+        currentExamSubject.classSubject?.teacherSubject?.teacherId === user?.teacher?.id;
+
+      if (!isSubjectTeacher) {
+        toast.error('You are not authorized to enter marks for this subject');
+        navigate('/dashboard/exams');
+      }
+    }
+  }, [currentExamSubject, isTeacher, isAdmin, user, navigate]);
+
   const maxScore = currentExamSubject?.maxScore || 100;
 
   // Fetch Students for the class section

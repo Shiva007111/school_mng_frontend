@@ -60,6 +60,7 @@ export interface ClassSubject {
   subjectId: string;
   teacherSubjectId: string;
   weeklyPeriods: number;
+  teacherId?: string;
   createdAt: string;
   updatedAt: string;
 
