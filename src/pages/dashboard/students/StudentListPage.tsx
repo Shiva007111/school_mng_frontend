@@ -3,7 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { studentService } from '@/services/student.service';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Search, Plus, Filter, MoreVertical, User } from 'lucide-react';
+import { Search, Plus, Filter, MoreVertical, User, Download, FileText } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { useNavigate, Link } from 'react-router-dom';
 import { cn } from '@/utils/cn';
 import type { StudentStatus } from '@/types/student.types';
@@ -63,6 +65,77 @@ export default function StudentListPage() {
 
   const students = data?.data || [];
 
+  const handleExportCSV = () => {
+    if (students.length === 0) return;
+
+    const headers = ['Name', 'Email', 'Admission No', 'Grade', 'Status'];
+    const csvContent = [
+      headers.join(','),
+      ...students.map(student => {
+        const name = `${student.user?.firstName || ''} ${student.user?.lastName || ''}`.trim();
+        const grade = student.enrollments?.[0]?.classSection?.gradeLevel?.displayName || 'Not Enrolled';
+
+        return [
+          `"${name}"`,
+          `"${student.user?.email || ''}"`,
+          `"${student.admissionNo}"`,
+          `"${grade}"`,
+          student.status
+        ].join(',');
+      })
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `students_list_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePrintPDF = () => {
+    if (students.length === 0) return;
+
+    const doc = new jsPDF();
+
+    // Add title
+    doc.setFontSize(18);
+    doc.text('Student List', 14, 22);
+
+    // Add metadata
+    doc.setFontSize(11);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 32);
+
+    // Add table
+    const tableColumn = ["Name", "Email", "Admission No", "Grade", "Status"];
+    const tableRows = students.map(student => {
+      const name = `${student.user?.firstName || ''} ${student.user?.lastName || ''}`.trim();
+      const grade = student.enrollments?.[0]?.classSection?.gradeLevel?.displayName || 'Not Enrolled';
+
+      return [
+        name,
+        student.user?.email || '-',
+        student.admissionNo,
+        grade,
+        student.status
+      ];
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 40,
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [79, 70, 229] } // Indigo-600
+    });
+
+    doc.save(`students_list_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -70,12 +143,32 @@ export default function StudentListPage() {
           <h1 className="text-2xl font-bold text-gray-900">Students</h1>
           <p className="text-sm text-gray-500">Manage and view all students in the system.</p>
         </div>
-        <Link to="/dashboard/students/new">
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Add Student
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handleExportCSV}
+            disabled={students.length === 0}
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
           </Button>
-        </Link>
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handlePrintPDF}
+            disabled={students.length === 0}
+          >
+            <FileText className="h-4 w-4" />
+            Print PDF
+          </Button>
+          <Link to="/dashboard/students/new">
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add Student
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

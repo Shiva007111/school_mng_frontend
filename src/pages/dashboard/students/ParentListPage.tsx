@@ -4,19 +4,21 @@ import { parentService } from '@/services/parent.service';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Search, Plus, MoreVertical, User, Mail, Phone, Briefcase } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { cn } from '@/utils/cn';
+// import { useNavigate } from 'react-router-dom';
+// import { cn } from '@/utils/cn';
 import { Dropdown } from '@/components/Dropdown';
-import { Eye, Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import CreateParentModal from './CreateParentModal';
+import EditParentModal from './EditParentModal';
 import apiClient from '@/services/api';
 
 export default function ParentListPage() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingParent, setEditingParent] = useState<any>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['parents'],
@@ -36,8 +38,8 @@ export default function ParentListPage() {
   });
 
   const parents = data?.data || [];
-  
-  const filteredParents = parents.filter(parent => 
+
+  const filteredParents = parents.filter(parent =>
     parent.user.email.toLowerCase().includes(search.toLowerCase()) ||
     (parent.user.phone && parent.user.phone.includes(search)) ||
     (parent.occupation && parent.occupation.toLowerCase().includes(search.toLowerCase()))
@@ -50,7 +52,7 @@ export default function ParentListPage() {
           <h1 className="text-2xl font-bold text-gray-900">Parents</h1>
           <p className="text-sm text-gray-500">Manage and view all parent records in the system.</p>
         </div>
-        <Button 
+        <Button
           className="flex items-center gap-2"
           onClick={() => setIsCreateModalOpen(true)}
         >
@@ -159,7 +161,7 @@ export default function ParentListPage() {
                             {
                               label: 'Edit Profile',
                               icon: <Edit className="h-4 w-4" />,
-                              onClick: () => toast.error('Edit functionality coming soon')
+                              onClick: () => setEditingParent(parent)
                             },
                             {
                               label: 'Delete Parent',
@@ -184,8 +186,18 @@ export default function ParentListPage() {
       </div>
 
       {isCreateModalOpen && (
-        <CreateParentModal 
+        <CreateParentModal
           onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ['parents'] });
+          }}
+        />
+      )}
+
+      {editingParent && (
+        <EditParentModal
+          parent={editingParent}
+          onClose={() => setEditingParent(null)}
           onSuccess={() => {
             queryClient.invalidateQueries({ queryKey: ['parents'] });
           }}

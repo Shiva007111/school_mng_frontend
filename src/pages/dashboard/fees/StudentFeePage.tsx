@@ -7,7 +7,8 @@ import {
   IndianRupee,
   ChevronRight,
   Receipt,
-  Plus
+  Plus,
+  RefreshCw
 } from 'lucide-react';
 import { feeService } from '@/services/fee.service';
 import { academicService } from '@/services/academic.service';
@@ -55,10 +56,27 @@ export const StudentFeePage: React.FC = () => {
     }
   });
 
-  const filteredStudents = studentsData?.data?.filter(s =>
-    s.student?.user?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.student?.admissionNo.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const generateInvoicesMutation = useMutation({
+    mutationFn: (studentId: string) => feeService.generateInvoices(studentId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['student-invoices', selectedStudent?.studentId] });
+      toast.success(data.message || 'Invoices generated successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to generate invoices');
+    }
+  });
+
+  const filteredStudents = studentsData?.data?.filter(s => {
+    const fullName = [s.student?.user?.firstName, s.student?.user?.lastName].filter(Boolean).join(' ');
+    const email = s.student?.user?.email || '';
+    const admissionNo = s.student?.admissionNo || '';
+    const query = searchQuery.toLowerCase();
+
+    return fullName.toLowerCase().includes(query) ||
+      email.toLowerCase().includes(query) ||
+      admissionNo.toLowerCase().includes(query);
+  }) || [];
 
   const handleRecordPayment = (invoice: any) => {
     setPaymentData({
@@ -110,7 +128,7 @@ export const StudentFeePage: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900 truncate">
-                    {enrollment.student?.user?.email.split('@')[0]}
+                    {[enrollment.student?.user?.firstName, enrollment.student?.user?.lastName].filter(Boolean).join(' ') || enrollment.student?.user?.email.split('@')[0]}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
                     {enrollment.classSection?.gradeLevel?.displayName} - {enrollment.classSection?.section}
@@ -138,13 +156,22 @@ export const StudentFeePage: React.FC = () => {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-gray-900">
-                      {selectedStudent.student?.user?.email.split('@')[0]}
+                      {[selectedStudent.student?.user?.firstName, selectedStudent.student?.user?.lastName].filter(Boolean).join(' ') || selectedStudent.student?.user?.email.split('@')[0]}
                     </h2>
                     <p className="text-sm text-gray-500">
                       Admission No: {selectedStudent.student?.admissionNo} • Roll No: {selectedStudent.rollNumber}
                     </p>
                   </div>
                 </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateInvoicesMutation.mutate(selectedStudent.studentId)}
+                  isLoading={generateInvoicesMutation.isPending}
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                  Generate Invoices
+                </Button>
               </div>
             </div>
 
@@ -222,7 +249,16 @@ export const StudentFeePage: React.FC = () => {
                   })}
                   {invoicesData?.data?.length === 0 && (
                     <div className="py-10 text-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                      <p className="text-gray-500">No invoices generated for this student.</p>
+                      <p className="text-gray-500 mb-4">No invoices generated for this student.</p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => generateInvoicesMutation.mutate(selectedStudent.studentId)}
+                        isLoading={generateInvoicesMutation.isPending}
+                      >
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        Generate Invoices
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -243,67 +279,71 @@ export const StudentFeePage: React.FC = () => {
       </div>
 
       {/* Record Payment Modal */}
-      {isRecordingPayment && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-              <h3 className="text-xl font-bold text-gray-900">Record Payment</h3>
-              <p className="text-sm text-gray-500">Enter payment details for the selected invoice.</p>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Amount to Pay</label>
-                <Input
-                  type="number"
-                  value={paymentData.amount}
-                  onChange={(e) => setPaymentData({ ...paymentData, amount: Number(e.target.value) })}
-                  leftIcon={<IndianRupee className="h-4 w-4" />}
-                />
+      {
+        isRecordingPayment && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="p-6 border-b border-gray-100 bg-gray-50/50">
+                <h3 className="text-xl font-bold text-gray-900">Record Payment</h3>
+                <p className="text-sm text-gray-500">Enter payment details for the selected invoice.</p>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Payment Method</label>
-                <select
-                  className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={paymentData.method}
-                  onChange={(e) => setPaymentData({ ...paymentData, method: e.target.value })}
+              <div className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Amount to Pay</label>
+                  <Input
+                    type="number"
+                    value={paymentData.amount}
+                    onChange={(e) => setPaymentData({ ...paymentData, amount: Number(e.target.value) })}
+                    leftIcon={<IndianRupee className="h-4 w-4" />}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Payment Method</label>
+                  <select
+                    className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    value={paymentData.method}
+                    onChange={(e) => setPaymentData({ ...paymentData, method: e.target.value })}
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="cheque">Cheque</option>
+                    <option value="online">Online</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Transaction Reference (Optional)</label>
+                  <Input
+                    placeholder="e.g. TXN123456"
+                    value={paymentData.transactionRef}
+                    onChange={(e) => setPaymentData({ ...paymentData, transactionRef: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setIsRecordingPayment(false)}>Cancel</Button>
+                <Button
+                  onClick={() => paymentMutation.mutate(paymentData)}
+                  isLoading={paymentMutation.isPending}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
                 >
-                  <option value="cash">Cash</option>
-                  <option value="bank_transfer">Bank Transfer</option>
-                  <option value="cheque">Cheque</option>
-                  <option value="online">Online</option>
-                </select>
+                  Confirm Payment
+                </Button>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Transaction Reference (Optional)</label>
-                <Input
-                  placeholder="e.g. TXN123456"
-                  value={paymentData.transactionRef}
-                  onChange={(e) => setPaymentData({ ...paymentData, transactionRef: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setIsRecordingPayment(false)}>Cancel</Button>
-              <Button
-                onClick={() => paymentMutation.mutate(paymentData)}
-                isLoading={paymentMutation.isPending}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white"
-              >
-                Confirm Payment
-              </Button>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Receipt Preview Modal */}
-      {showReceipt && (
-        <FeeReceipt
-          invoice={showReceipt.invoice}
-          student={showReceipt.student}
-          onClose={() => setShowReceipt(null)}
-        />
-      )}
-    </div>
+      {
+        showReceipt && (
+          <FeeReceipt
+            invoice={showReceipt.invoice}
+            student={showReceipt.student}
+            onClose={() => setShowReceipt(null)}
+          />
+        )
+      }
+    </div >
   );
 };

@@ -26,8 +26,8 @@ export const ExamSessionPage: React.FC = () => {
   const { user } = useAuth();
   const roles = user?.roles.map(r => r.role.name) || [];
   const isAdmin = roles.includes('Admin');
-  const isTeacher = roles.includes('Teacher');
-  const canViewSessions = isAdmin || isTeacher;
+  // const isTeacher = roles.includes('Teacher');
+  // const canViewSessions = isAdmin || isTeacher;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<any>(null);

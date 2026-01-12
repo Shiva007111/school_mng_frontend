@@ -53,4 +53,9 @@ export const feeService = {
     const response = await apiClient.post<ApiResponse<any>>('/fees/payments', data);
     return response.data;
   },
+
+  generateInvoices: async (studentId: string): Promise<ApiResponse<any>> => {
+    const response = await apiClient.post<ApiResponse<any>>(`/fees/invoices/generate/${studentId}`);
+    return response.data;
+  },
 };

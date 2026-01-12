@@ -20,4 +20,10 @@ export const parentService = {
     const response = await apiClient.post<ApiResponse<Parent>>('/parents', data);
     return response.data;
   },
+
+  // Update parent
+  updateParent: async (id: string, data: any): Promise<ApiResponse<Parent>> => {
+    const response = await apiClient.put<ApiResponse<Parent>>(`/parents/${id}`, data);
+    return response.data;
+  },
 };

@@ -13,6 +13,8 @@ import {
   UserCheck,
   AlertCircle
 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { academicService } from '@/services/academic.service';
 import { attendanceService } from '@/services/attendance.service';
 import { Button } from '@/components/Button';
@@ -59,6 +61,84 @@ export const AttendanceReportPage: React.FC = () => {
     ? Math.round(((stats.present + stats.late) / stats.total) * 100)
     : 0;
 
+  const handleExportCSV = () => {
+    if (filteredStudents.length === 0) return;
+
+    const headers = ['Student Name', 'Admission No', 'Status', 'Remarks'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredStudents.map(item => {
+        const name = item.student.user?.firstName || item.student.user?.lastName
+          ? `${item.student.user.firstName || ''} ${item.student.user.lastName || ''}`.trim()
+          : item.student.user?.email.split('@')[0] || '';
+
+        return [
+          `"${name}"`,
+          `"${item.student.admissionNo}"`,
+          item.attendance?.status || 'Not Marked',
+          `"${item.attendance?.remarks || ''}"`
+        ].join(',');
+      })
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `attendance_report_${selectedDate}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePrintPDF = () => {
+    if (filteredStudents.length === 0) return;
+
+    const doc = new jsPDF();
+
+    // Add title
+    doc.setFontSize(18);
+    doc.text('Attendance Report', 14, 22);
+
+    // Add metadata
+    doc.setFontSize(11);
+    doc.text(`Date: ${selectedDate}`, 14, 32);
+    const sectionName = sections.find(s => s.id === selectedSectionId);
+    if (sectionName) {
+      doc.text(`Class: ${sectionName.gradeLevel?.displayName} - ${sectionName.section}`, 14, 40);
+    }
+
+    // Add summary stats
+    doc.text(`Present: ${stats.present} | Absent: ${stats.absent} | Late: ${stats.late} | Excused: ${stats.excused}`, 14, 48);
+
+    // Add table
+    const tableColumn = ["Student Name", "Admission No", "Status", "Remarks"];
+    const tableRows = filteredStudents.map(item => {
+      const name = item.student.user?.firstName || item.student.user?.lastName
+        ? `${item.student.user.firstName || ''} ${item.student.user.lastName || ''}`.trim()
+        : item.student.user?.email.split('@')[0] || '';
+
+      return [
+        name,
+        item.student.admissionNo,
+        item.attendance?.status ? item.attendance.status.charAt(0).toUpperCase() + item.attendance.status.slice(1) : 'Not Marked',
+        item.attendance?.remarks || '-'
+      ];
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 55,
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [79, 70, 229] } // Indigo-600
+    });
+
+    doc.save(`attendance_report_${selectedDate}.pdf`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -76,11 +156,21 @@ export const AttendanceReportPage: React.FC = () => {
             Mark Attendance
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" className="text-gray-600">
+            <Button
+              variant="outline"
+              className="text-gray-600"
+              onClick={handleExportCSV}
+              disabled={filteredStudents.length === 0}
+            >
               <Download className="h-4 w-4 mr-2" />
               Export CSV
             </Button>
-            <Button variant="outline" className="text-gray-600">
+            <Button
+              variant="outline"
+              className="text-gray-600"
+              onClick={handlePrintPDF}
+              disabled={filteredStudents.length === 0}
+            >
               <FileText className="h-4 w-4 mr-2" />
               Print PDF
             </Button>
