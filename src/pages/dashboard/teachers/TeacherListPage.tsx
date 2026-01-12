@@ -3,7 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { teacherService } from '@/services/teacher.service';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Search, Plus, Filter, MoreVertical, UserCheck } from 'lucide-react';
+import { Search, Plus, Filter, MoreVertical, UserCheck, Download, FileText } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { useNavigate, Link } from 'react-router-dom';
 import { cn } from '@/utils/cn';
 import { Dropdown } from '@/components/Dropdown';
@@ -34,6 +36,75 @@ export default function TeacherListPage() {
 
   const teachers = data?.data || [];
 
+  const handleExportCSV = () => {
+    if (teachers.length === 0) return;
+
+    const headers = ['Name', 'Email', 'Employee Code', 'Qualification', 'Status'];
+    const csvContent = [
+      headers.join(','),
+      ...teachers.map((teacher: any) => {
+        const name = `${teacher.user.firstName} ${teacher.user.lastName}`;
+
+        return [
+          `"${name}"`,
+          `"${teacher.user.email}"`,
+          `"${teacher.employeeCode || ''}"`,
+          `"${teacher.qualification || ''}"`,
+          teacher.user.status
+        ].join(',');
+      })
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `teachers_list_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePrintPDF = () => {
+    if (teachers.length === 0) return;
+
+    const doc = new jsPDF();
+
+    // Add title
+    doc.setFontSize(18);
+    doc.text('Teacher List', 14, 22);
+
+    // Add metadata
+    doc.setFontSize(11);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 32);
+
+    // Add table
+    const tableColumn = ["Name", "Email", "Employee Code", "Qualification", "Status"];
+    const tableRows = teachers.map((teacher: any) => {
+      const name = `${teacher.user.firstName} ${teacher.user.lastName}`;
+
+      return [
+        name,
+        teacher.user.email,
+        teacher.employeeCode || '-',
+        teacher.qualification || '-',
+        teacher.user.status
+      ];
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 40,
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [79, 70, 229] } // Indigo-600
+    });
+
+    doc.save(`teachers_list_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -41,12 +112,32 @@ export default function TeacherListPage() {
           <h1 className="text-2xl font-bold text-gray-900">Teachers</h1>
           <p className="text-sm text-gray-500">Manage and view all teacher profiles and assignments.</p>
         </div>
-        <Link to="/dashboard/teachers/new">
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Add Teacher
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handleExportCSV}
+            disabled={teachers.length === 0}
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
           </Button>
-        </Link>
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handlePrintPDF}
+            disabled={teachers.length === 0}
+          >
+            <FileText className="h-4 w-4" />
+            Print PDF
+          </Button>
+          <Link to="/dashboard/teachers/new">
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add Teacher
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

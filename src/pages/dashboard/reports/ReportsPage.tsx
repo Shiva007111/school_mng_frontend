@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  TrendingUp, 
-  IndianRupee, 
+import {
+  TrendingUp,
+  IndianRupee,
   Calendar,
   Download,
   Filter,
   Loader2
 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { reportService } from '@/services/report.service';
 import { academicService } from '@/services/academic.service';
 import { Button } from '@/components/Button';
@@ -42,6 +44,74 @@ export const ReportsPage: React.FC = () => {
     enabled: !!selectedClassId,
   });
 
+  const handleExportAll = () => {
+    const doc = new jsPDF();
+    const today = new Date().toLocaleDateString();
+
+    // Title
+    doc.setFontSize(20);
+    doc.text('School Reports Summary', 14, 22);
+    doc.setFontSize(11);
+    doc.text(`Generated on: ${today}`, 14, 30);
+
+    let yPos = 40;
+
+    // Fee Report Section
+    if (feeReport?.data) {
+      doc.setFontSize(16);
+      doc.text('Fee Collection Analysis', 14, yPos);
+      yPos += 10;
+
+      const feeData = [
+        ['Total Collected', `Rs. ${feeReport.data.totalCollected.toLocaleString()}`],
+        ['Pending Amount', `Rs. ${feeReport.data.pendingAmount.toLocaleString()}`],
+        ['Paid Invoices', feeReport.data.statusBreakdown.paid.toString()],
+        ['Partial Invoices', feeReport.data.statusBreakdown.partial.toString()],
+        ['Due Invoices', feeReport.data.statusBreakdown.due.toString()]
+      ];
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Metric', 'Value']],
+        body: feeData,
+        theme: 'striped',
+        headStyles: { fillColor: [22, 163, 74] } // Green-600
+      });
+
+      yPos = (doc as any).lastAutoTable.finalY + 20;
+    }
+
+    // Attendance Report Section
+    if (attendanceReport?.data) {
+      doc.setFontSize(16);
+      doc.text('Attendance Summary', 14, yPos);
+      yPos += 10;
+
+      const attendanceData = [
+        ['Total Students', attendanceReport.data.total.toString()],
+        ['Present', attendanceReport.data.present.toString()],
+        ['Absent', attendanceReport.data.absent.toString()],
+        ['Late', attendanceReport.data.late.toString()],
+        ['Excused', attendanceReport.data.excused.toString()],
+        ['Attendance Rate', `${Math.round((attendanceReport.data.present / (attendanceReport.data.total || 1)) * 100)}%`]
+      ];
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Metric', 'Value']],
+        body: attendanceData,
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235] } // Blue-600
+      });
+    }
+
+    if (!feeReport?.data && !attendanceReport?.data) {
+      doc.text('No report data currently selected or available to export.', 14, yPos);
+    }
+
+    doc.save(`school_reports_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -49,7 +119,7 @@ export const ReportsPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">School Reports</h1>
           <p className="text-gray-500">View and export academic and financial summaries.</p>
         </div>
-        <Button variant="outline">
+        <Button variant="outline" onClick={handleExportAll}>
           <Download className="h-4 w-4 mr-2" />
           Export All
         </Button>
@@ -63,7 +133,7 @@ export const ReportsPage: React.FC = () => {
               <IndianRupee className="h-5 w-5 text-green-600" />
               Fee Collection
             </h2>
-            <select 
+            <select
               className="text-sm border-none bg-gray-50 rounded-lg px-2 py-1 focus:ring-0"
               value={selectedYearId}
               onChange={(e) => setSelectedYearId(e.target.value)}
@@ -100,17 +170,17 @@ export const ReportsPage: React.FC = () => {
               <div className="space-y-3">
                 <p className="text-sm font-medium text-gray-700">Invoice Status Breakdown</p>
                 <div className="flex h-3 rounded-full overflow-hidden bg-gray-100">
-                  <div 
-                    className="bg-green-500" 
-                    style={{ width: `${(feeReport?.data?.statusBreakdown.paid || 0) / (Object.values(feeReport?.data?.statusBreakdown || {}).reduce((a, b) => a + b, 0) || 1) * 100}%` }} 
+                  <div
+                    className="bg-green-500"
+                    style={{ width: `${(feeReport?.data?.statusBreakdown.paid || 0) / (Object.values(feeReport?.data?.statusBreakdown || {}).reduce((a, b) => a + b, 0) || 1) * 100}%` }}
                   />
-                  <div 
-                    className="bg-amber-400" 
-                    style={{ width: `${(feeReport?.data?.statusBreakdown.partial || 0) / (Object.values(feeReport?.data?.statusBreakdown || {}).reduce((a, b) => a + b, 0) || 1) * 100}%` }} 
+                  <div
+                    className="bg-amber-400"
+                    style={{ width: `${(feeReport?.data?.statusBreakdown.partial || 0) / (Object.values(feeReport?.data?.statusBreakdown || {}).reduce((a, b) => a + b, 0) || 1) * 100}%` }}
                   />
-                  <div 
-                    className="bg-red-400" 
-                    style={{ width: `${(feeReport?.data?.statusBreakdown.due || 0) / (Object.values(feeReport?.data?.statusBreakdown || {}).reduce((a, b) => a + b, 0) || 1) * 100}%` }} 
+                  <div
+                    className="bg-red-400"
+                    style={{ width: `${(feeReport?.data?.statusBreakdown.due || 0) / (Object.values(feeReport?.data?.statusBreakdown || {}).reduce((a, b) => a + b, 0) || 1) * 100}%` }}
                   />
                 </div>
                 <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
@@ -130,7 +200,7 @@ export const ReportsPage: React.FC = () => {
               <Calendar className="h-5 w-5 text-blue-600" />
               Attendance Summary
             </h2>
-            <select 
+            <select
               className="text-sm border-none bg-gray-50 rounded-lg px-2 py-1 focus:ring-0"
               value={selectedClassId}
               onChange={(e) => setSelectedClassId(e.target.value)}
@@ -157,9 +227,9 @@ export const ReportsPage: React.FC = () => {
                 <div className="relative h-32 w-32">
                   {/* Simple Pie Chart Representation */}
                   <div className="absolute inset-0 rounded-full border-[12px] border-blue-100" />
-                  <div 
-                    className="absolute inset-0 rounded-full border-[12px] border-blue-500" 
-                    style={{ clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((attendanceReport?.data?.present || 0) / (attendanceReport?.data?.total || 1) * 2 * Math.PI - Math.PI / 2)}% ${50 + 50 * Math.sin((attendanceReport?.data?.present || 0) / (attendanceReport?.data?.total || 1) * 2 * Math.PI - Math.PI / 2)}%)` }} 
+                  <div
+                    className="absolute inset-0 rounded-full border-[12px] border-blue-500"
+                    style={{ clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((attendanceReport?.data?.present || 0) / (attendanceReport?.data?.total || 1) * 2 * Math.PI - Math.PI / 2)}% ${50 + 50 * Math.sin((attendanceReport?.data?.present || 0) / (attendanceReport?.data?.total || 1) * 2 * Math.PI - Math.PI / 2)}%)` }}
                   />
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-xl font-bold text-gray-900">
