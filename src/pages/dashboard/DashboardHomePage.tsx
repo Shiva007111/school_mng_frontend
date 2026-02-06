@@ -39,11 +39,11 @@ export default function DashboardHomePage() {
     <div className="space-y-6">
       {/* Welcome message */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          Welcome back, {user?.email?.split('@')[0]}!
+        <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+          Good morning, {user?.email?.split('@')[0]}! ✨
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Here's what's happening with your {userRole?.toLowerCase()} account today.
+        <p className="mt-2 text-base text-gray-500 font-medium">
+          Your {userRole?.toLowerCase()} community is thriving. Here's your daily pulse.
         </p>
       </div>
 

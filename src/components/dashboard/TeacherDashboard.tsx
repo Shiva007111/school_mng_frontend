@@ -22,7 +22,7 @@ export const TeacherDashboard: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="h-8 w-8 text-indigo-600 animate-spin" />
+        <Loader2 className="h-8 w-8 text-[#4F46E5] animate-spin" />
       </div>
     );
   }
@@ -33,8 +33,8 @@ export const TeacherDashboard: React.FC = () => {
     <div className="space-y-8">
       {/* Today's Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <div className="h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+        <div className="bg-white p-6 rounded-2xl border border-[#E5E7EB] shadow-sm flex items-center gap-4">
+          <div className="h-12 w-12 rounded-xl bg-[#4F46E5]/10 flex items-center justify-center text-[#4F46E5]">
             <Calendar className="h-6 w-6" />
           </div>
           <div>
@@ -42,8 +42,8 @@ export const TeacherDashboard: React.FC = () => {
             <p className="text-2xl font-bold text-gray-900">{timetable.length}</p>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <div className="h-12 w-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
+        <div className="bg-white p-6 rounded-2xl border border-[#E5E7EB] shadow-sm flex items-center gap-4">
+          <div className="h-12 w-12 rounded-xl bg-[#22C55E]/10 flex items-center justify-center text-[#22C55E]">
             <ClipboardCheck className="h-6 w-6" />
           </div>
           <div>
@@ -51,8 +51,8 @@ export const TeacherDashboard: React.FC = () => {
             <p className="text-2xl font-bold text-gray-900">{attendanceStatus.marked} / {attendanceStatus.total}</p>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <div className="h-12 w-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+        <div className="bg-white p-6 rounded-2xl border border-[#E5E7EB] shadow-sm flex items-center gap-4">
+          <div className="h-12 w-12 rounded-xl bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6]">
             <BookOpen className="h-6 w-6" />
           </div>
           <div>
@@ -64,9 +64,9 @@ export const TeacherDashboard: React.FC = () => {
 
       {/* Announcements Section */}
       {announcementsData?.data && announcementsData.data.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-50 flex items-center gap-2">
-            <Megaphone className="h-5 w-5 text-indigo-600" />
+            <Megaphone className="h-5 w-5 text-[#4F46E5]" />
             <h3 className="text-lg font-bold text-gray-900">Announcements</h3>
           </div>
           <div className="divide-y divide-gray-50">
@@ -75,8 +75,8 @@ export const TeacherDashboard: React.FC = () => {
                 <div className="flex items-start justify-between mb-2">
                   <h4 className="text-base font-semibold text-gray-900">{announcement.title}</h4>
                   <span className={`text-xs px-2 py-1 rounded-full font-medium ${announcement.priority === 'high' ? 'bg-red-50 text-red-600' :
-                      announcement.priority === 'medium' ? 'bg-amber-50 text-amber-600' :
-                        'bg-blue-50 text-blue-600'
+                    announcement.priority === 'medium' ? 'bg-amber-50 text-amber-600' :
+                      'bg-blue-50 text-blue-600'
                     }`}>
                     {announcement.priority.charAt(0).toUpperCase() + announcement.priority.slice(1)}
                   </span>
@@ -95,10 +95,10 @@ export const TeacherDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Today's Timetable */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900">Today's Schedule</h3>
-            <button onClick={() => navigate('/dashboard/timetable')} className="text-sm text-indigo-600 font-medium hover:underline">View Full</button>
+            <button onClick={() => navigate('/dashboard/timetable')} className="text-sm text-[#4F46E5] font-medium hover:underline">View Full</button>
           </div>
           <div className="p-6">
             {timetable.length === 0 ? (
@@ -107,7 +107,7 @@ export const TeacherDashboard: React.FC = () => {
               <div className="space-y-4">
                 {timetable.map((period: any) => (
                   <div key={period.id} className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
-                    <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center text-indigo-600 shadow-sm">
+                    <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center text-[#4F46E5] shadow-sm">
                       <Clock className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
@@ -131,10 +131,10 @@ export const TeacherDashboard: React.FC = () => {
         </div>
 
         {/* Active Exams & Grading */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900">Active Grading</h3>
-            <button onClick={() => navigate('/dashboard/exams/my-grading')} className="text-sm text-indigo-600 font-medium hover:underline">View All</button>
+            <button onClick={() => navigate('/dashboard/exams/my-grading')} className="text-sm text-[#4F46E5] font-medium hover:underline">View All</button>
           </div>
           <div className="p-6">
             {activeExams.length === 0 ? (
@@ -145,7 +145,7 @@ export const TeacherDashboard: React.FC = () => {
                   <div key={exam.id} className="p-4 rounded-xl border border-gray-100 hover:border-indigo-100 transition-colors group">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-sm font-bold text-gray-900">{exam.title}</h4>
-                      <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-bold text-[#4F46E5] bg-[#4F46E5]/10 px-2 py-0.5 rounded-full">
                         {exam.classSection?.gradeLevel?.displayName} - {exam.classSection?.section}
                       </span>
                     </div>
@@ -157,7 +157,7 @@ export const TeacherDashboard: React.FC = () => {
                           className="w-full flex items-center justify-between p-2 rounded-lg bg-gray-50 hover:bg-indigo-50 transition-colors text-left"
                         >
                           <span className="text-xs font-medium text-gray-700">{es.classSubject?.subject?.name}</span>
-                          <ChevronRight className="h-3 w-3 text-gray-400 group-hover:text-indigo-600" />
+                          <ChevronRight className="h-3 w-3 text-gray-400 group-hover:text-[#4F46E5]" />
                         </button>
                       ))}
                     </div>

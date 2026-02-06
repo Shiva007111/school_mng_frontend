@@ -1,15 +1,12 @@
 import { Navbar } from '@/components/landing/Navbar';
 import { Hero } from '@/components/landing/Hero';
-import { Features } from '@/components/landing/Features';
-import { Footer } from '@/components/landing/Footer';
+import './LandingPage.css';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#0b1b35]">
       <Navbar />
       <Hero />
-      <Features />
-      <Footer />
     </div>
   );
 }

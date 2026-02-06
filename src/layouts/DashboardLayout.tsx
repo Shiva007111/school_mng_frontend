@@ -7,16 +7,16 @@ export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F8FAFC] flex">
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        
-        <main className="py-6">
-          <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
+
+        <main className="flex-1 py-8">
+          <div className="px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
             <Outlet />
           </div>
         </main>

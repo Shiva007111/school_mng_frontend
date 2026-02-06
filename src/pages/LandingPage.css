@@ -1,0 +1,55 @@
+.blinking-dot-yellow {
+    animation: blink 1.5s infinite;
+    background-color: #f59e0b !important;
+}
+
+.blinking-nav-button {
+    animation: blink-yellow 2s infinite;
+}
+
+.blinking-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #f59e0b;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.monitor-zoom-container {
+    overflow: hidden;
+    border-radius: 12px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.monitor-zoom-container:hover {
+    transform: scale(1.05);
+}
+
+.hero-stats-badge {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

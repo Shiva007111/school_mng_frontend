@@ -3,15 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { studentService } from '@/services/student.service';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Search, Plus, Filter, MoreVertical, User, Download, FileText } from 'lucide-react';
+import { Search, Plus, Filter, MoreVertical, User, Download, FileText, Trash2, Eye, Edit } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useNavigate, Link } from 'react-router-dom';
 import { cn } from '@/utils/cn';
 import type { StudentStatus } from '@/types/student.types';
 import { Dropdown } from '@/components/Dropdown';
-import { Eye, Edit, Trash2 } from 'lucide-react';
-
 import { academicService } from '@/services/academic.service';
 import { toast } from 'react-hot-toast';
 
@@ -48,9 +46,6 @@ export default function StudentListPage() {
       gender: gender || undefined
     }),
   });
-
-  console.log('Student list data:', data);
-  console.log('Student list error:', error);
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => studentService.deleteStudent(id),
@@ -100,16 +95,11 @@ export default function StudentListPage() {
     if (students.length === 0) return;
 
     const doc = new jsPDF();
-
-    // Add title
     doc.setFontSize(18);
     doc.text('Student List', 14, 22);
-
-    // Add metadata
     doc.setFontSize(11);
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 32);
 
-    // Add table
     const tableColumn = ["Name", "Email", "Admission No", "Grade", "Status"];
     const tableRows = students.map(student => {
       const name = `${student.user?.firstName || ''} ${student.user?.lastName || ''}`.trim();
@@ -130,7 +120,7 @@ export default function StudentListPage() {
       startY: 40,
       theme: 'grid',
       styles: { fontSize: 10 },
-      headStyles: { fillColor: [79, 70, 229] } // Indigo-600
+      headStyles: { fillColor: [79, 70, 229] }
     });
 
     doc.save(`students_list_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -286,19 +276,19 @@ export default function StudentListPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
                     Loading students...
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-red-500">
+                  <td colSpan={6} className="px-6 py-10 text-center text-red-500">
                     Error loading students. Please try again.
                   </td>
                 </tr>
               ) : students.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
                     No students found.
                   </td>
                 </tr>
@@ -379,7 +369,7 @@ export default function StudentListPage() {
           </table>
         </div>
 
-        {/* Pagination placeholder */}
+        {/* Pagination */}
         <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-700">
