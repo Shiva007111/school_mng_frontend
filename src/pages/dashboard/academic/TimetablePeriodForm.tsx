@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/Button';
+import { cn } from '@/utils/cn';
 import type {
   ClassSubject,
   ClassRoom,
@@ -13,17 +14,48 @@ import type {
 const periodSchema = z.object({
   classSubjectId: z.string().min(1, 'Subject is required'),
   roomId: z.string().optional(),
-  weekday: z.number().min(1).max(7),
+  weekdays: z.array(z.number().min(1).max(7)).min(1, 'At least one weekday is required'),
   startTime: z.string().min(1, 'Start time is required'),
   endTime: z.string().min(1, 'End time is required'),
+}).refine((data) => {
+  if (!data.startTime || !data.endTime) return true;
+  const [startH, startM] = data.startTime.split(':').map(Number);
+  const [endH, endM] = data.endTime.split(':').map(Number);
+  const startMinutes = startH * 60 + startM;
+  const endMinutes = endH * 60 + endM;
+  return endMinutes > startMinutes;
+}, {
+  message: "End time must be after start time",
+  path: ["endTime"]
 });
 
 type PeriodFormValues = z.infer<typeof periodSchema>;
 
+interface WeekdayCheckboxProps {
+  day: { label: string; value: number };
+  isSelected: boolean;
+  onToggle: (value: number) => void;
+}
+
+const WeekdayCheckbox: React.FC<WeekdayCheckboxProps> = ({ day, isSelected, onToggle }) => (
+  <button
+    type="button"
+    onClick={() => onToggle(day.value)}
+    className={cn(
+      "px-3 py-1.5 rounded-full text-xs font-medium transition-all border",
+      isSelected
+        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+        : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+    )}
+  >
+    {day.label}
+  </button>
+);
+
 interface TimetablePeriodFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: PeriodFormValues) => void;
+  onSubmit: (data: any) => void;
   onDelete?: (id: string) => void;
   isLoading?: boolean;
   isDeleting?: boolean;
@@ -51,11 +83,13 @@ export const TimetablePeriodForm: React.FC<TimetablePeriodFormProps> = ({
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<PeriodFormValues>({
     resolver: zodResolver(periodSchema),
     defaultValues: {
-      weekday: defaultWeekday || 1,
+      weekdays: defaultWeekday ? [defaultWeekday] : [1],
       startTime: defaultTime || '08:00',
       endTime: '',
     },
@@ -72,13 +106,13 @@ export const TimetablePeriodForm: React.FC<TimetablePeriodFormProps> = ({
       reset({
         classSubjectId: initialData.classSubjectId,
         roomId: initialData.roomId || '',
-        weekday: initialData.weekday,
+        weekdays: [initialData.weekday],
         startTime: formatTime(initialData.startTime),
         endTime: formatTime(initialData.endTime),
       });
     } else {
       reset({
-        weekday: defaultWeekday || 1,
+        weekdays: defaultWeekday ? [defaultWeekday] : [1],
         startTime: defaultTime ? convertTo24Hour(defaultTime) : '08:00',
         endTime: '',
       });
@@ -154,24 +188,39 @@ export const TimetablePeriodForm: React.FC<TimetablePeriodFormProps> = ({
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Weekday */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Weekday</label>
-              <select
-                {...register('weekday', { valueAsNumber: true })}
-                className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-              >
-                <option value={1}>Monday</option>
-                <option value={2}>Tuesday</option>
-                <option value={3}>Wednesday</option>
-                <option value={4}>Thursday</option>
-                <option value={5}>Friday</option>
-                <option value={6}>Saturday</option>
-                <option value={7}>Sunday</option>
-              </select>
+          {/* Weekdays Selection */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">Select Weekdays</label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: 'Mon', value: 1 },
+                { label: 'Tue', value: 2 },
+                { label: 'Wed', value: 3 },
+                { label: 'Thu', value: 4 },
+                { label: 'Fri', value: 5 },
+                { label: 'Sat', value: 6 },
+                { label: 'Sun', value: 7 },
+              ].map((day) => (
+                <WeekdayCheckbox
+                  key={day.value}
+                  day={day}
+                  isSelected={watch('weekdays')?.includes(day.value)}
+                  onToggle={(val) => {
+                    const current = watch('weekdays') || [];
+                    const next = current.includes(val)
+                      ? current.filter((v) => v !== val)
+                      : [...current, val];
+                    setValue('weekdays', next, { shouldValidate: true });
+                  }}
+                />
+              ))}
             </div>
+            {errors.weekdays && (
+              <p className="mt-1 text-xs text-red-600">{errors.weekdays.message}</p>
+            )}
+          </div>
 
+          <div className="grid grid-cols-2 gap-4">
             {/* Start Time */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">Start Time</label>

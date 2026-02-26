@@ -97,6 +97,9 @@ export interface StudentFilters {
   status?: StudentStatus;
   gradeLevelId?: string;
   classSectionId?: string;
+  for_enrollment?: boolean;
+  nextAdmission?: boolean; 
+
   gender?: string;
   page?: number;
   limit?: number;

@@ -11,10 +11,22 @@ export const studentService = {
   // Get all students with filtering and pagination
   getStudents: async (filters: StudentFilters = {}): Promise<ApiResponse<Student[]>> => {
     const response = await apiClient.get<ApiResponse<Student[]>>('/students', {
-      params: filters,
-    });
+      params: {
+        ...filters,
+      },
+    }
+  );  
     return response.data;
   },
+  getNextAdmissionNo: async (): Promise<{ nextAdmissionNo: string }> => {
+  const response = await apiClient.get('/students', {
+    params: { nextAdmission: true },
+  });
+
+  return response.data.data;
+},
+
+
 
   // Get current student profile
   getMe: async (): Promise<ApiResponse<Student>> => {

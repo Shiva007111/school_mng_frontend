@@ -1,9 +1,17 @@
 import { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate,useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { academicService } from '@/services/academic.service';
 import { teacherService } from '@/services/teacher.service';
+import { studentService } from '@/services/student.service';
 import { Button } from '@/components/Button';
+import { toast } from 'react-hot-toast';
+import type {
+  AssignSubjectToClassRequest,
+  CreateEnrollmentRequest,
+  ClassSubject
+} from '@/types/academic.types';
+import type { ApiResponse } from '@/types/api.types';
 import {
   ArrowLeft,
   Users,
@@ -12,7 +20,10 @@ import {
   Trash2,
   User,
   Clock,
-  X
+  X,
+  CheckSquare,
+  Square,
+  Search
 } from 'lucide-react';
 
 export default function ClassSectionDetailPage() {
@@ -22,8 +33,13 @@ export default function ClassSectionDetailPage() {
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedTeacherId, setSelectedTeacherId] = useState('');
   const [weeklyPeriods, setWeeklyPeriods] = useState(5);
+  const [isAddStudentsModalOpen, setIsAddStudentsModalOpen] = useState(false);
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+  const [studentSearch, setStudentSearch] = useState('');
 
   const queryClient = useQueryClient();
+  const location = useLocation();
+
 
   // Queries
   const { data: sectionData, isLoading: isLoadingSection } = useQuery({
@@ -49,9 +65,16 @@ export default function ClassSectionDetailPage() {
     queryFn: () => academicService.getSubjects(),
   });
 
+  const { data: studentsData } = useQuery({
+    queryKey: ['students-unassigned'],
+    queryFn: () => studentService.getStudents({for_enrollment: true}),
+    enabled: isAddStudentsModalOpen,
+  });
+
   const { data: teachersData } = useQuery({
-    queryKey: ['teachers'],
-    queryFn: () => teacherService.getTeachers(),
+    queryKey: ['teachers', selectedSubjectId],
+    queryFn: () => teacherService.getTeachers({ subjectId: selectedSubjectId }),
+    enabled: isAssignModalOpen && !!selectedSubjectId,
   });
 
   const section = sectionData?.data;
@@ -59,9 +82,10 @@ export default function ClassSectionDetailPage() {
   const enrollments = enrollmentsData?.data || [];
   const allSubjects = allSubjectsData?.data || [];
   const teachers = teachersData?.data || [];
+  const allStudents = studentsData?.data || [];
 
   // Mutations
-  const assignMutation = useMutation({
+  const assignMutation = useMutation<ApiResponse<ClassSubject>, any, AssignSubjectToClassRequest>({
     mutationFn: academicService.assignSubjectToClass,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['class-subjects', id] });
@@ -75,7 +99,46 @@ export default function ClassSectionDetailPage() {
     mutationFn: academicService.removeClassSubject,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['class-subjects', id] });
+      toast.success('Subject removed successfully');
     },
+  });
+
+  // const bulkEnrollMutation = useMutation<ApiResponse<{ count: number }>, any, { enrollments: CreateEnrollmentRequest[] }>({
+  //   mutationFn: academicService.bulkEnrollStudents,
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ['enrollments', id] });
+  //     setIsAddStudentsModalOpen(false);
+  //     setSelectedStudentIds([]);
+  //     toast.success('Students added to class successfully');
+  //   },
+  const bulkEnrollMutation = useMutation<ApiResponse<{ count: number }>,any,{ enrollments: CreateEnrollmentRequest[] }
+  >({
+    mutationFn: academicService.bulkEnrollStudents,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['enrollments', id] });
+
+      // 🔥 ADD THIS
+      queryClient.invalidateQueries({ queryKey: ['students-unassigned'] });
+
+      setIsAddStudentsModalOpen(false);
+      setSelectedStudentIds([]);
+      toast.success('Students added to class successfully');
+    },
+
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to add students');
+    }
+  });
+
+  const removeEnrollmentMutation = useMutation<ApiResponse<void>, any, string>({
+    mutationFn: academicService.deleteEnrollment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['enrollments', id] });
+      toast.success('Student removed from class');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to remove student');
+    }
   });
 
   const handleAssign = () => {
@@ -96,6 +159,33 @@ export default function ClassSectionDetailPage() {
       weeklyPeriods,
     });
   };
+
+  const handleBulkEnroll = () => {
+    if (selectedStudentIds.length === 0) return;
+
+    bulkEnrollMutation.mutate({
+      enrollments: selectedStudentIds.map(studentId => ({
+        studentId,
+        classSectionId: id!,
+      }))
+    });
+  };
+
+  const toggleStudentSelection = (studentId: string) => {
+    setSelectedStudentIds(prev =>
+      prev.includes(studentId)
+        ? prev.filter(sid => sid !== studentId)
+        : [...prev, studentId]
+    );
+  };
+
+  const enrolledStudentIds = enrollments.map(e => e.studentId);
+  const availableStudents = allStudents.filter(s =>
+    !enrolledStudentIds.includes(s.id) &&
+    (s.user?.firstName?.toLowerCase().includes(studentSearch.toLowerCase()) ||
+      s.user?.lastName?.toLowerCase().includes(studentSearch.toLowerCase()) ||
+      s.admissionNo.toLowerCase().includes(studentSearch.toLowerCase()))
+  );
 
   if (isLoadingSection) {
     return <div className="flex items-center justify-center min-h-[400px]">Loading...</div>;
@@ -242,10 +332,10 @@ export default function ClassSectionDetailPage() {
                 variant="outline"
                 size="sm"
                 className="flex items-center gap-2"
-                onClick={() => navigate('/dashboard/students/new')}
+                onClick={() => setIsAddStudentsModalOpen(true)}
               >
                 <Plus className="h-4 w-4" />
-                Enroll Student
+                Add Students
               </Button>
             </div>
             <div className="overflow-y-auto divide-y divide-gray-100 flex-1">
@@ -275,14 +365,41 @@ export default function ClassSectionDetailPage() {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="opacity-0 group-hover:opacity-100 transition-all"
-                      onClick={() => navigate(`/dashboard/students/${enrollment.studentId}`)}
-                    >
-                      View Profile
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="opacity-0 group-hover:opacity-100 transition-all text-gray-600 border-gray-200"
+                        onClick={() => navigate(`/dashboard/students/${enrollment.studentId}`,{
+                        state: { from: location.pathname },
+
+                        })
+                      }
+                      >
+                        View Profile
+                      </Button>
+                      {/* <Button variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          navigate(`/dashboard/students/${enrollment.studentId}`, {
+                            state: { from: location.pathname },
+                          })
+                        } 
+                      >
+                        View Profile
+                      </Button> */}
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to remove ${enrollment.student?.user?.firstName || 'this student'} from this class?`)) {
+                            removeEnrollmentMutation.mutate(enrollment.id);
+                          }
+                        }}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                        title="Remove from class"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -310,7 +427,10 @@ export default function ClassSectionDetailPage() {
                 <select
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
                   value={selectedSubjectId}
-                  onChange={(e) => setSelectedSubjectId(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedSubjectId(e.target.value);
+                    setSelectedTeacherId(''); // Reset teacher when subject changes
+                  }}
                 >
                   <option value="">Select Subject</option>
                   {allSubjects.map((s) => (
@@ -322,12 +442,13 @@ export default function ClassSectionDetailPage() {
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">Teacher</label>
                 <select
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border disabled:bg-gray-50 disabled:text-gray-500"
                   value={selectedTeacherId}
                   onChange={(e) => setSelectedTeacherId(e.target.value)}
+                  disabled={!selectedSubjectId}
                 >
-                  <option value="">Select Teacher</option>
-                  {teachers.map((t) => (
+                  <option value="">{selectedSubjectId ? 'Select Teacher' : 'Select Subject First'}</option>
+                  {teachers.map((t: any) => (
                     <option key={t.id} value={t.id}>
                       {t.user ? (
                         t.user.firstName || t.user.lastName ?
@@ -367,6 +488,101 @@ export default function ClassSectionDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Add Students Modal */}
+      {isAddStudentsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Add Students to Class</h2>
+                <p className="text-xs text-gray-500">Select students to enroll in {section.gradeLevel?.displayName} - {section.section}</p>
+              </div>
+              <button
+                onClick={() => setIsAddStudentsModalOpen(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-4 border-b border-gray-50">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name or admission number..."
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                  value={studentSearch}
+                  onChange={(e) => setStudentSearch(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+              {availableStudents.length === 0 ? (
+                <div className="py-10 text-center text-gray-500 text-sm">
+                  {studentSearch ? 'No students found matching your search.' : 'No available students to enroll.'}
+                </div>
+              ) : (
+                availableStudents.map((student) => (
+                  <div
+                    key={student.id}
+                    className={cn(
+                      "p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between group",
+                      selectedStudentIds.includes(student.id)
+                        ? "bg-indigo-50 border-indigo-200"
+                        : "bg-white border-transparent hover:bg-gray-50 hover:border-gray-100"
+                    )}
+                    onClick={() => toggleStudentSelection(student.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0">
+                        {selectedStudentIds.includes(student.id) ? (
+                          <CheckSquare className="h-5 w-5 text-indigo-600" />
+                        ) : (
+                          <Square className="h-5 w-5 text-gray-300 group-hover:text-gray-400" />
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-sm">
+                          {student.user?.firstName || student.user?.lastName ?
+                            `${student.user.firstName || ''} ${student.user.lastName || ''}`.trim() :
+                            `Student ${student.admissionNo}`}
+                        </h4>
+                        <p className="text-[10px] text-gray-500">Adm No: {student.admissionNo}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="p-6 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                <span className="font-bold text-indigo-600">{selectedStudentIds.length}</span> students selected
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setIsAddStudentsModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleBulkEnroll}
+                  isLoading={bulkEnrollMutation.isPending}
+                  disabled={selectedStudentIds.length === 0}
+                >
+                  Enroll Selected
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+// Add cn helper if not imported
+function cn(...classes: any[]) {
+  return classes.filter(Boolean).join(' ');
 }

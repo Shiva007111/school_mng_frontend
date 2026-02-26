@@ -5,22 +5,34 @@ import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Search, Plus, Filter, MoreVertical, UserCheck, Download, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { useNavigate, Link } from 'react-router-dom';
 import { cn } from '@/utils/cn';
 import { Dropdown } from '@/components/Dropdown';
 import { Eye, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { academicService } from '@/services/academic.service';
+import autoTable from 'jspdf-autotable';
 
 export default function TeacherListPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<string | undefined>(undefined);
+  const [subjectId, setSubjectId] = useState<string | undefined>(undefined);
+  const [gender, setGender] = useState<string | undefined>(undefined);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
+  // Fetch Subjects for filter
+  const { data: subjectsData } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: () => academicService.getSubjects(),
+  });
+
+  const subjects = subjectsData?.data || [];
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['teachers', { search, status }],
-    queryFn: () => teacherService.getTeachers({ search, status: status || undefined }),
+    queryKey: ['teachers', { search, status, subjectId, gender }],
+    queryFn: () => teacherService.getTeachers({ search, status: status || undefined, subjectId: subjectId || undefined, gender: gender || undefined }),
   });
 
   const deleteMutation = useMutation({
@@ -39,7 +51,7 @@ export default function TeacherListPage() {
   const handleExportCSV = () => {
     if (teachers.length === 0) return;
 
-    const headers = ['Name', 'Email', 'Employee Code', 'Qualification', 'Status'];
+    const headers = ['Name', 'Email', 'Employee Code', 'Qualification', 'Subjects', 'Status'];
     const csvContent = [
       headers.join(','),
       ...teachers.map((teacher: any) => {
@@ -50,6 +62,7 @@ export default function TeacherListPage() {
           `"${teacher.user.email}"`,
           `"${teacher.employeeCode || ''}"`,
           `"${teacher.qualification || ''}"`,
+          `"${(teacher.teacherSubjects || []).map((ts: any) => ts.subject.name).join(', ') || 'N/A'}"`,
           teacher.user.status
         ].join(',');
       })
@@ -80,7 +93,7 @@ export default function TeacherListPage() {
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 32);
 
     // Add table
-    const tableColumn = ["Name", "Email", "Employee Code", "Qualification", "Status"];
+    const tableColumn = ["Name", "Email", "Employee Code", "Qualification", "Subjects", "Status"];
     const tableRows = teachers.map((teacher: any) => {
       const name = `${teacher.user.firstName} ${teacher.user.lastName}`;
 
@@ -89,6 +102,7 @@ export default function TeacherListPage() {
         teacher.user.email,
         teacher.employeeCode || '-',
         teacher.qualification || '-',
+        (teacher.teacherSubjects || []).map((ts: any) => ts.subject.name).join(', ') || '-',
         teacher.user.status
       ];
     });
@@ -161,13 +175,63 @@ export default function TeacherListPage() {
             <option value="inactive">Inactive</option>
             <option value="suspended">Suspended</option>
           </select>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button
+            variant={isFiltersOpen ? "secondary" : "outline"}
+            className="flex items-center gap-2"
+            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+          >
             <Filter className="h-4 w-4" />
-            More Filters
+            {isFiltersOpen ? "Hide Filters" : "More Filters"}
           </Button>
         </div>
       </div>
+      {isFiltersOpen && (
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-4 animate-in slide-in-from-top-2 duration-200">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-gray-500 uppercase">Subject</label>
+            <select
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+              value={subjectId || ''}
+              onChange={(e) => setSubjectId(e.target.value || undefined)}
+            >
+              <option value="">All Subjects</option>
+              {subjects.map((subject: any) => (
+                <option key={subject.id} value={subject.id}>
+                  {subject.name} ({subject.code})
+                </option>
+              ))}
+            </select>
+          </div>
 
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-gray-500 uppercase">Gender</label>
+            <select
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+              value={gender || ''}
+              onChange={(e) => setGender(e.target.value || undefined)}
+            >
+              <option value="">All Genders</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div className="md:col-span-3 flex justify-end">
+            <button
+              className="text-xs text-indigo-600 font-medium hover:text-indigo-800"
+              onClick={() => {
+                setSubjectId(undefined);
+                setGender(undefined);
+                setStatus(undefined);
+                setSearch('');
+              }}
+            >
+              Reset All Filters
+            </button>
+          </div>
+        </div>
+      )}
       {/* Teacher Table */}
       <div className="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
@@ -178,6 +242,7 @@ export default function TeacherListPage() {
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Employee Code</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Qualification</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Subjects</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
@@ -224,6 +289,19 @@ export default function TeacherListPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {teacher.qualification || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="flex flex-wrap gap-1">
+                        {teacher.teacherSubjects && teacher.teacherSubjects.length > 0 ? (
+                          teacher.teacherSubjects.map((ts: any) => (
+                            <span key={ts.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                              {ts.subject.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-400 italic">N/A</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={cn(

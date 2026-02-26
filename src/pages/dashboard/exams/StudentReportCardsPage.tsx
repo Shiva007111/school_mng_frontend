@@ -20,10 +20,15 @@ const StudentReportCardsPage: React.FC = () => {
     const [search, setSearch] = useState('');
     const [selectedSession, setSelectedSession] = useState<string>('');
     const [selectedGrade, setSelectedGrade] = useState<string>('all');
+    const [selectedSection, setSelectedSection] = useState<string>('all');
 
     const { data: studentsData, isLoading: isLoadingStudents } = useQuery({
-        queryKey: ['students-for-reports', search, selectedGrade],
-        queryFn: () => studentService.getStudents({ search, gradeLevelId: selectedGrade === 'all' ? undefined : selectedGrade }),
+        queryKey: ['students-for-reports', search, selectedGrade, selectedSection],
+        queryFn: () => studentService.getStudents({
+            search,
+            gradeLevelId: selectedGrade === 'all' ? undefined : selectedGrade,
+            classSectionId: selectedSection === 'all' ? undefined : selectedSection
+        }),
     });
 
     const { data: sessionsData, isLoading: isLoadingSessions } = useQuery({
@@ -36,9 +41,17 @@ const StudentReportCardsPage: React.FC = () => {
         queryFn: () => academicService.getGradeLevels(),
     });
 
+    // Fetch sections when grade is selected
+    const { data: sectionsData } = useQuery({
+        queryKey: ['class-sections', selectedGrade],
+        queryFn: () => academicService.getClassSections({ gradeLevelId: selectedGrade }),
+        enabled: selectedGrade !== 'all',
+    });
+
     const students = studentsData?.data || [];
     const sessions = sessionsData?.data || [];
     const grades = gradesData?.data || [];
+    const sections = sectionsData?.data || [];
 
     // Set default session if not selected
     React.useEffect(() => {
@@ -78,7 +91,10 @@ const StudentReportCardsPage: React.FC = () => {
                     </div>
                     <select
                         value={selectedGrade}
-                        onChange={(e) => setSelectedGrade(e.target.value)}
+                        onChange={(e) => {
+                            setSelectedGrade(e.target.value);
+                            setSelectedSection('all'); // Reset section when grade changes
+                        }}
                         className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                     >
                         <option value="all">All Grades</option>
@@ -88,6 +104,22 @@ const StudentReportCardsPage: React.FC = () => {
                             </option>
                         ))}
                     </select>
+
+                    {/* Section Filter */}
+                    <select
+                        value={selectedSection}
+                        onChange={(e) => setSelectedSection(e.target.value)}
+                        disabled={selectedGrade === 'all'}
+                        className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <option value="all">All Sections</option>
+                        {sections.map((section) => (
+                            <option key={section.id} value={section.id}>
+                                {section.section}
+                            </option>
+                        ))}
+                    </select>
+
                     <select
                         value={selectedSession}
                         onChange={(e) => setSelectedSession(e.target.value)}

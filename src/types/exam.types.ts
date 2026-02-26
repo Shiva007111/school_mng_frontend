@@ -104,6 +104,10 @@ export interface SubjectResult {
 
 export interface ReportCard {
   studentId: string;
+  studentName: string;
+  admissionNo: string;
+  className: string;
+  sectionName: string;
   examSessionId: string;
   subjects: SubjectResult[];
   overallTotalObtained: number;

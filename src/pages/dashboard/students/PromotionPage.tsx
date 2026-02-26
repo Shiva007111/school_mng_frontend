@@ -244,16 +244,20 @@ export const PromotionPage: React.FC = () => {
                           onChange={() => handleToggleStudent(enrollment.studentId)}
                         />
                       </td>
-                      <td className="px-6 py-4">
+
+                        <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
                             <Users className="h-4 w-4" />
                           </div>
                           <span className="text-sm font-medium text-gray-900">
-                            {enrollment.student?.user?.email ? enrollment.student.user.email.split('@')[0] : 'No Email'}
+                            {enrollment.student?.user
+                              ? `${enrollment.student.user.firstName} ${enrollment.student.user.lastName}`
+                              : 'No Name'}
                           </span>
                         </div>
                       </td>
+
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {enrollment.student?.admissionNo}
                       </td>

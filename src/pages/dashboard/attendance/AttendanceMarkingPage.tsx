@@ -213,7 +213,7 @@ export const AttendanceMarkingPage: React.FC = () => {
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
           <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-blue-900">Attendance Already Marked</p>
+            <p className="text-sm font-semibold text-blue-900">Attendance Marked</p>
             <p className="text-sm text-blue-700 mt-1">
               Marked on {formatMarkingTime(markedAtTimestamp)}
             </p>

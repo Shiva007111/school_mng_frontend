@@ -15,7 +15,8 @@ import type {
   UpdateClassSubjectRequest,
   TimetablePeriod,
   CreateTimetablePeriodRequest,
-  UpdateTimetablePeriodRequest
+  UpdateTimetablePeriodRequest,
+  CreateEnrollmentRequest
 } from '../types/academic.types';
 
 export interface AcademicYear {
@@ -137,6 +138,16 @@ export const academicService = {
     return response.data;
   },
 
+  bulkEnrollStudents: async (data: { enrollments: CreateEnrollmentRequest[] }): Promise<ApiResponse<{ count: number }>> => {
+    const response = await apiClient.post<ApiResponse<{ count: number }>>('/enrollments/bulk', data);
+    return response.data;
+  },
+
+  deleteEnrollment: async (id: string): Promise<ApiResponse<void>> => {
+    const response = await apiClient.delete<ApiResponse<void>>(`/enrollments/${id}`);
+    return response.data;
+  },
+
   // Rooms
   getRooms: async (): Promise<ApiResponse<ClassRoom[]>> => {
     const response = await apiClient.get<ApiResponse<ClassRoom[]>>('/class-rooms');
@@ -167,6 +178,18 @@ export const academicService = {
 
   deleteTimetablePeriod: async (id: string): Promise<ApiResponse<void>> => {
     const response = await apiClient.delete<ApiResponse<void>>(`/timetable-periods/${id}`);
+    return response.data;
+  },
+
+  bulkCreateTimetablePeriods: async (data: {
+    classSectionId: string;
+    weekdays: number[];
+    startTime: string;
+    endTime: string;
+    classSubjectId: string;
+    roomId?: string;
+  }): Promise<ApiResponse<{ count: number }>> => {
+    const response = await apiClient.post<ApiResponse<{ count: number }>>('/timetable-periods/bulk', data);
     return response.data;
   },
 };

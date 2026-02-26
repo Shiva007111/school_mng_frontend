@@ -6,6 +6,7 @@ export interface Teacher {
   employeeCode: string | null;
   hireDate: string | null;
   qualification: string | null;
+  gender: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -21,6 +22,7 @@ export interface CreateTeacherRequest {
   employeeCode?: string;
   hireDate?: string;
   qualification?: string;
+  gender?: string;
   status?: 'active' | 'inactive' | 'suspended';
 }
 
@@ -30,13 +32,17 @@ export interface UpdateTeacherRequest {
   employeeCode?: string;
   hireDate?: string;
   qualification?: string;
+  gender?: string;
   status?: 'active' | 'inactive' | 'suspended';
+  subjectIds?: string[];
 }
 
 export interface TeacherFilters {
   search?: string;
   status?: string;
   userId?: string;
+  subjectId?: string;
+  gender?: string;
   page?: number;
   limit?: number;
 }

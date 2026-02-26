@@ -62,6 +62,11 @@ export const examService = {
     return response.data;
   },
 
+  deleteExam: async (id: string): Promise<ApiResponse<void>> => {
+    const response = await apiClient.delete<ApiResponse<void>>(`/exams/${id}`);
+    return response.data;
+  },
+
   // Exam Subjects
   getExamSubjects: async (examId: string): Promise<ApiResponse<ExamSubject[]>> => {
     const response = await apiClient.get<ApiResponse<ExamSubject[]>>(`/exam-subjects/exam/${examId}`);

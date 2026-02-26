@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  Printer, 
-  Download, 
+import {
+  Printer,
+  Download,
   ArrowLeft,
   Loader2,
   GraduationCap,
@@ -14,10 +14,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { examService } from '@/services/exam.service';
 import { Button } from '@/components/Button';
 
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+
 export const ReportCardPage: React.FC = () => {
   const { studentId, sessionId } = useParams<{ studentId: string, sessionId: string }>();
   const navigate = useNavigate();
   const printRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = React.useState(false);
 
   // Fetch Report Card Data
   const { data: reportData, isLoading: isLoadingReport } = useQuery({
@@ -39,6 +43,37 @@ export const ReportCardPage: React.FC = () => {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!printRef.current || !report || !session) return;
+
+    try {
+      setIsDownloading(true);
+      const canvas = await html2canvas(printRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save(`${report.studentName.replace(/\s+/g, '_')}_Report_Card.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   if (isLoadingReport) {
@@ -65,7 +100,7 @@ export const ReportCardPage: React.FC = () => {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between print:hidden">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => navigate(-1)}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
@@ -81,8 +116,16 @@ export const ReportCardPage: React.FC = () => {
             <Printer className="h-4 w-4 mr-2" />
             Print
           </Button>
-          <Button className="bg-indigo-600 text-white">
-            <Download className="h-4 w-4 mr-2" />
+          <Button
+            className="bg-indigo-600 text-white"
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+          >
+            {isDownloading ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
             Download PDF
           </Button>
         </div>
@@ -102,8 +145,11 @@ export const ReportCardPage: React.FC = () => {
             </div>
           </div>
           <div className="text-right">
-            <p className="text-sm text-indigo-100">Academic Session</p>
-            <p className="text-lg font-bold">{session?.academicYear?.name}</p>
+            <p className="text-xl font-bold">{report.studentName}</p>
+            <p className="text-sm text-indigo-100">
+              {report.className} - {report.sectionName} | Adm: {report.admissionNo}
+            </p>
+            <p className="text-xs text-indigo-200 mt-1">{session?.academicYear?.name} ({session?.name})</p>
           </div>
         </div>
 

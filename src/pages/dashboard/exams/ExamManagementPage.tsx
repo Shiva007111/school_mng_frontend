@@ -238,6 +238,41 @@ export const ExamManagementPage: React.FC = () => {
     setIsSubjectModalOpen(true);
   };
 
+  // const deleteExamMutation = useMutation({
+  //   mutationFn: (id: string) => examService.deleteExam(id),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ['exams', sessionId] });
+  //     toast.success('Exam deleted successfully');
+  //     setIsExamModalOpen(false);
+  //   },
+  //   onError: (error: any) => {
+  //     toast.error(error.message || 'Failed to delete exam');
+  //   }
+  // });
+  const deleteExamMutation = useMutation({
+  mutationFn: (id: string) => examService.deleteExam(id),
+
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['exams', sessionId] });
+    toast.success('Exam deleted successfully');
+    setIsExamModalOpen(false);
+  },
+
+  onError: (error: any) => {
+    const message =
+      error?.response?.data?.message || 'Failed to delete exam Marks Enterd';
+
+    toast.error(message);
+    }
+  });
+
+  const handleDeleteExam = () => {
+    if (!selectedExam) return;
+    if (window.confirm('Are you sure you want to delete this exam? This action cannot be undone.')) {
+      deleteExamMutation.mutate(selectedExam.id);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -471,6 +506,18 @@ export const ExamManagementPage: React.FC = () => {
                 />
               </div>
               <div className="pt-4 flex gap-3">
+                {selectedExam && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    isLoading={deleteExamMutation.isPending}
+                    onClick={handleDeleteExam}
+                    className="text-red-600 hover:bg-red-50 border-red-200 hover:border-red-300"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                )}
                 <Button type="button" variant="outline" onClick={() => setIsExamModalOpen(false)} className="flex-1">Cancel</Button>
                 <Button type="submit" isLoading={createExamMutation.isPending || updateExamMutation.isPending} className="flex-1 bg-indigo-600 text-white">
                   {selectedExam ? 'Update Exam' : 'Create Exam'}

@@ -18,7 +18,7 @@ export const FeeReceipt: React.FC<FeeReceiptProps> = ({ invoice, student, onClos
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 print:p-0 print:bg-white">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 print:shadow-none print:rounded-none">
+    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200 print:shadow-none print:rounded-none">  
         {/* Header - Hidden in print */}
         <div className="p-4 border-b border-gray-100 flex items-center justify-between print:hidden">
           <h3 className="font-bold text-gray-900">Fee Receipt Preview</h3>

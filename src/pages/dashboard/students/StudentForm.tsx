@@ -8,6 +8,8 @@ import { studentService } from '@/services/student.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Student, CreateStudentRequest } from '@/types/student.types';
 import { toast } from 'react-hot-toast';
+import { useEffect } from 'react';
+
 
 const studentSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -33,9 +35,14 @@ export default function StudentForm({ initialData, isEdit }: StudentFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+
+
+
+
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<StudentFormData>({
     resolver: zodResolver(studentSchema),
@@ -54,6 +61,21 @@ export default function StudentForm({ initialData, isEdit }: StudentFormProps) {
       gender: 'Male',
     },
   });
+    useEffect(() => {
+    if (!isEdit) {
+      const fetchNextAdmission = async () => {
+        try {
+          const data = await studentService.getNextAdmissionNo();
+          setValue('admissionNo', data.nextAdmissionNo);
+
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      fetchNextAdmission();
+    }
+  }, [isEdit, setValue]);
 
   const mutation = useMutation({
     mutationFn: (data: StudentFormData) => {
@@ -123,7 +145,7 @@ export default function StudentForm({ initialData, isEdit }: StudentFormProps) {
               label="Phone Number (Optional)"
               {...register('phone')}
               error={errors.phone?.message}
-              placeholder="+1 234 567 890"
+              placeholder="+91 123 456 7890"
             />
           </div>
         </div>
@@ -135,12 +157,20 @@ export default function StudentForm({ initialData, isEdit }: StudentFormProps) {
             Academic Information
           </h3>
           <div className="space-y-4">
-            <Input
+            {/* <Input
               label="Admission Number"
               {...register('admissionNo')}
               error={errors.admissionNo?.message}
               placeholder="ADM2024001"
+            /> */}
+             <Input
+              label="Admission Number"
+              {...register('admissionNo')}
+              error={errors.admissionNo?.message}
+              placeholder="Generating..."
+              readOnly={!isEdit}
             />
+
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700">Status</label>
               <select

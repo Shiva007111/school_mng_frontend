@@ -79,12 +79,28 @@ export const ExamSessionPage: React.FC = () => {
     },
   });
 
+  // const deleteMutation = useMutation({
+  //   mutationFn: (id: string) => examService.deleteExamSession(id), // Note: Need to add delete to service
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ['exam-sessions'] });
+  //     toast.success('Exam session deleted successfully');
+  //   },
+  // });
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => examService.deleteExamSession(id), // Note: Need to add delete to service
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['exam-sessions'] });
-      toast.success('Exam session deleted successfully');
-    },
+  mutationFn: (id: string) => examService.deleteExamSession(id),
+
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['exam-sessions'] });
+    toast.success('Exam session deleted successfully');
+  },
+
+  onError: (error: any) => {
+    toast.error(
+      error?.response?.data?.message || 
+      error?.message || 
+      'Failed to delete exam session'
+    );
+  },
   });
 
   const handleOpenModal = (session?: any) => {

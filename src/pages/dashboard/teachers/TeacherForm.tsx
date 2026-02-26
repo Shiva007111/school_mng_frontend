@@ -18,6 +18,7 @@ const teacherSchema = z.object({
   employeeCode: z.string().min(3, 'Employee code is required'),
   hireDate: z.string().min(1, 'Hire date is required'),
   qualification: z.string().min(2, 'Qualification is required'),
+  gender: z.string().optional(),
   status: z.enum(['active', 'inactive', 'suspended']),
   password: z.string().min(6, 'Password must be at least 6 characters').optional(),
   subjectIds: z.array(z.string()).optional(),
@@ -56,7 +57,9 @@ export default function TeacherForm({ initialData, isEdit }: TeacherFormProps) {
       employeeCode: initialData.employeeCode || '',
       hireDate: initialData.hireDate ? initialData.hireDate.split('T')[0] : '',
       qualification: initialData.qualification || '',
+      gender: initialData.gender || '',
       status: initialData.user.status as any,
+      subjectIds: (initialData.teacherSubjects || []).map((ts: any) => ts.subjectId),
     } : {
       status: 'active',
     },
@@ -146,7 +149,7 @@ export default function TeacherForm({ initialData, isEdit }: TeacherFormProps) {
               label="Employee Code"
               {...register('employeeCode')}
               error={errors.employeeCode?.message}
-              placeholder="EMP2024001"
+              placeholder="EMP2026001"
             />
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700">Status</label>
@@ -170,6 +173,19 @@ export default function TeacherForm({ initialData, isEdit }: TeacherFormProps) {
             Personal & Background
           </h3>
           <div className="space-y-4">
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">Gender</label>
+              <select
+                {...register('gender')}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border h-[38px]"
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+              {errors.gender && <p className="text-xs text-red-500">{errors.gender.message}</p>}
+            </div>
             <Input
               label="Hire Date"
               type="date"
@@ -182,23 +198,21 @@ export default function TeacherForm({ initialData, isEdit }: TeacherFormProps) {
               error={errors.qualification?.message}
               placeholder="e.g. M.Sc. Mathematics, B.Ed."
             />
-            {!isEdit && (
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Assign Subjects (Optional)</label>
-                <select
-                  multiple
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border h-32"
-                  {...register('subjectIds')}
-                >
-                  {subjects.map((subject) => (
-                    <option key={subject.id} value={subject.id}>
-                      {subject.name} ({subject.code})
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-gray-500">Hold Ctrl/Cmd to select multiple subjects</p>
-              </div>
-            )}
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">Assign Subjects (Optional)</label>
+              <select
+                multiple
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border h-32"
+                {...register('subjectIds')}
+              >
+                {subjects.map((subject) => (
+                  <option key={subject.id} value={subject.id}>
+                    {subject.name} ({subject.code})
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500">Hold Ctrl/Cmd to select multiple subjects</p>
+            </div>
           </div>
         </div>
       </div>

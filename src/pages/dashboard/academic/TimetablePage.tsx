@@ -105,17 +105,19 @@ export const TimetablePage: React.FC = () => {
   const selectedSection = sections.find(s => s.id === selectedSectionId);
 
   // Mutations
-  const createMutation = useMutation({
-    mutationFn: (data: any) => academicService.createTimetablePeriod(data),
-    onSuccess: () => {
+  const bulkCreateMutation = useMutation({
+    mutationFn: (data: any) => academicService.bulkCreateTimetablePeriods(data),
+    onSuccess: (response: any) => {
       queryClient.invalidateQueries({ queryKey: ['timetable-periods', selectedSectionId] });
-      toast.success('Period added successfully');
+      toast.success(response.message || 'Periods added successfully');
       setIsPeriodModalOpen(false);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to add period');
+      toast.error(error.response?.data?.message || 'Failed to add periods');
     },
   });
+
+
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string, data: any }) =>
@@ -178,9 +180,15 @@ export const TimetablePage: React.FC = () => {
     };
 
     if (editingPeriod) {
-      updateMutation.mutate({ id: editingPeriod.id, data: payload });
+      // Editing always handles a single period (weekday)
+      const { weekdays, ...rest } = payload;
+      updateMutation.mutate({
+        id: editingPeriod.id,
+        data: { ...rest, weekday: weekdays[0] }
+      });
     } else {
-      createMutation.mutate(payload);
+      // New period creation can be bulk
+      bulkCreateMutation.mutate(payload);
     }
   };
 
@@ -280,7 +288,7 @@ export const TimetablePage: React.FC = () => {
         onClose={() => setIsPeriodModalOpen(false)}
         onSubmit={handleFormSubmit}
         onDelete={(id) => deleteMutation.mutate(id)}
-        isLoading={createMutation.isPending || updateMutation.isPending}
+        isLoading={bulkCreateMutation.isPending || updateMutation.isPending}
         isDeleting={deleteMutation.isPending}
         classSubjects={classSubjects}
         rooms={rooms}
