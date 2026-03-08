@@ -1,6 +1,6 @@
 import apiClient from './api';
 import type { ApiResponse } from '../types/api.types';
-import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest, TeacherFilters } from '../types/teacher.types';
+import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest, TeacherFilters, TeacherAttendance } from '../types/teacher.types';
 
 export const teacherService = {
   getTeachers: async (filters?: TeacherFilters): Promise<ApiResponse<Teacher[]>> => {
@@ -12,6 +12,18 @@ export const teacherService = {
 
   getTeacherById: async (id: string): Promise<ApiResponse<Teacher>> => {
     const response = await apiClient.get<ApiResponse<Teacher>>(`/teachers/${id}`);
+    return response.data;
+  },
+
+  getTeacherAttendance: async (
+    teacher_id: string,
+    from_date: string,
+    till_date: string
+  ): Promise<ApiResponse<any>> => {
+
+    const response = await apiClient.get<ApiResponse<TeacherAttendance>>(
+      `/attendance/teacher/${teacher_id}?from_date=${from_date}&till_date=${till_date}`
+    );
     return response.data;
   },
 

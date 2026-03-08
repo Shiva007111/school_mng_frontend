@@ -21,9 +21,9 @@ export interface AttendanceSummary {
 }
 
 export const reportService = {
-  getFeeReport: async (academicYearId: string): Promise<ApiResponse<FeeReport>> => {
+  getFeeReport: async (academicYearId: string, classSectionId?: string): Promise<ApiResponse<FeeReport>> => {
     const response = await apiClient.get<ApiResponse<FeeReport>>('/reports/fees', {
-      params: { academicYearId },
+      params: { academicYearId, classSectionId },
     });
     return response.data;
   },

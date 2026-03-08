@@ -46,3 +46,9 @@ export interface TeacherFilters {
   page?: number;
   limit?: number;
 }
+
+export interface TeacherAttendance {
+  totalDays: number;
+  presentDays: any[];
+  absentDays: number;
+};

@@ -32,6 +32,13 @@ export const academicService = {
     const response = await apiClient.get<ApiResponse<GradeLevel[]>>('/grade-levels');
     return response.data;
   },
+  // Fees
+  getFees: async (academicYearId: string, classSectionId: string): Promise<ApiResponse<any>> => {
+    const response = await apiClient.get<ApiResponse<any>>('/fees', {
+      params: { academicYearId, classSectionId },
+    });
+    return response.data;
+  },
 
   // Academic Years
   getAcademicYears: async (): Promise<ApiResponse<AcademicYear[]>> => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   TrendingUp,
@@ -15,8 +15,10 @@ import { academicService } from '@/services/academic.service';
 import { Button } from '@/components/Button';
 
 export const ReportsPage: React.FC = () => {
+  //teacher reports of fees add.
   const [selectedYearId, setSelectedYearId] = useState('');
   const [selectedClassId, setSelectedClassId] = useState('');
+  const [selectedSectionId, setSelectedSectionId] = useState('');
 
   // Fetch Academic Years
   const { data: yearsData } = useQuery({
@@ -30,10 +32,34 @@ export const ReportsPage: React.FC = () => {
     queryFn: () => academicService.getClassSections(),
   });
 
+  // Fetch Current Academic Year
+  const { data: currentYearData } = useQuery({
+    queryKey: ['current-academic-year'],
+    queryFn: () => academicService.getCurrentAcademicYear(),
+  });
+
+  // Auto-select academic year
+  useEffect(() => {
+    if (!selectedYearId) {
+      if (currentYearData?.data?.id) {
+        setSelectedYearId(currentYearData.data.id);
+      } else if (yearsData?.data?.length) {
+        setSelectedYearId(yearsData.data[yearsData.data.length - 1].id);
+      }
+    }
+  }, [currentYearData, yearsData, selectedYearId]);
+
+  // Auto-select first class for attendance summary
+  useEffect(() => {
+    if (sectionsData?.data?.length && !selectedClassId) {
+      setSelectedClassId(sectionsData.data[0].id);
+    }
+  }, [sectionsData, selectedClassId]);
+
   // Fetch Fee Report
   const { data: feeReport, isLoading: isLoadingFees } = useQuery({
-    queryKey: ['fee-report', selectedYearId],
-    queryFn: () => reportService.getFeeReport(selectedYearId),
+    queryKey: ['fee-report', selectedYearId, selectedSectionId],
+    queryFn: () => reportService.getFeeReport(selectedYearId, selectedSectionId),
     enabled: !!selectedYearId,
   });
 
@@ -47,6 +73,7 @@ export const ReportsPage: React.FC = () => {
   const handleExportAll = () => {
     const doc = new jsPDF();
     const today = new Date().toLocaleDateString();
+
 
     // Title
     doc.setFontSize(20);
@@ -111,7 +138,12 @@ export const ReportsPage: React.FC = () => {
 
     doc.save(`school_reports_${new Date().toISOString().split('T')[0]}.pdf`);
   };
+  //default shows if clicks Repeorts in select year is current year.
 
+
+
+
+  //link Reorts for Teacher Report page to Teacher grading page and class section list page.
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -145,6 +177,22 @@ export const ReportsPage: React.FC = () => {
             </select>
           </div>
 
+          {/* Class Section Filter */}
+          <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+            <span className="text-sm font-medium text-gray-700">Filter by Class Section</span>
+            <select
+              className="text-sm border-none bg-transparent rounded-lg px-2 py-1 focus:ring-0"
+              value={selectedSectionId}
+              onChange={(e) => setSelectedSectionId(e.target.value)}
+            >
+              <option value="">All Sections</option>
+              {sectionsData?.data?.filter(s => !selectedYearId || s.academicYearId === selectedYearId).map((section: any) => (
+                <option key={section.id} value={section.id}>
+                  {section.gradeLevel?.displayName} - {section.section}
+                </option>
+              ))}
+            </select>
+          </div>
           {!selectedYearId ? (
             <div className="h-48 flex flex-col items-center justify-center text-gray-400 text-sm">
               <Filter className="h-8 w-8 mb-2 opacity-20" />

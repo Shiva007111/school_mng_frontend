@@ -3,9 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   BookOpen,
   ChevronRight,
-  ClipboardCheck,
   Calendar,
-  Users,
   Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -124,39 +122,6 @@ export const TeacherGradingPage: React.FC = () => {
           </div>
         </div>
       )}
-
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-          <ClipboardCheck className="h-5 w-5 text-green-600" />
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button
-            onClick={() => navigate('/dashboard/attendance')}
-            className="flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-indigo-200 hover:bg-indigo-50/30 transition-all text-left"
-          >
-            <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
-              <Users className="h-6 w-6" />
-            </div>
-            <div>
-              <h4 className="font-bold text-gray-900">Mark Attendance</h4>
-              <p className="text-sm text-gray-500">Quickly mark daily attendance for your class.</p>
-            </div>
-          </button>
-          <button
-            onClick={() => navigate('/dashboard/timetable')}
-            className="flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-blue-200 hover:bg-blue-50/30 transition-all text-left"
-          >
-            <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-              <Calendar className="h-6 w-6" />
-            </div>
-            <div>
-              <h4 className="font-bold text-gray-900">View Timetable</h4>
-              <p className="text-sm text-gray-500">Check your teaching schedule for the week.</p>
-            </div>
-          </button>
-        </div>
-      </div>
     </div>
   );
 };

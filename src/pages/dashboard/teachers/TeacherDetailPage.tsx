@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { teacherService } from '@/services/teacher.service';
 import { Button } from '@/components/Button';
 import AssignClassModal from './AssignClassModal';
+import TeacherAttendanceModal from './TeacherAttendanceModal';
 import {
   UserCheck,
   Calendar,
@@ -17,16 +18,35 @@ import {
   Award
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import toast from 'react-hot-toast';
 
 export default function TeacherDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+  const [attendanceDates, setAttendanceDates] = useState({ from: '', to: '' });
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['teacher', id],
     queryFn: () => teacherService.getTeacherById(id!),
     enabled: !!id,
   });
+
+  const { data: teacherAttendance } = useQuery({
+    queryKey: ['attendanceTeacher', id, attendanceDates.from, attendanceDates.to],
+    queryFn: () => teacherService.getTeacherAttendance(id!, attendanceDates.from, attendanceDates.to),
+    enabled: !!attendanceDates.from && !!attendanceDates.to
+  });
+
+  //if error in attendance
+  if (teacherAttendance?.message) {
+    toast.error(teacherAttendance.message);
+  }
+
+  const handleFetchAttendance = (fromDate: string, toDate: string) => {
+    setAttendanceDates({ from: fromDate, to: toDate });
+    // React Query will automatically refetch because queryKey depends on dates
+  };
 
   const teacher = data?.data;
 
@@ -71,6 +91,13 @@ export default function TeacherDetailPage() {
               Edit Profile
             </Button>
           </Link>
+          <Button
+            onClick={() => setShowAttendanceModal(true)}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700"
+          >
+            <Calendar className="h-4 w-4" />
+            Check Attendance
+          </Button>
         </div>
       </div>
 
@@ -167,15 +194,18 @@ export default function TeacherDetailPage() {
             )}
           </div>
 
-          {/* Recent Activity Placeholder */}
+          {/* Recent Activity */}
           <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Clock className="h-5 w-5 text-indigo-600" />
-              Recent Activity
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Clock className="h-5 w-5 text-indigo-600" />
+                Recent Activity
+              </h3>
+
+            </div>
             <div className="space-y-4">
               <p className="text-sm text-gray-500 italic">
-                Teacher attendance, timetable, and performance metrics will be displayed here in future phases.
+                Detailed logs for teacher attendance and timetable updates will be available here soon.
               </p>
             </div>
           </div>
@@ -189,6 +219,17 @@ export default function TeacherDetailPage() {
           onClose={() => setIsAssignModalOpen(false)}
         />
       )}
+
+      {showAttendanceModal && (
+        <TeacherAttendanceModal
+          isOpen={showAttendanceModal}
+          onClose={() => setShowAttendanceModal(false)}
+          teacherName={`${teacher.user.firstName} ${teacher.user.lastName}`}
+          onConfirm={handleFetchAttendance}
+          attendanceData={teacherAttendance?.data}
+        />
+      )}
     </div>
   );
 }
+

@@ -1,4 +1,14 @@
 export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused';
+export interface TeacherAttendance {
+  id: string;
+  teacherId: string;
+  date: string;
+  latitude: number | null;
+  longitude: number | null;
+  markedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface AttendanceEvent {
   id: string;
@@ -31,6 +41,12 @@ export interface MarkAttendanceRequest {
   status: AttendanceStatus;
   timetablePeriodId?: string;
   remarks?: string;
+}
+export interface MarkTeacherAttendanceRequest {
+  latitude: number;
+  longitude: number;
+  teacherId: string;
+  date: string;
 }
 
 export interface BulkMarkAttendanceRequest {

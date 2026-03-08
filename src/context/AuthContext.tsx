@@ -16,46 +16,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check if user is already logged in on mount
-  // useEffect(() => {
-  //   const initAuth = async () => {
-  //     if (authService.isAuthenticated()) {
-  //       try {
-  //         const currentUser = await authService.getCurrentUser();
-  //         setUser(currentUser);
-  //       } catch (error) {
-  //         // Token is invalid, clear it
-  //         authService.clearToken();
-  //       }
-  //     }
-  //     setIsLoading(false);
-  //   };
-
-  //   initAuth();
-  // }, []);
 
   useEffect(() => {
-  const initAuth = async () => {
-    const token = localStorage.getItem('auth_token');
+    const initAuth = async () => {
+      const token = localStorage.getItem('auth_token');
 
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
 
-    try {
-      const currentUser = await authService.getCurrentUser();
-      setUser(currentUser);
-    } catch {
-      authService.clearToken();
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      try {
+        const currentUser = await authService.getCurrentUser();
+        setUser(currentUser);
+      } catch {
+        authService.clearToken();
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  initAuth();
-}, []);
+    initAuth();
+  }, []);
 
 
   const login = async (credentials: LoginRequest) => {
@@ -89,18 +72,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   //   </AuthContext.Provider>
   // );
   return (
-  <AuthContext.Provider 
-    value={{ 
-      user, 
-      isAuthenticated: !!user || authService.isAuthenticated(), 
-      login, 
-      logout, 
-      isLoading 
-    }}
-  >
-    {children}
-  </AuthContext.Provider>
-);
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user || authService.isAuthenticated(),
+        login,
+        logout,
+        isLoading
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 
 }
 
