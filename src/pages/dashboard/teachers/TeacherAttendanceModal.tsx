@@ -108,49 +108,20 @@ export default function TeacherAttendanceModal({
                                     <div className="text-center p-3 bg-rose-50 rounded-2xl border border-rose-100 flex flex-col justify-center">
                                         <p className="text-xl font-black text-rose-600">{attendanceData.absentDays}</p>
                                         <p className="text-[10px] uppercase font-bold text-rose-500 tracking-wider">Absent</p>
+
                                     </div>
                                 </div>
 
-                                {/* Detailed Log */}
-                                <div className="space-y-3">
-                                    <h4 className="text-sm font-bold text-gray-700 flex items-center justify-between">
-                                        <span>Attendance Log</span>
-                                        <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full uppercase">Recent First</span>
-                                    </h4>
-                                    <div className="max-h-48 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
-                                        {attendanceData.presentDays && attendanceData.presentDays.length > 0 ? (
-                                            attendanceData.presentDays.map((record) => (
-                                                <div key={record.id} className="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl hover:border-indigo-100 transition-colors">
-                                                    <div>
-                                                        <p className="text-sm font-bold text-gray-900">
-                                                            {new Date(record.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                        </p>
-                                                        <p className="text-[10px] text-gray-400">Marked at {new Date(record.markedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                                                    </div>
-                                                    <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">
-                                                        <div className="h-1 w-1 rounded-full bg-emerald-500"></div>
-                                                        PRESENT
-                                                    </div>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <div className="py-8 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                                                <p className="text-xs text-gray-400">No attendance records found for this period.</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="pt-2 flex gap-3">
+                                <div className="pt-4 flex gap-4">
                                     <button
                                         onClick={onClose}
-                                        className="flex-1 py-3 px-6 rounded-2xl font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200"
+                                        className="flex-1 py-4 px-6 rounded-2xl font-bold text-rose-500 bg-rose-50 hover:bg-rose-100 transition-colors border border-rose-100"
                                     >
                                         Close
                                     </button>
                                     <button
                                         onClick={handleConfirm}
-                                        className="flex-1 py-3 px-6 rounded-2xl font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200"
+                                        className="flex-1 py-4 px-6 rounded-2xl font-bold text-emerald-600 bg-[#eefce9] hover:bg-[#e4f7de] transition-colors border border-emerald-100"
                                     >
                                         Refresh
                                     </button>
@@ -158,13 +129,8 @@ export default function TeacherAttendanceModal({
                             </div>
                         ) : (
                             <div className="flex flex-col gap-6">
-                                <div className="py-12 text-center border-2 border-dashed border-gray-100 rounded-3xl bg-gray-50/30">
-                                    <div className="h-12 w-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 border border-gray-50">
-                                        <CalendarIcon className="h-6 w-6 text-indigo-400" />
-                                    </div>
-                                    <p className="text-gray-400 font-medium px-4 text-sm leading-relaxed">
-                                        Select a date range above to view attendance metrics for <span className="text-indigo-600 font-bold">{teacherName}</span>
-                                    </p>
+                                <div className="py-8 text-center border-2 border-dashed border-gray-100 rounded-3xl">
+                                    <p className="text-gray-400 font-medium px-4 text-sm">Select date range above to view attendance metrics for <span className="text-gray-600 font-bold">{teacherName}</span></p>
                                 </div>
 
                                 <div className="flex gap-4">

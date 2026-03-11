@@ -29,12 +29,19 @@ export const StudentFeePage: React.FC = () => {
     method: 'cash',
     transactionRef: ''
   });
+  const [selectedClassId, setSelectedClassId] = useState('');
   const [showReceipt, setShowReceipt] = useState<any>(null);
 
   // Fetch Students (Enrollments)
   const { data: studentsData, isLoading: isLoadingStudents } = useQuery({
     queryKey: ['enrollments'],
     queryFn: () => academicService.getEnrollments(),
+  });
+
+  // Fetch Class Sections
+  const { data: classSectionsData } = useQuery({
+    queryKey: ['class-sections'],
+    queryFn: () => academicService.getClassSections(),
   });
 
   // Fetch Invoices for selected student
@@ -73,9 +80,14 @@ export const StudentFeePage: React.FC = () => {
     const admissionNo = s.student?.admissionNo || '';
     const query = searchQuery.toLowerCase();
 
-    return fullName.toLowerCase().includes(query) ||
+    // Class filter
+    const matchesClass = !selectedClassId || s.classSectionId === selectedClassId;
+
+    return matchesClass && (
+      fullName.toLowerCase().includes(query) ||
       email.toLowerCase().includes(query) ||
-      admissionNo.toLowerCase().includes(query);
+      admissionNo.toLowerCase().includes(query)
+    );
   }) || [];
 
   const handleRecordPayment = (invoice: any) => {
@@ -94,7 +106,21 @@ export const StudentFeePage: React.FC = () => {
       <div className="lg:col-span-1 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
         <div className="p-4 border-b border-gray-100 space-y-4">
           <h2 className="font-bold text-gray-900">Students</h2>
-          <div>
+
+          <div className="space-y-2">
+            <select
+              value={selectedClassId}
+              onChange={(e) => setSelectedClassId(e.target.value)}
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-gray-700"
+            >
+              <option value="">All Classes</option>
+              {classSectionsData?.data?.map((cls: any) => (
+                <option key={cls.id} value={cls.id}>
+                  {cls.gradeLevel?.displayName} - {cls.section}
+                </option>
+              ))}
+            </select>
+
             <Input
               placeholder="Search students..."
               value={searchQuery}
@@ -103,6 +129,7 @@ export const StudentFeePage: React.FC = () => {
             />
           </div>
         </div>
+
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {isLoadingStudents ? (
             <div className="flex justify-center py-10">
@@ -279,71 +306,67 @@ export const StudentFeePage: React.FC = () => {
       </div>
 
       {/* Record Payment Modal */}
-      {
-        isRecordingPayment && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-              <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-                <h3 className="text-xl font-bold text-gray-900">Record Payment</h3>
-                <p className="text-sm text-gray-500">Enter payment details for the selected invoice.</p>
+      {isRecordingPayment && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-gray-100 bg-gray-50/50">
+              <h3 className="text-xl font-bold text-gray-900">Record Payment</h3>
+              <p className="text-sm text-gray-500">Enter payment details for the selected invoice.</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Amount to Pay</label>
+                <Input
+                  type="number"
+                  value={paymentData.amount}
+                  onChange={(e) => setPaymentData({ ...paymentData, amount: Number(e.target.value) })}
+                  leftIcon={<IndianRupee className="h-4 w-4" />}
+                />
               </div>
-              <div className="p-6 space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Amount to Pay</label>
-                  <Input
-                    type="number"
-                    value={paymentData.amount}
-                    onChange={(e) => setPaymentData({ ...paymentData, amount: Number(e.target.value) })}
-                    leftIcon={<IndianRupee className="h-4 w-4" />}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Payment Method</label>
-                  <select
-                    className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={paymentData.method}
-                    onChange={(e) => setPaymentData({ ...paymentData, method: e.target.value })}
-                  >
-                    <option value="cash">Cash</option>
-                    <option value="bank_transfer">Bank Transfer</option>
-                    <option value="cheque">Cheque</option>
-                    <option value="online">Online</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Transaction Reference (Optional)</label>
-                  <Input
-                    placeholder="e.g. TXN123456"
-                    value={paymentData.transactionRef}
-                    onChange={(e) => setPaymentData({ ...paymentData, transactionRef: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-3">
-                <Button variant="outline" onClick={() => setIsRecordingPayment(false)}>Cancel</Button>
-                <Button
-                  onClick={() => paymentMutation.mutate(paymentData)}
-                  isLoading={paymentMutation.isPending}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Payment Method</label>
+                <select
+                  className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={paymentData.method}
+                  onChange={(e) => setPaymentData({ ...paymentData, method: e.target.value })}
                 >
-                  Confirm Payment
-                </Button>
+                  <option value="cash">Cash</option>
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="cheque">Cheque</option>
+                  <option value="online">Online</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Transaction Reference (Optional)</label>
+                <Input
+                  placeholder="e.g. TXN123456"
+                  value={paymentData.transactionRef}
+                  onChange={(e) => setPaymentData({ ...paymentData, transactionRef: e.target.value })}
+                />
               </div>
             </div>
+            <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setIsRecordingPayment(false)}>Cancel</Button>
+              <Button
+                onClick={() => paymentMutation.mutate(paymentData)}
+                isLoading={paymentMutation.isPending}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                Confirm Payment
+              </Button>
+            </div>
           </div>
-        )
-      }
+        </div>
+      )}
 
       {/* Receipt Preview Modal */}
-      {
-        showReceipt && (
-          <FeeReceipt
-            invoice={showReceipt.invoice}
-            student={showReceipt.student}
-            onClose={() => setShowReceipt(null)}
-          />
-        )
-      }
-    </div >
+      {showReceipt && (
+        <FeeReceipt
+          invoice={showReceipt.invoice}
+          student={showReceipt.student}
+          onClose={() => setShowReceipt(null)}
+        />
+      )}
+    </div>
   );
 };
