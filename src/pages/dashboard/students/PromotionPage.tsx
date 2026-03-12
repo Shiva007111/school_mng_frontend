@@ -29,6 +29,10 @@ export const PromotionPage: React.FC = () => {
     queryFn: () => academicService.getClassSections(),
   });
 
+  //if incase same class promote button will not show
+
+
+
   // Fetch Students from source class
   const { data: studentsData, isLoading: isLoadingStudents } = useQuery({
     queryKey: ['eligible-students', sourceClassId],
@@ -76,6 +80,10 @@ export const PromotionPage: React.FC = () => {
     }
     if (selectedStudents.length === 0) {
       toast.error('Please select at least one student');
+      return;
+    }
+    if (sourceClassId === targetClassId) {
+      toast.error('Source and target class cannot be the same');
       return;
     }
     promotionMutation.mutate({
@@ -245,7 +253,7 @@ export const PromotionPage: React.FC = () => {
                         />
                       </td>
 
-                        <td className="px-6 py-4">
+                      <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
                             <Users className="h-4 w-4" />

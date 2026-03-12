@@ -57,10 +57,21 @@ export default function StudentDetailPage() {
   const { data: attendanceData } = useQuery({
     queryKey: ['attendance', id, academicYear?.id],
     queryFn: () => {
-      const endDate = new Date();
-      const startDate = academicYear?.startDate
-        ? new Date(academicYear.startDate)
-        : new Date(new Date().setDate(new Date().getDate() - 30));
+      const now = new Date();
+      const endDate = now;
+      let startDate: Date;
+
+      if (academicYear?.startDate) {
+        const ayStart = new Date(academicYear.startDate);
+        // If academic year starts in the future, or we just want a fallback if it's too far back
+        if (ayStart > now) {
+          startDate = new Date(new Date().setDate(now.getDate() - 30));
+        } else {
+          startDate = ayStart;
+        }
+      } else {
+        startDate = new Date(new Date().setDate(now.getDate() - 30));
+      }
 
       return attendanceService.getStudentHistory(
         id!,
@@ -128,7 +139,7 @@ export default function StudentDetailPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant= "outline" size="sm" className="p-2"
+          <Button variant="outline" size="sm" className="p-2"
             onClick={() => {
               if (location.state?.from) {
                 navigate(location.state.from);
@@ -137,7 +148,7 @@ export default function StudentDetailPage() {
               }
             }}
           >
-          <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Student Details</h1>
@@ -334,39 +345,38 @@ export default function StudentDetailPage() {
                 Academic Year Attendance
               </h3>
               <div className="h-[250px] w-full">
-                {attendanceData?.data && attendanceData.data.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: 'Present', value: attendanceData.data.filter((r: any) => r.status === 'present').length, color: '#10b981' },
-                          { name: 'Absent', value: attendanceData.data.filter((r: any) => r.status === 'absent').length, color: '#ef4444' },
-                          { name: 'Late', value: attendanceData.data.filter((r: any) => r.status === 'late').length, color: '#f59e0b' },
-                          { name: 'Excused', value: attendanceData.data.filter((r: any) => r.status === 'excused').length, color: '#3b82f6' },
-                        ].filter(d => d.value > 0)}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={70}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {[
-                          { name: 'Present', color: '#10b981' },
-                          { name: 'Absent', color: '#ef4444' },
-                          { name: 'Late', color: '#f59e0b' },
-                          { name: 'Excused', color: '#3b82f6' },
-                        ].map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      />
-                      <Legend verticalAlign="bottom" height={36} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
+                {attendanceData?.data && attendanceData.data.length > 0 ? (() => {
+                  const attendancePieData = [
+                    { name: 'Present', value: attendanceData.data.filter((r: any) => r.status === 'present').length, color: '#10b981' },
+                    { name: 'Absent', value: attendanceData.data.filter((r: any) => r.status === 'absent').length, color: '#ef4444' },
+                    { name: 'Late', value: attendanceData.data.filter((r: any) => r.status === 'late').length, color: '#f59e0b' },
+                    { name: 'Excused', value: attendanceData.data.filter((r: any) => r.status === 'excused').length, color: '#3b82f6' },
+                  ].filter(d => d.value > 0);
+
+                  return (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={attendancePieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={70}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {attendancePieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        />
+                        <Legend verticalAlign="bottom" height={36} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  );
+                })() : (
                   <div className="h-full flex items-center justify-center text-gray-400 italic">
                     No attendance data for this year
                   </div>
@@ -381,39 +391,38 @@ export default function StudentDetailPage() {
                 Academic Performance
               </h3>
               <div className="h-[250px] w-full">
-                {reportCardData?.data?.subjects && reportCardData.data.subjects.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: 'Excellent (90%+)', value: reportCardData.data.subjects.filter((s: any) => (s.totalObtained / s.totalMax) >= 0.9).length, color: '#10b981' },
-                          { name: 'Good (75-90%)', value: reportCardData.data.subjects.filter((s: any) => (s.totalObtained / s.totalMax) >= 0.75 && (s.totalObtained / s.totalMax) < 0.9).length, color: '#3b82f6' },
-                          { name: 'Average (60-75%)', value: reportCardData.data.subjects.filter((s: any) => (s.totalObtained / s.totalMax) >= 0.6 && (s.totalObtained / s.totalMax) < 0.75).length, color: '#f59e0b' },
-                          { name: 'Below Avg (<60%)', value: reportCardData.data.subjects.filter((s: any) => (s.totalObtained / s.totalMax) < 0.6).length, color: '#ef4444' },
-                        ].filter(d => d.value > 0)}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={70}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {[
-                          { name: 'Excellent (90%+)', color: '#10b981' },
-                          { name: 'Good (75-90%)', color: '#3b82f6' },
-                          { name: 'Average (60-75%)', color: '#f59e0b' },
-                          { name: 'Below Avg (<60%)', color: '#ef4444' },
-                        ].map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      />
-                      <Legend verticalAlign="bottom" height={36} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
+                {reportCardData?.data?.subjects && reportCardData.data.subjects.length > 0 ? (() => {
+                  const performancePieData = [
+                    { name: 'Excellent (90%+)', value: reportCardData.data.subjects.filter((s: any) => (s.totalObtained / s.totalMax) >= 0.9).length, color: '#10b981' },
+                    { name: 'Good (75-90%)', value: reportCardData.data.subjects.filter((s: any) => (s.totalObtained / s.totalMax) >= 0.75 && (s.totalObtained / s.totalMax) < 0.9).length, color: '#3b82f6' },
+                    { name: 'Average (60-75%)', value: reportCardData.data.subjects.filter((s: any) => (s.totalObtained / s.totalMax) >= 0.6 && (s.totalObtained / s.totalMax) < 0.75).length, color: '#f59e0b' },
+                    { name: 'Below Avg (<60%)', value: reportCardData.data.subjects.filter((s: any) => (s.totalObtained / s.totalMax) < 0.6).length, color: '#ef4444' },
+                  ].filter(d => d.value > 0);
+
+                  return (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={performancePieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={70}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {performancePieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        />
+                        <Legend verticalAlign="bottom" height={36} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  );
+                })() : (
                   <div className="h-full flex items-center justify-center text-gray-400 italic">
                     No report card data available
                   </div>
@@ -499,7 +508,7 @@ export default function StudentDetailPage() {
       {isEnrollModalOpen && (
         <EnrollmentModal
           studentId={student.id}
-          studentName={`${student.user?.firstName} ${student.user.lastName}`|| student.admissionNo}
+          studentName={`${student.user?.firstName} ${student.user.lastName}` || student.admissionNo}
           onClose={() => setIsEnrollModalOpen(false)}
         />
       )}
