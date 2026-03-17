@@ -196,10 +196,18 @@ export const TeacherDashboard: React.FC = () => {
   const activeExams = statsData?.data?.activeExams || [];
 
   const todayShedule = statsData?.data?.todayShedule || [];
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
+  };
+
   return (
     <div className="space-y-8">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden bg-grand-navy rounded-3xl p-8 shadow-grand">
+      <div className="relative overflow-hidden bg-grand-navy rounded-3xl py-10 px-8 shadow-grand">
         {/* Subtle Watermark/Pattern Overlay */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-grand-gold/20 blur-3xl"></div>
@@ -216,7 +224,7 @@ export const TeacherDashboard: React.FC = () => {
               <span className="text-white/60">Overview</span>
             </nav>
             <h1 className="text-3xl md:text-4xl font-serif font-bold text-white">
-              Good Morning, {user?.email.split('@')[0]}
+              {getGreeting()}, {user?.email.split('@')[0]}
             </h1>
             <p className="text-white/70 max-w-xl font-sans">
               Welcome back to your dashboard. Here's what's happening in your classes today.
@@ -235,7 +243,7 @@ export const TeacherDashboard: React.FC = () => {
       {/* Today's Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Today's Periods */}
-        <div className="group bg-white p-6 rounded-xl border-t-4 border-t-grand-blue border border-gray-100 shadow-grand hover:shadow-lg transition-all">
+        <div className="group bg-white p-4 rounded-xl border-t-4 border-t-grand-blue border border-gray-100 shadow-grand hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-4">
             <div className="p-2 rounded-lg text-grand-blue group-hover:bg-grand-blue/5 transition-colors">
               <Calendar className="h-6 w-6 stroke-[1.5]" />
@@ -250,7 +258,7 @@ export const TeacherDashboard: React.FC = () => {
         </div>
 
         {/* Teacher Attendance Card */}
-        <div className="group bg-white p-6 rounded-xl border-t-4 border-t-grand-green border border-gray-100 shadow-grand hover:shadow-lg transition-all flex flex-col justify-between">
+        <div className="group bg-white p-4 rounded-xl border-t-4 border-t-grand-green border border-gray-100 shadow-grand hover:shadow-lg transition-all flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 rounded-lg text-grand-green group-hover:bg-grand-green/5 transition-colors">
@@ -284,7 +292,7 @@ export const TeacherDashboard: React.FC = () => {
         </div>
 
         {/* Student Attendance Summary */}
-        <div className="group bg-white p-6 rounded-xl border-t-4 border-t-grand-gold border border-gray-100 shadow-grand hover:shadow-lg transition-all">
+        <div className="group bg-white p-4 rounded-xl border-t-4 border-t-grand-gold border border-gray-100 shadow-grand hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-4">
             <div className="p-2 rounded-lg text-grand-gold group-hover:bg-grand-gold/5 transition-colors">
               <ClipboardCheck className="h-6 w-6 stroke-[1.5]" />
@@ -397,18 +405,18 @@ export const TeacherDashboard: React.FC = () => {
       {/* Announcements Section - Bulletin Style */}
       {announcementsData?.data && announcementsData.data.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-grand overflow-hidden">
-          <div className="px-8 py-5 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
+          <div className="px-6 py-3 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
             <div className="flex items-center gap-3">
               <Megaphone className="h-5 w-5 text-grand-blue" />
-              <h3 className="text-lg font-serif font-bold text-gray-900">Official Bulletin</h3>
+              <h3 className="text-base font-serif font-bold text-gray-900">Official Bulletin</h3>
             </div>
-            <button className="text-xs font-bold uppercase tracking-widest text-grand-blue hover:text-grand-navy transition-colors">
+            <button className="text-[10px] font-bold uppercase tracking-widest text-grand-blue hover:text-grand-navy transition-colors">
               View All Postings
             </button>
           </div>
-          <div className="divide-y divide-gray-100">
-            {announcementsData.data.slice(0, 3).map((announcement) => (
-              <div key={announcement.id} className="p-8 hover:bg-grand-paper/50 transition-all group">
+          <div className="divide-y divide-gray-100 max-h-[500px] overflow-y-auto custom-scrollbar">
+            {announcementsData.data.map((announcement: any) => (
+              <div key={announcement.id} className="p-5 hover:bg-grand-paper/50 transition-all group">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                   <div className="flex items-center gap-3">
                     <div className={cn(
@@ -457,21 +465,21 @@ export const TeacherDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 ">
         {/* Today's Schedule - Modern Grid View */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-grand overflow-hidden">
-          <div className="px-8 py-5 border-b border-gray-50 flex items-center justify-between">
-            <h3 className="text-lg font-serif font-bold text-gray-900">Teaching Schedule</h3>
-            <button onClick={() => navigate('/dashboard/timetable')} className="text-xs font-bold uppercase tracking-widest text-grand-blue hover:text-grand-navy">
+          <div className="px-6 py-3 border-b border-gray-50 flex items-center justify-between">
+            <h3 className="text-base font-serif font-bold text-gray-900">Teaching Schedule</h3>
+            <button onClick={() => navigate('/dashboard/timetable')} className="text-[10px] font-bold uppercase tracking-widest text-grand-blue hover:text-grand-navy">
               Detailed View
             </button>
           </div>
 
-          <div className="p-8">
+          <div className="p-5 max-h-[450px] overflow-y-auto custom-scrollbar">
             {todayShedule.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 px-4 bg-grand-paper/30 rounded-2xl border border-dashed border-gray-200">
-                <Calendar className="h-12 w-12 text-gray-300 mb-4" />
-                <p className="text-gray-500 font-serif italic">No formal sessions scheduled for today.</p>
+              <div className="flex flex-col items-center justify-center py-10 px-4 bg-grand-paper/30 rounded-2xl border border-dashed border-gray-200">
+                <Calendar className="h-10 w-10 text-gray-300 mb-4" />
+                <p className="text-sm text-gray-500 font-serif italic text-center">No formal sessions scheduled for today.</p>
               </div>
             ) : (
-              <div className="relative space-y-6">
+              <div className="relative space-y-4">
                 {/* Vertical Timeline Thread */}
                 <div className="absolute left-[21px] top-2 bottom-2 w-0.5 bg-gray-100" />
 

@@ -40,13 +40,13 @@ const AdminLeavePanel = () => {
 
   return (
     <div className="bg-white rounded-[2rem] border border-gray-100 shadow-grand overflow-hidden">
-      <div className="px-10 py-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-grand-paper/50">
+      <div className="px-6 py-4 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-grand-paper/50">
         <div>
-          <h3 className="text-2xl font-serif font-bold text-gray-900 flex items-center gap-3">
-            <ClipboardList className="h-6 w-6 text-grand-blue" />
+          <h3 className="text-xl font-serif font-bold text-gray-900 flex items-center gap-3">
+            <ClipboardList className="h-5 w-5 text-grand-blue" />
             Leave Administration
           </h3>
-          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-1">Review and authenticate faculty absence requests</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-0.5">Review faculty absence requests</p>
         </div>
 
         <div className="flex p-1.5 bg-gray-200/50 backdrop-blur-md rounded-2xl w-fit border border-gray-200/50">
@@ -67,7 +67,7 @@ const AdminLeavePanel = () => {
         </div>
       </div>
 
-      <div className="divide-y divide-gray-50 overflow-y-auto max-h-[600px]">
+      <div className="divide-y divide-gray-50 overflow-y-auto max-h-[500px]">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 opacity-40">
             <Loader2 className="h-10 w-10 animate-spin text-grand-blue mb-4" />
@@ -82,10 +82,10 @@ const AdminLeavePanel = () => {
           </div>
         ) : (
           leaves.map((leave: any) => (
-            <div key={leave.id} className="p-10 hover:bg-grand-paper/30 transition-all group">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                <div className="flex items-start gap-6">
-                  <div className="h-16 w-16 shrink-0 rounded-2xl bg-grand-navy flex items-center justify-center text-grand-gold text-2xl font-serif font-bold border-4 border-white shadow-grand relative">
+            <div key={leave.id} className="p-6 hover:bg-grand-paper/30 transition-all group">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div className="flex items-start gap-4">
+                  <div className="h-12 w-12 shrink-0 rounded-2xl bg-grand-navy flex items-center justify-center text-grand-gold text-xl font-serif font-bold border-2 border-white shadow-grand relative">
                     {leave.teacher?.user?.firstName[0]}
                     <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-grand-gold border-2 border-white" />
                   </div>
@@ -185,7 +185,7 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden bg-grand-navy rounded-3xl p-10 shadow-grand">
+      <div className="relative overflow-hidden bg-grand-navy rounded-3xl py-8 px-6 shadow-grand">
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 p-10 opacity-10">
           <GraduationCap className="w-64 h-64 text-white rotate-12" />
@@ -199,7 +199,7 @@ export const AdminDashboard: React.FC = () => {
               <ChevronRight className="h-3 w-3" />
               <span className="text-white/60">System Overview</span>
             </nav>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold text-white leading-tight">
+            <h1 className="text-3xl md:text-4xl font-serif font-bold text-white leading-tight">
               Institutional Control <br />
               <span className="text-grand-gold">Dashboard</span>
             </h1>
@@ -228,7 +228,7 @@ export const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat, idx) => (
           <div key={stat.name} className={cn(
-            "group bg-white p-6 rounded-2xl border-t-4 border border-gray-100 shadow-grand hover:shadow-xl transition-all",
+            "group bg-white p-4 rounded-2xl border-t-4 border border-gray-100 shadow-grand hover:shadow-xl transition-all",
             idx === 0 ? "border-t-grand-blue" :
               idx === 1 ? "border-t-grand-gold" :
                 idx === 2 ? "border-t-grand-green" :
@@ -261,17 +261,17 @@ export const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Announcements - Bulletin Style */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-grand overflow-hidden">
-          <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-grand-paper/30">
+          <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between bg-grand-paper/30">
             <div className="flex items-center gap-3">
-              <Megaphone className="h-5 w-5 text-grand-blue" />
-              <h3 className="text-xl font-serif font-bold text-gray-900">Institutional Bulletin</h3>
+              <Megaphone className="h-4 w-4 text-grand-blue" />
+              <h3 className="text-lg font-serif font-bold text-gray-900">Institutional Bulletin</h3>
             </div>
             <Link to="/dashboard/announcements" className="text-xs font-black uppercase tracking-widest text-grand-blue hover:text-grand-navy flex items-center gap-2">
               Archive <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
-          <div className="divide-y divide-gray-100">
-            {announcementsData?.data?.slice(0, 3).map((announcement: any) => (
+          <div className="divide-y divide-gray-100 max-h-[500px] overflow-y-auto custom-scrollbar">
+            {announcementsData?.data?.map((announcement: any) => (
               <div key={announcement.id} className="p-8 hover:bg-grand-paper/50 transition-all group">
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex items-center gap-3">
