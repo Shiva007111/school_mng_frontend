@@ -138,10 +138,10 @@ export default function StudentListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ">
+        <div className="flex flex-col ">
           <h1 className="text-2xl font-bold text-gray-900">Students</h1>
-          <p className="text-sm text-gray-500">Manage and view all students in the system.</p>
+          <p className="text-sm text-gray-500 ">Manage and view all students in the system.</p>
         </div>
         <div className="flex gap-2">
           <Button

@@ -104,6 +104,7 @@ export default function StudentDetailPage() {
     })),
   });
 
+
   // Extract the most recent successful report card for the primary pie chart (optional fallback)
   const reportCardData = reportCardsResults.find(r => r.data)?.data;
 

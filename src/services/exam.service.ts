@@ -19,6 +19,7 @@ export const examService = {
     const response = await apiClient.get<ApiResponse<ExamSession[]>>('/exam-sessions', {
       params: { academicYearId },
     });
+    console.log("response getExamSessions====>", response.data)
     return response.data;
   },
 
@@ -102,6 +103,7 @@ export const examService = {
 
   getReportCard: async (studentId: string, examSessionId: string): Promise<ApiResponse<ReportCard>> => {
     const response = await apiClient.get<ApiResponse<ReportCard>>(`/exams/report-card/${studentId}/${examSessionId}`);
+    console.log("response====>", response.data)
     return response.data;
   },
 };

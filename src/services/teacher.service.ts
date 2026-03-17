@@ -7,6 +7,7 @@ export const teacherService = {
     const response = await apiClient.get<ApiResponse<Teacher[]>>('/teachers', {
       params: filters,
     });
+    console.log("filters", filters, "response", response.data);
     return response.data;
   },
 

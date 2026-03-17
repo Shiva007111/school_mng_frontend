@@ -38,6 +38,7 @@ export const AttendanceMarkingPage: React.FC = () => {
     queryFn: () => teacherService.getTeachers({ userId: user?.id }),
     enabled: !!user?.roles.some(r => r.role.name === 'Teacher'),
   });
+  console.log("teacherData  attendance marking page", teacherData, "user", user);
 
   const teacherId = teacherData?.data?.[0]?.id;
 
