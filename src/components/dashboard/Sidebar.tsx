@@ -83,28 +83,28 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-[#263238] border-r border-gray-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-2xl",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200">
+          <div className="flex h-16 items-center justify-between px-6 border-b border-gray-800 bg-grand-navy">
             <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="bg-indigo-600 p-2 rounded-lg">
-                <GraduationCap className="h-6 w-6 text-white" />
+              <div className="bg-grand-gold p-2 rounded-lg shadow-sm">
+                <GraduationCap className="h-6 w-6 text-grand-navy" />
               </div>
-              <span className="text-xl font-bold text-gray-900">EduManage</span>
+              <span className="text-xl font-bold text-white font-serif tracking-tight">EduManage</span>
             </Link>
             <button
               onClick={onClose}
-              className="lg:hidden text-gray-400 hover:text-gray-500"
+              className="lg:hidden text-gray-400 hover:text-white"
             >
               <X className="h-6 w-6" />
             </button>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
+          <nav className="flex-1 space-y-1.5 px-3 py-6 overflow-y-auto">
             {filteredNavigation.map((item) => {
               const href = item.getHref ? item.getHref(userRole!) : item.href;
               const isActive = location.pathname === href;
@@ -113,14 +113,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   key={item.name}
                   to={href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    "flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-md transition-all duration-200",
                     isActive
-                      ? "bg-indigo-50 text-indigo-600"
-                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                      ? "bg-grand-blue text-white shadow-lg shadow-black/20"
+                      : "text-gray-300 hover:bg-grand-blue/40 hover:text-white"
                   )}
                   onClick={() => onClose()}
                 >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className={cn("h-5 w-5", isActive ? "text-grand-gold" : "text-gray-400")} />
                   {item.name}
                 </Link>
               );
@@ -129,16 +129,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* User info */}
           {user && (
-            <div className="border-t border-gray-200 p-4">
+            <div className="border-t border-gray-800 p-5 bg-grand-navy/30">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                  <span className="text-indigo-600 font-semibold">
+                <div className="h-10 w-10 rounded-full bg-grand-gold/20 border border-grand-gold/30 flex items-center justify-center">
+                  <span className="text-grand-gold font-bold">
                     {user.email.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{user.email}</p>
-                  <p className="text-xs text-gray-500 capitalize">{user.roles?.[0]?.role?.name || 'User'}</p>
+                  <p className="text-sm font-semibold text-white truncate">{user.email}</p>
+                  <p className="text-xs text-gray-400 font-medium tracking-wide uppercase">{user.roles?.[0]?.role?.name || 'User'}</p>
                 </div>
               </div>
             </div>
