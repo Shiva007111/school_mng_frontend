@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Users, GraduationCap, BookOpen, TrendingUp, Loader2,
   Megaphone, Clock, ChevronRight, Check, X, CalendarDays,
-  Settings, ClipboardList
+  Settings, ClipboardList, ClipboardCheck
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/utils/cn';
@@ -12,7 +12,7 @@ import { dashboardService } from '@/services/dashboard.service';
 import { announcementService } from '@/services/announcement.service';
 import { toast } from 'react-hot-toast';
 
-// 1. DYNAMIC LEAVE PANEL (WITH STATUS PARAMS)
+// 1. COMPACT LEAVE ADMINISTRATION PANEL
 const AdminLeavePanel = () => {
   const queryClient = useQueryClient();
   const [activeStatus, setActiveStatus] = useState<'Requested' | 'Approved' | 'Rejected'>('Requested');
@@ -27,7 +27,7 @@ const AdminLeavePanel = () => {
       dashboardService.putAdminResponse(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-leaves'] });
-      toast.success("Response authenticated successfully");
+      toast.success("Action authenticated");
     }
   });
 
@@ -39,115 +39,65 @@ const AdminLeavePanel = () => {
   const leaves = leaveResponse?.data?.leaveRequests || [];
 
   return (
-    <div className="bg-white rounded-[2rem] border border-gray-100 shadow-grand overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-grand-paper/50">
+    <div className="flex flex-col h-full bg-white rounded-card shadow-grand border border-white overflow-hidden">
+      <div className="px-6 py-4 border-b border-brand-slate-100 flex items-center justify-between bg-brand-slate-50/50">
         <div>
-          <h3 className="text-xl font-serif font-bold text-gray-900 flex items-center gap-3">
-            <ClipboardList className="h-5 w-5 text-grand-blue" />
-            Leave Administration
+          <h3 className="text-lg font-heading font-bold text-brand-slate-900 flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 text-brand-indigo" />
+            Faculty Absence
           </h3>
-          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-0.5">Review faculty absence requests</p>
         </div>
-
-        <div className="flex p-1.5 bg-gray-200/50 backdrop-blur-md rounded-2xl w-fit border border-gray-200/50">
+        <div className="flex gap-1 p-1 bg-brand-slate-100 rounded-xl">
           {(['Requested', 'Approved', 'Rejected'] as const).map((s) => (
             <button
               key={s}
               onClick={() => setActiveStatus(s)}
               className={cn(
-                "px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300",
-                activeStatus === s
-                  ? "bg-white text-grand-blue shadow-lg shadow-grand-blue/10 scale-[1.05]"
-                  : "text-gray-400 hover:text-gray-600"
+                "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all",
+                activeStatus === s ? "bg-white text-brand-indigo shadow-sm" : "text-brand-slate-400 hover:text-brand-slate-600"
               )}
             >
-              {s === 'Requested' ? 'Pending Action' : s}
+              {s === 'Requested' ? 'Pending' : s}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="divide-y divide-gray-50 overflow-y-auto max-h-[500px]">
+      <div className="flex-1 overflow-y-auto custom-scrollbar divide-y divide-brand-slate-50">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-24 opacity-40">
-            <Loader2 className="h-10 w-10 animate-spin text-grand-blue mb-4" />
-            <p className="text-[10px] font-black uppercase tracking-widest">Accessing records...</p>
-          </div>
+          <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-brand-indigo opacity-20" /></div>
         ) : leaves.length === 0 ? (
-          <div className="py-24 text-center">
-            <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
-              <Check className="h-8 w-8 text-gray-200" />
-            </div>
-            <p className="text-gray-400 font-serif italic">No {activeStatus.toLowerCase()} entries found in the current ledger.</p>
+          <div className="py-12 text-center opacity-40">
+            <Check className="h-8 w-8 mx-auto mb-2 text-brand-slate-300" />
+            <p className="text-[10px] font-black uppercase tracking-widest">No entries found</p>
           </div>
         ) : (
           leaves.map((leave: any) => (
-            <div key={leave.id} className="p-6 hover:bg-grand-paper/30 transition-all group">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 shrink-0 rounded-2xl bg-grand-navy flex items-center justify-center text-grand-gold text-xl font-serif font-bold border-2 border-white shadow-grand relative">
+            <div key={leave.id} className="p-4 hover:bg-brand-slate-50 transition-all group">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="h-10 w-10 shrink-0 rounded-xl bg-brand-indigo text-white flex items-center justify-center font-heading font-bold shadow-sm relative text-sm">
                     {leave.teacher?.user?.firstName[0]}
-                    <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-grand-gold border-2 border-white" />
                   </div>
                   <div>
-                    <h4 className="text-xl font-serif font-bold text-gray-900 mb-1">
+                    <h4 className="text-sm font-heading font-bold text-brand-slate-900 leading-tight">
                       {leave.teacher?.user?.firstName} {leave.teacher?.user?.lastName}
                     </h4>
-                    <p className="text-sm text-gray-500 font-medium leading-relaxed max-w-xl italic">
-                      "{leave.reason}"
-                    </p>
-
-                    <div className="flex flex-wrap gap-6 mt-6">
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 bg-grand-blue/5 rounded-lg flex items-center justify-center text-grand-blue">
-                          <Clock className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Application Date</p>
-                          <p className="text-xs font-bold text-gray-700">{new Date(leave.createdAt).toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 bg-grand-gold/5 rounded-lg flex items-center justify-center text-grand-gold">
-                          <CalendarDays className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Proposed Interval</p>
-                          <p className="text-xs font-bold text-gray-700">
-                            {new Date(leave.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} — {new Date(leave.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                            <span className="ml-2 px-2 py-0.5 bg-gray-100 rounded text-[9px] text-gray-500 font-black">{calculateDays(leave.startDate, leave.endDate)}D</span>
-                          </p>
-                        </div>
-                      </div>
+                    <p className="text-[11px] text-brand-slate-500 line-clamp-1 italic mt-0.5">"{leave.reason}"</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-[9px] font-black text-brand-slate-400 uppercase tracking-tighter">
+                        {new Date(leave.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} — {new Date(leave.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </span>
+                      <span className="px-1.5 py-0.5 bg-brand-slate-100 rounded text-[9px] text-brand-slate-500 font-bold">{calculateDays(leave.startDate, leave.endDate)}D</span>
                     </div>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-3 lg:self-center">
-                  {activeStatus === 'Requested' ? (
-                    <>
-                      <button
-                        onClick={() => respondMutation.mutate({ id: leave.id, status: 'Rejected' })}
-                        className="px-6 py-3 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all active:scale-95 flex items-center gap-2 border border-red-100"
-                      >
-                        <X className="h-4 w-4" /> Decline
-                      </button>
-                      <button
-                        onClick={() => respondMutation.mutate({ id: leave.id, status: 'Approved' })}
-                        className="px-6 py-3 bg-grand-green text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-700 shadow-lg shadow-grand-green/20 transition-all active:scale-95 flex items-center gap-2"
-                      >
-                        <Check className="h-4 w-4" /> Authenticate
-                      </button>
-                    </>
-                  ) : (
-                    <div className={cn(
-                      "px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm",
-                      activeStatus === 'Approved' ? "bg-grand-green/10 text-grand-green border-grand-green/20" : "bg-red-100 text-red-700 border-red-200"
-                    )}>
-                      Archived: {activeStatus}
-                    </div>
-                  )}
-                </div>
+                {activeStatus === 'Requested' && (
+                  <div className="flex gap-2">
+                    <button onClick={() => respondMutation.mutate({ id: leave.id, status: 'Rejected' })} className="p-2 text-brand-danger hover:bg-brand-danger/10 rounded-lg transition-colors"><X className="h-4 w-4" /></button>
+                    <button onClick={() => respondMutation.mutate({ id: leave.id, status: 'Approved' })} className="p-2 text-brand-success hover:bg-brand-success/10 rounded-lg transition-colors"><Check className="h-4 w-4" /></button>
+                  </div>
+                )}
               </div>
             </div>
           ))
@@ -157,209 +107,222 @@ const AdminLeavePanel = () => {
   );
 };
 
-
-// 2. MAIN ADMIN DASHBOARD
+// 2. MAIN ADMIN DASHBOARD WITH BENTO GRID
 export const AdminDashboard: React.FC = () => {
+  const { user } = useAuth();
+
   const { data: statsData, isLoading: isLoadingStats } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: () => dashboardService.getAdminStats(),
   });
 
-  const { data: announcementsData } = useQuery({
+  const { data: announcementsData, isLoading: announcementsLoading } = useQuery({
     queryKey: ['announcements'],
     queryFn: () => announcementService.getAnnouncements(),
   });
 
-  if (isLoadingStats) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 text-indigo-600 animate-spin" /></div>;
+  if (isLoadingStats || announcementsLoading) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="h-8 w-8 text-brand-indigo animate-spin" />
+      </div>
+    );
+  }
 
   const stats = statsData?.data || {};
 
   const statCards = [
-    { name: 'Total Students', value: stats.studentCount || '0', icon: Users, color: 'bg-blue-500' },
-    { name: 'Total Teachers', value: stats.teacherCount || '0', icon: GraduationCap, color: 'bg-purple-500' },
-    { name: 'Active Classes', value: stats.classCount || '0', icon: BookOpen, color: 'bg-green-500' },
-    { name: 'Attendance Rate', value: stats.attendanceRate || '0%', icon: TrendingUp, color: 'bg-orange-500' },
+    { name: 'Total Students', value: stats.studentCount || '0', icon: Users, accent: 'brand-indigo' },
+    { name: 'Total Teachers', value: stats.teacherCount || '0', icon: GraduationCap, accent: 'brand-indigo' },
+    { name: 'Active Classes', value: stats.classCount || '0', icon: BookOpen, accent: 'brand-success' },
+    { name: 'Attendance Rate', value: stats.attendanceRate || '0%', icon: TrendingUp, accent: 'brand-warning' },
   ];
-  const { user } = useAuth();
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Banner */}
-      <div className="relative overflow-hidden bg-grand-navy rounded-3xl py-8 px-6 shadow-grand">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 p-10 opacity-10">
-          <GraduationCap className="w-64 h-64 text-white rotate-12" />
+    <div className="bg-brand-slate-50 min-h-screen -m-8 p-8 font-body">
+      {/* 1. Header Section */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <nav className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-brand-indigo mb-2">
+            <span>Executive Suite</span>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-brand-slate-500">System Control</span>
+          </nav>
+          <h1 className="text-3xl md:text-4xl font-heading font-bold text-brand-slate-900 leading-tight">
+            Institutional Oversight
+          </h1>
+          <p className="text-brand-slate-500 font-sans mt-1 text-sm">
+            Welcome, {user?.email.split('@')[0] || 'Administrator'}. Global campus synchronization is currently <span className="text-brand-success font-black uppercase tracking-tighter">Active</span>.
+          </p>
         </div>
-        <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-grand-gold/10 blur-3xl"></div>
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-          <div className="space-y-3">
-            <nav className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-grand-gold mb-2">
-              <span>Administration</span>
-              <ChevronRight className="h-3 w-3" />
-              <span className="text-white/60">System Overview</span>
-            </nav>
-            <h1 className="text-3xl md:text-4xl font-serif font-bold text-white leading-tight">
-              Institutional Control <br />
-              <span className="text-grand-gold">Dashboard</span>
-            </h1>
-            <p className="text-white/60 max-w-lg font-sans text-sm">
-              Welcome, {user?.email.split('@')[0]}. You have full oversight of the campus operations and academic progress.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <div className="px-6 py-4 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 flex items-center gap-4">
-              <div className="h-10 w-10 bg-grand-gold/20 rounded-xl flex items-center justify-center text-grand-gold">
-                <Clock className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">System Time</p>
-                <p className="text-sm font-bold text-white tabular-nums">
-                  {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
-              </div>
+        <div className="flex items-center gap-3">
+          <div className="px-5 py-3 bg-white rounded-2xl border border-brand-slate-300 shadow-grand flex items-center gap-4">
+            <div className="h-10 w-10 bg-brand-indigo/10 rounded-xl flex items-center justify-center text-brand-indigo">
+              <Clock className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-brand-slate-500 uppercase tracking-widest leading-none mb-1">Standard Time</p>
+              <p className="text-base font-bold text-brand-slate-900 tabular-nums">
+                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </p>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Metric Cards Row */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((stat, idx) => (
-          <div key={stat.name} className={cn(
-            "group bg-white p-4 rounded-2xl border-t-4 border border-gray-100 shadow-grand hover:shadow-xl transition-all",
-            idx === 0 ? "border-t-grand-blue" :
-              idx === 1 ? "border-t-grand-gold" :
-                idx === 2 ? "border-t-grand-green" :
-                  "border-t-indigo-400"
-          )}>
+      {/* 2. Bento Grid Layout */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+
+        {/* Metric Cards (Row 1) */}
+        {statCards.map((stat) => (
+          <div key={stat.name} className="group bg-white p-6 rounded-card shadow-grand border border-white hover:border-brand-indigo/20 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between mb-4">
-              <div className={cn(
-                "p-2.5 rounded-xl transition-colors",
-                idx === 0 ? "text-grand-blue bg-grand-blue/5" :
-                  idx === 1 ? "text-grand-gold bg-grand-gold/5" :
-                    idx === 2 ? "text-grand-green bg-grand-green/5" :
-                      "text-indigo-400 bg-indigo-50"
-              )}>
+              <div className={cn("p-2.5 rounded-xl transition-colors", `text-${stat.accent} bg-${stat.accent}/5`)}>
                 <stat.icon className="h-6 w-6 stroke-[1.5]" />
               </div>
-              <div className="flex items-center gap-1 text-[10px] font-black text-grand-green uppercase">
+              <div className="flex items-center gap-1 text-[10px] font-black text-brand-success uppercase">
                 <TrendingUp className="h-3 w-3" />
-                2.4%
+                Live
               </div>
             </div>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">{stat.name}</p>
-            <div className="flex items-baseline gap-2">
-              <p className="text-3xl font-serif font-bold text-gray-900">{stat.value}</p>
+            <div>
+              <p className="text-[10px] font-black text-brand-slate-500 uppercase tracking-widest leading-none mb-1">{stat.name}</p>
+              <p className="text-3xl font-heading font-bold text-brand-slate-900 mt-1">{stat.value}</p>
             </div>
           </div>
         ))}
-      </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Announcements - Bulletin Style */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-grand overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between bg-grand-paper/30">
+        {/* Tall Card: Institutional Bulletin (Spans 2 columns, 2 rows) */}
+        <div className="lg:col-span-2 lg:row-span-2 bg-white rounded-card shadow-grand border border-white overflow-hidden flex flex-col">
+          <div className="px-6 py-4 border-b border-brand-slate-100 flex items-center justify-between bg-brand-slate-50/50">
             <div className="flex items-center gap-3">
-              <Megaphone className="h-4 w-4 text-grand-blue" />
-              <h3 className="text-lg font-serif font-bold text-gray-900">Institutional Bulletin</h3>
+              <Megaphone className="h-5 w-5 text-brand-indigo" />
+              <h2 className="text-lg font-heading font-bold text-brand-slate-900">Institutional Bulletin</h2>
             </div>
-            <Link to="/dashboard/announcements" className="text-xs font-black uppercase tracking-widest text-grand-blue hover:text-grand-navy flex items-center gap-2">
-              Archive <ChevronRight className="h-3 w-3" />
+            <Link to="/dashboard/announcements" className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-indigo hover:text-brand-indigo-dark transition-colors">
+              VIEW ARCHIVE
             </Link>
           </div>
-          <div className="divide-y divide-gray-100 max-h-[500px] overflow-y-auto custom-scrollbar">
-            {announcementsData?.data?.map((announcement: any) => (
-              <div key={announcement.id} className="p-8 hover:bg-grand-paper/50 transition-all group">
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "w-1.5 h-12 rounded-full",
-                      announcement.priority === 'high' ? 'bg-red-600' :
-                        announcement.priority === 'medium' ? 'bg-amber-500' : 'bg-grand-blue'
-                    )} />
-                    <div>
-                      <h4 className="text-lg font-serif font-bold text-gray-900 group-hover:text-grand-blue transition-colors">
-                        {announcement.title}
-                      </h4>
-                      <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-tighter text-gray-400 mt-1">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {new Date(announcement.publishedAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}
-                        </span>
-                        <span>•</span>
-                        <span>{announcement.author?.email.split('@')[0] || 'Provost Office'}</span>
+          <div className="divide-y divide-brand-slate-100 max-h-[600px] overflow-y-auto custom-scrollbar flex-1">
+            {announcementsData?.data && announcementsData.data.length > 0 ? (
+              announcementsData.data.map((announcement: any) => (
+                <div key={announcement.id} className="p-6 hover:bg-brand-slate-50/50 transition-all group">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "w-1 h-8 rounded-full",
+                        announcement.priority === 'high' ? 'bg-brand-danger shadow-[0_0_8px_rgba(198,40,40,0.4)]' :
+                          announcement.priority === 'medium' ? 'bg-brand-warning' : 'bg-brand-indigo'
+                      )} />
+                      <div>
+                        <h4 className="text-base font-heading font-bold text-brand-slate-900 group-hover:text-brand-indigo transition-colors leading-tight">
+                          {announcement.title}
+                        </h4>
+                        <p className="text-[10px] font-bold text-brand-slate-400 uppercase tracking-widest mt-0.5">
+                          {new Date(announcement.publishedAt).toLocaleDateString()} • {announcement.author?.email.split('@')[0] || 'Office'}
+                        </p>
                       </div>
                     </div>
+                    <span className={cn(
+                      "px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border",
+                      announcement.priority === 'high' ? 'bg-brand-danger/5 text-brand-danger border-brand-danger/10' :
+                        announcement.priority === 'medium' ? 'bg-brand-warning/5 text-brand-warning border-brand-warning/10' :
+                          'bg-brand-indigo/5 text-brand-indigo border-brand-indigo/10'
+                    )}>
+                      {announcement.priority}
+                    </span>
                   </div>
-                  <span className={cn(
-                    "px-3 py-1 rounded text-[9px] font-black uppercase tracking-widest",
-                    announcement.priority === 'high' ? 'bg-red-100 text-red-700' :
-                      announcement.priority === 'medium' ? 'bg-amber-100 text-amber-700' :
-                        'bg-grand-blue/10 text-grand-blue'
-                  )}>
-                    {announcement.priority}
-                  </span>
+                  <p className="text-sm text-brand-slate-600 leading-relaxed line-clamp-2 pl-4">
+                    {announcement.content}
+                  </p>
                 </div>
-                <p className="text-sm text-gray-600 leading-relaxed pl-4.5 border-l border-gray-100 line-clamp-2">
-                  {announcement.content}
-                </p>
+              ))
+            ) : (
+              <div className="text-center py-20 opacity-40">
+                <Megaphone className="h-10 w-10 mx-auto mb-2 text-brand-slate-300" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-brand-slate-400">No active bulletins</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
-        {/* Quick Insights / School Status */}
-        <div className="flex flex-col gap-8">
-          <div className="bg-grand-navy rounded-3xl p-8 text-white shadow-grand relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <Settings className="w-24 h-24" />
-            </div>
-            <h4 className="text-xl font-serif font-bold mb-6 flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-grand-gold animate-pulse" />
-              System Health
-            </h4>
-            <div className="space-y-6 relative z-10">
-              <div className="flex justify-between items-end border-b border-white/10 pb-4">
-                <div>
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Server Latency</p>
-                  <p className="text-2xl font-serif font-bold text-grand-gold">14ms</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-bold text-grand-green uppercase">Optimal</p>
-                </div>
-              </div>
-              <div className="flex justify-between items-end border-b border-white/10 pb-4">
-                <div>
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Storage Usage</p>
-                  <p className="text-2xl font-serif font-bold">24%</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-bold text-white/60">Cloud Tier 1</p>
-                </div>
-              </div>
-              <button className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all">
-                System Diagnostics
-              </button>
-            </div>
+        {/* System Health Status (Row 2) */}
+        <div className="bg-brand-slate-900 rounded-card p-6 shadow-grand text-white border border-white/5 relative overflow-hidden flex flex-col justify-center">
+          <div className="absolute top-0 right-0 p-8 opacity-5">
+            <Settings className="w-32 h-32" />
           </div>
-
-          <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-grand">
-            <h4 className="text-lg font-serif font-bold text-gray-900 mb-4">Academic Calendar</h4>
-            <div className="aspect-[4/3] bg-grand-paper/50 rounded-2xl border border-dashed border-gray-200 flex flex-col items-center justify-center text-center p-6 grayscale opacity-60">
-              <CalendarDays className="h-8 w-8 text-gray-400 mb-3" />
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Quarterly View</p>
-              <p className="text-[10px] text-gray-400 mt-1 italic">Under maintenance</p>
+          <h3 className="text-xl font-heading font-bold mb-6 flex items-center gap-3 relative z-10 text-brand-indigo-light">
+            <div className="h-2 w-2 rounded-full bg-brand-success animate-pulse" />
+            System Health
+          </h3>
+          <div className="space-y-4 relative z-10">
+            <div className="flex justify-between items-center border-b border-white/10 pb-3">
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Network Latency</span>
+              <span className="text-lg font-heading font-bold text-brand-success">14ms</span>
             </div>
+            <div className="flex justify-between items-center border-b border-white/10 pb-3">
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Database Load</span>
+              <span className="text-lg font-heading font-bold">24%</span>
+            </div>
+            <button className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+              Diagnostics
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Footer Section - Leave Management */}
-      <div className="w-full">
-        <AdminLeavePanel />
+        {/* Academic Calendar (Small Window) */}
+        <div className="bg-white rounded-card p-6 border border-white shadow-grand overflow-hidden flex flex-col">
+          <h4 className="text-md font-heading font-bold text-brand-slate-900 mb-4 flex items-center gap-2">
+            <CalendarDays className="h-4 w-4 text-brand-indigo" />
+            Key Events
+          </h4>
+          <div className="flex-1 flex flex-col items-center justify-center text-center opacity-40 grayscale">
+            <CalendarDays className="h-10 w-10 text-brand-slate-300 mb-2" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-brand-slate-400 leading-tight">No upcoming <br /> global events</p>
+          </div>
+        </div>
+
+        {/* Leave Administration (Lower Row, Spans 2) */}
+        <div className="lg:col-span-2 min-h-[400px]">
+          <AdminLeavePanel />
+        </div>
+
+        {/* Card: System Control / Quick Actions (Spans 2 columns) */}
+        <div className="lg:col-span-2 bg-white rounded-card p-6 shadow-grand border border-white relative overflow-hidden flex flex-col justify-center">
+          <div className="absolute top-0 right-0 p-8 opacity-5">
+            <ClipboardCheck className="w-32 h-32 text-brand-indigo" />
+          </div>
+          <h3 className="text-xl font-heading font-bold mb-6 flex items-center gap-3 relative z-10 text-brand-slate-900">
+            <ClipboardCheck className="h-6 w-6 text-brand-indigo" />
+            Institutional Control
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+            <Link
+              to="/dashboard/users"
+              className="flex items-center gap-4 p-4 bg-brand-slate-50 hover:bg-brand-indigo/5 rounded-xl border border-brand-slate-100 transition-all group"
+            >
+              <div className="h-10 w-10 rounded-lg bg-brand-indigo/10 flex items-center justify-center text-brand-indigo group-hover:bg-brand-indigo group-hover:text-white transition-all">
+                <Users className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-brand-slate-900">User Management</h4>
+                <p className="text-[10px] text-brand-slate-400 font-black uppercase tracking-tighter mt-0.5">Faculty & Students</p>
+              </div>
+            </Link>
+            <Link
+              to="/dashboard/exams"
+              className="flex items-center gap-4 p-4 bg-brand-slate-50 hover:bg-brand-indigo/5 rounded-xl border border-brand-slate-100 transition-all group"
+            >
+              <div className="h-10 w-10 rounded-lg bg-brand-slate-100 flex items-center justify-center text-brand-slate-900 group-hover:bg-brand-indigo group-hover:text-white transition-all">
+                <GraduationCap className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-brand-slate-900">Academic Records</h4>
+                <p className="text-[10px] text-brand-slate-400 font-black uppercase tracking-tighter mt-0.5">Exams & Sessions</p>
+              </div>
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
