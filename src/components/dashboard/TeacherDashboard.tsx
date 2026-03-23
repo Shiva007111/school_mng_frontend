@@ -8,6 +8,7 @@ import { attendanceService } from '@/services/attendance.service';
 import toast from 'react-hot-toast';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
+import { Users } from 'lucide-react';
 
 export const TeacherDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -76,8 +77,12 @@ export const TeacherDashboard: React.FC = () => {
     enabled: false,
   });
 
-  const [markedTime, setMarkedTime] = useState<string | null>(null);
-
+  // response from backend will have marked as true/false and attendance record if marked is true, else null
+  const markedAt = statsData?.data?.Tchrattendance?.markedAt || null;
+  const markedTime = markedAt ? new Date(markedAt).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  }) : null;
   const markAttendance = async (latitude: number, longitude: number) => {
     try {
       const response = await attendanceService.markTeacherAttendance({
@@ -86,18 +91,26 @@ export const TeacherDashboard: React.FC = () => {
         teacherId: statsData?.data?.teacherId || "",
         date: new Date().toISOString().split("T")[0],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["teacher-attendance-today"],
+      queryClient.setQueryData(['teacher-stats'], (oldData: any) => {
+        if (oldData && oldData.data) {
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              Tchrattendance: {
+                ...oldData.data.Tchrattendance,
+                markedAt: new Date().toISOString(),
+              },
+            },
+          };
+        }
+        return oldData;
       });
-      setMarkedTime(response.data.attendance.markedAt);
-
-
-
-      // if (response) {
-      //   toast.success("Attendance already  marked for today");
-      // } else {
-      //   toast.success("Attendance marked successfully");
-      // }
+      if (response.data.marked === false) {
+        toast.success("Attendance already  marked for today");
+      } else {
+        toast.success("Attendance marked successfully");
+      }
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Failed to mark attendance");
     };
@@ -105,26 +118,6 @@ export const TeacherDashboard: React.FC = () => {
   console.log("markedTime", markedTime);
 
 
-  // const markedTime = statsData?.data?.Tchrattendance?.markedAt
-  //   ? new Date(statsData.data.Tchrattendance.markedAt).toLocaleTimeString([], {
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //   })
-  //   : null;
-
-  // const { data: attendanceData } = useQuery({
-  //   queryKey: ['teacher-attendance-today', statsData?.data?.teacherId],
-  //   queryFn: () =>
-  //     attendanceService.getTodayTeacherAttendance(statsData?.data?.teacherId || ""),
-  //   enabled: !!statsData?.data?.teacherId,
-  // });
-  // const markedTime = attendanceData?.data?.markedAt
-  //   ? new Date(attendanceData.data.markedAt).toLocaleTimeString([], {
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //   })
-  //   : null;
-  // const alreadyMarked = attendanceData?.data?.markedAt !== null;
 
   const handleMarkAttendance = async () => {
     if (!navigator.geolocation) {
@@ -192,10 +185,20 @@ export const TeacherDashboard: React.FC = () => {
     );
   }
 
-  const { timetable = [], myClasses = [], activeExams = [], attendanceStatus = { total: 0, marked: 0 }, totalPeriods = Number, todaySchedule = [] } = statsData?.data || {};
+  const totalPeriodsToday = statsData?.data?.totalPeriods || 0;
 
+  const totalStudentsToday = statsData?.data?.attendanceStatus?.total || 0;
 
-  console.log(timetable, "timetable")
+  const presentStudentsToday = statsData?.data?.attendanceStatus?.marked || 0;
+
+  const attendanceStatus = statsData?.data?.attendanceStatus || { total: 0, marked: 0 };
+
+  const myClasses = statsData?.data?.myClasses || [];
+
+  const activeExams = statsData?.data?.activeExams || [];
+
+  const timetable = statsData?.data?.timetable || [];
+
 
   return (
     <div className="space-y-8">
@@ -208,46 +211,65 @@ export const TeacherDashboard: React.FC = () => {
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500">Today's Periods</p>
-            <p className="text-2xl font-bold text-gray-900">{totalPeriods}</p>
+            <p className="text-2xl font-bold text-gray-900">{totalPeriodsToday}</p>
           </div>
         </div>
 
         {/* Teacher Attendance Card */}
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+
           <div className="flex items-center gap-4">
+
             <div className="h-12 w-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
               <MapPin className="h-6 w-6" />
             </div>
-
             <div>
               <p className="text-sm font-medium text-gray-500">
                 My Attendance
               </p>
-              {markedTime && (
-                <p className="text-sm font-bold text-gray-900">
-                  Marked at: {new Date(markedTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
-              )}
-
-
+              <p className="text-lg font-bold text-green-600">
+                {markedTime ? `Marked at ${markedTime}` : "Not marked yet"}
+              </p>
             </div>
           </div>
 
           <button
             onClick={handleMarkAttendance}
-
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            disabled={!!markedTime}
+            className={`px-4 py-2 text-lg font-medium rounded-lg transition-colors ${markedTime ? 'bg-gray-300 text-gray-500 cursor-not-allowed ' : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:bg-gray-300'}`}
           >
             Mark Attendance
           </button>
+
         </div>
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
           <div className="h-12 w-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
             <ClipboardCheck className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-500">Attendance Marked</p>
-            <p className="text-2xl font-bold text-gray-900">{attendanceStatus.marked} / {attendanceStatus.total}</p>
+            <p className="text-lg font-medium text-gray-500">Students Present</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {attendanceStatus.marked ? `${presentStudentsToday} / ${totalStudentsToday}` : 'N/A'}
+            </p>
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
+          <div className="h-12 w-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+            <BookOpen className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-500">My Classes</p>
+            <p className="text-2xl font-bold text-gray-900 truncate max-w-[150px]">
+              {myClasses.length > 0
+                ? (
+                  <span title={myClasses.map((c: any) => `${c.gradeLevel?.displayName} - ${c.section}`).join(', ')}>
+                    {myClasses[0].gradeLevel?.displayName} - {myClasses[0].section}
+                    {myClasses.length > 1 && <span className="text-sm text-gray-500 font-normal ml-1">+{myClasses.length - 1}</span>}
+                  </span>
+                )
+                : '0'
+              }
+            </p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
@@ -560,10 +582,40 @@ export const TeacherDashboard: React.FC = () => {
             <button onClick={() => navigate('/dashboard/timetable')} className="text-sm text-indigo-600 font-medium hover:underline">View Full</button>
           </div>
 
+          {/* Schedule List */}
+          {statsData?.data?.todayShedule?.map((item: any, index: number) => (
+            <div
+              key={index}
+              className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded-lg"
+            >
+              <p className="text-sm font-semibold text-gray-800">
+                {item?.classSection?.gradeLevel?.displayName?.replace("Grade ", "Grade - ")} - {item?.classSection?.section} | {item?.classSubject?.subject?.name}
+              </p>
+
+              <span className="text-sm text-gray-600">
+                {item?.startTime
+                  ? new Date(item.startTime).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                  : "N/A"}{" "}
+                -
+                {item?.endTime
+                  ? new Date(item.endTime).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                  : "N/A"}
+              </span>
+            </div>
+          ))}
+
           <div className="p-6">
             {timetable.length === 0 ? (
+
               <p className="text-center py-10 text-gray-400 italic">No classes scheduled for today.</p>
             ) : (
+
               <div className="space-y-4">
                 {timetable.map((period: any) => (
                   <div key={period.id} className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
@@ -587,39 +639,21 @@ export const TeacherDashboard: React.FC = () => {
                 ))}
               </div>
             )}
+
+
           </div>
-          {/* show today schedule */}
-          {todaySchedule.map((period: any) => (
-            <div key={period.id} className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
-              <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center text-indigo-600 shadow-sm">
-                <Clock className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-gray-900">{period.classSubject?.subject?.name}</p>
-                <p className="text-xs text-gray-500">
-                  {period.classSection?.gradeLevel?.displayName} - {period.classSection?.section}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-bold text-gray-900">{new Date(period.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                <div className="flex items-center gap-1 text-[10px] text-gray-400 justify-end">
-                  <MapPin className="h-3 w-3" />
-                  {period.room?.name || 'N/A'}
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
 
         {/* Active Exams & Grading */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col ">
+          <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between ">
             <h3 className="text-lg font-bold text-gray-900">Active Grading</h3>
             <button onClick={() => navigate('/dashboard/exams/my-grading')} className="text-sm text-indigo-600 font-medium hover:underline">View All</button>
           </div>
           <div className="p-6">
+
             {activeExams.length === 0 ? (
-              <p className="text-center py-10 text-gray-400 italic">No active exams for grading.</p>
+              <p className="text-center py-10 text-gray-400 italic"></p>
             ) : (
               <div className="space-y-4">
                 {activeExams.map((exam: any) => (
@@ -646,12 +680,47 @@ export const TeacherDashboard: React.FC = () => {
                 ))}
               </div>
             )}
+
+          </div>
+          <div className="p-6  border-t border-gray-100 margin-bottom-4">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mt-6 mb-4 px-2 py-3 embossed rounded-lg bg-gray-50  margin bottom-4">
+              <ClipboardCheck className="h-5 w-5 text-green-600" />
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button
+                onClick={() => navigate('/dashboard/attendance')}
+                className="flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-indigo-200 hover:bg-indigo-50/30 transition-all text-left"
+              >
+                <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+                  <Users className="h-6 w-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900">Mark Attendance</h4>
+                  <p className="text-sm text-gray-500">Quickly mark daily attendance for your class.</p>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate('/dashboard/timetable')}
+                className="flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-blue-200 hover:bg-blue-50/30 transition-all text-left"
+              >
+                <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+                  <Calendar className="h-6 w-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900">View Timetable</h4>
+                  <p className="text-sm text-gray-500">Check your teaching schedule for the week.</p>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
+
+
 
 
 
