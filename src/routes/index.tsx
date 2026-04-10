@@ -35,6 +35,8 @@ import { ParentAttendancePage } from '@/pages/dashboard/attendance/ParentAttenda
 import { StudentAttendancePage } from '@/pages/dashboard/attendance/StudentAttendancePage';
 import { FeeStructurePage } from '@/pages/dashboard/fees/FeeStructurePage';
 import { StudentFeePage } from '@/pages/dashboard/fees/StudentFeePage';
+import TeacherHomeworkPage from '@/pages/homeworks/teacher_homeworksmng';
+import StudentHomeworkPage from '@/pages/homeworks/studetnt_homeworks';
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
@@ -198,6 +200,14 @@ const router = createBrowserRouter([
           {
             path: 'reports',
             element: <ReportsPage />,
+          },
+          {
+            path: 'homeworks/teacher_homeworksmng',
+            element: <TeacherHomeworkPage />,
+          },
+          {
+            path: 'homeworks/studetnt_homeworks',
+            element: <StudentHomeworkPage />,
           },
           {
             path: 'settings',

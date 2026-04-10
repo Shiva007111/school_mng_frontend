@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, BookOpen, ClipboardCheck, Loader2, Clock, MapPin, ChevronRight, Megaphone } from 'lucide-react';
+import { Calendar, BookOpen, ClipboardCheck, Loader2, MapPin, ChevronRight, Megaphone } from 'lucide-react';
 import { dashboardService } from '@/services/dashboard.service';
 import { announcementService } from '@/services/announcement.service';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import { Users } from 'lucide-react';
 export const TeacherDashboard: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   const { data: statsData, isLoading: statsLoading } = useQuery({
     queryKey: ['teacher-stats'],
     queryFn: () => dashboardService.getTeacherStats(),
@@ -24,6 +25,7 @@ export const TeacherDashboard: React.FC = () => {
     endDate: '',
     reason: ''
   });
+
 
   // Calculate days for the UI popup
   const calculateDays = (start: string, end: string) => {
@@ -197,7 +199,6 @@ export const TeacherDashboard: React.FC = () => {
 
   const activeExams = statsData?.data?.activeExams || [];
 
-  const timetable = statsData?.data?.timetable || [];
 
 
   return (
@@ -236,7 +237,7 @@ export const TeacherDashboard: React.FC = () => {
           <button
             onClick={handleMarkAttendance}
             disabled={!!markedTime}
-            className={`px-4 py-2 text-lg font-medium rounded-lg transition-colors ${markedTime ? 'bg-gray-300 text-gray-500 cursor-not-allowed ' : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:bg-gray-300'}`}
+            className={`px-3 py-2 text-lg font-medium rounded-lg transition-colors ${markedTime ? 'bg-gray-300 text-gray-500 cursor-not-allowed ' : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:bg-gray-300 '}`}
           >
             Mark Attendance
           </button>
@@ -272,25 +273,7 @@ export const TeacherDashboard: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <div className="h-12 w-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
-            <BookOpen className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">My Classes</p>
-            <p className="text-2xl font-bold text-gray-900 truncate max-w-[150px]">
-              {myClasses.length > 0
-                ? (
-                  <span title={myClasses.map((c: any) => `${c.gradeLevel?.displayName} - ${c.section}`).join(', ')}>
-                    {myClasses[0].gradeLevel?.displayName} - {myClasses[0].section}
-                    {myClasses.length > 1 && <span className="text-sm text-gray-500 font-normal ml-1">+{myClasses.length - 1}</span>}
-                  </span>
-                )
-                : '0'
-              }
-            </p>
-          </div>
-        </div>
+
         {/* Teacher Leave Card */}
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
 
@@ -298,14 +281,14 @@ export const TeacherDashboard: React.FC = () => {
           <div className="flex items-center gap-6">
             {/* Icon */}
             <div
-              className={`h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600
+              className={`h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 
            ${statsData?.data?.teacherLeave?.status === "Approved"
                   ? "bg-green-300 font-size-xl text-green-2000 rounded-xl border border-green-200 shadow-sm"
                   : statsData?.data?.teacherLeave?.status === "Requested"
                     ? "bg-blue-300 font-size-xl text-blue-2000 rounded-xl border border-blue-200 shadow-sm"
                     : statsData?.data?.teacherLeave?.status === "Rejected"
-                      ? "bg-red-300 font-size-xl text-red-2000 rounded-xl border border-red-200 shadow-sm"
-                      : "bg-gray-100 font-size-xl text-gray-2000 rounded-xl border border-gray-200 shadow-sm"
+                      ? "bg-red-90 font-size-xl text-red-2000 rounded-xl border border-red-200 shadow-sm  "
+                      : "bg-red-90 font-size-xl text-red-2000 rounded-xl border border-red-200 shadow-sm"
                 }`}
             >
               <Calendar className="h-6 w-6 " />
@@ -360,14 +343,14 @@ export const TeacherDashboard: React.FC = () => {
           <button
             disabled={statsData?.data?.teacherLeave?.status === "Requested"}
             onClick={() => setIsLeaveModalOpen(true)}
-            className={`px-4 py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-600 transition-colors
+            className={`px-4 py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-red-100 transition-colors
       ${statsData?.data?.teacherLeave?.status === "Requested"
-                ? "bg-amber-50 text-amber-600 cursor-not-allowed"
+                ? "bg-amber-50 text-amber-600 cursor-not-allowed hover:bg-red-50 font-size-xl"
                 : statsData?.data?.teacherLeave?.status === "Approved"
                   ? "bg-green-50 text-green-600"
                   : statsData?.data?.teacherLeave?.status === "Rejected"
-                    ? "bg-red-50 text-red-600"
-                    : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                    ? "bg-red-50 text-red-600 text size-xl"
+                    : "bg-red-600 hover:bg-red-700 text-white"
               }
          `}
           >
@@ -375,9 +358,6 @@ export const TeacherDashboard: React.FC = () => {
           </button>
 
         </div>
-
-
-
         {/* ================= HISTORY MODAL ================= */}
         {isHistoryOpen && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -536,16 +516,11 @@ export const TeacherDashboard: React.FC = () => {
         }
       </div>
 
-
-
-
-
-
-      {/* Announcements Section */}
+      {/* Announcements Section give scrollable add bg color to Announcements title */}
       {
         announcementsData?.data && announcementsData.data.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-50 flex items-center gap-2">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden max-h-[400px] overflow-y-auto">
+            <div className="px-6 py-5 border-b border-gray-50 flex items-center gap-2 bg-indigo-50">
               <Megaphone className="h-5 w-5 text-indigo-600" />
               <h3 className="text-lg font-bold text-gray-900">Announcements</h3>
             </div>
@@ -574,105 +549,73 @@ export const TeacherDashboard: React.FC = () => {
         )
       }
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Today's Timetable */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        {/* Today's Schedule */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-fit">
+          <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between bg-indigo-50/30">
             <h3 className="text-lg font-bold text-gray-900">Today's Schedule</h3>
             <button onClick={() => navigate('/dashboard/timetable')} className="text-sm text-indigo-600 font-medium hover:underline">View Full</button>
           </div>
 
-          {/* Schedule List */}
-          {statsData?.data?.todayShedule?.map((item: any, index: number) => (
-            <div
-              key={index}
-              className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded-lg"
-            >
-              <p className="text-sm font-semibold text-gray-800">
-                {item?.classSection?.gradeLevel?.displayName?.replace("Grade ", "Grade - ")} - {item?.classSection?.section} | {item?.classSubject?.subject?.name}
-              </p>
-
-              <span className="text-sm text-gray-600">
-                {item?.startTime
-                  ? new Date(item.startTime).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                  : "N/A"}{" "}
-                -
-                {item?.endTime
-                  ? new Date(item.endTime).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                  : "N/A"}
-              </span>
-            </div>
-          ))}
-
-          <div className="p-6">
-            {timetable.length === 0 ? (
-
-              <p className="text-center py-10 text-gray-400 italic">No classes scheduled for today.</p>
+          <div className="p-6 space-y-4">
+            {statsData?.data?.todayShedule?.length === 0 ? (
+              <p className="text-center py-6 text-gray-400 italic text-sm">No classes scheduled for today.</p>
             ) : (
-
-              <div className="space-y-4">
-                {timetable.map((period: any) => (
-                  <div key={period.id} className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+              statsData?.data?.todayShedule?.map((item: any, index: number) => (
+                <div key={index} className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 hover:border-indigo-100 transition-colors">
+                  <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center text-indigo-600 shadow-sm">
-                      <Clock className="h-5 w-5" />
+                      <Calendar className="h-5 w-5" />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-gray-900">{period.classSubject?.subject?.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {period.classSection?.gradeLevel?.displayName} - {period.classSection?.section}
+                    <div>
+                      <p className="text-sm font-bold text-gray-900">
+                        {item?.classSection?.gradeLevel?.displayName} - {item?.classSection?.section}
                       </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs font-bold text-gray-900">{new Date(period.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                      <div className="flex items-center gap-1 text-[10px] text-gray-400 justify-end">
-                        <MapPin className="h-3 w-3" />
-                        {period.room?.name || 'N/A'}
-                      </div>
+                      <p className="text-xs text-gray-500 font-medium">{item?.classSubject?.subject?.name}</p>
                     </div>
                   </div>
-                ))}
-              </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-gray-900">
+                      {item?.startTime ? new Date(item.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                    </p>
+                    <p className="text-[10px] text-gray-400 font-medium uppercase mt-0.5">
+                      Until {item?.endTime ? new Date(item.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              ))
             )}
-
-
           </div>
         </div>
 
-        {/* Active Exams & Grading */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col ">
-          <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between ">
+        {/* Active Grading */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-fit">
+          <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between bg-green-50/30">
             <h3 className="text-lg font-bold text-gray-900">Active Grading</h3>
             <button onClick={() => navigate('/dashboard/exams/my-grading')} className="text-sm text-indigo-600 font-medium hover:underline">View All</button>
           </div>
           <div className="p-6">
-
             {activeExams.length === 0 ? (
-              <p className="text-center py-10 text-gray-400 italic"></p>
+              <p className="text-center py-6 text-gray-400 italic text-sm">No exams currently requiring grading.</p>
             ) : (
               <div className="space-y-4">
-                {activeExams.map((exam: any) => (
+                {activeExams.slice(0, 3).map((exam: any) => (
                   <div key={exam.id} className="p-4 rounded-xl border border-gray-100 hover:border-indigo-100 transition-colors group">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-3">
                       <h4 className="text-sm font-bold text-gray-900">{exam.title}</h4>
-                      <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
                         {exam.classSection?.gradeLevel?.displayName} - {exam.classSection?.section}
                       </span>
                     </div>
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-1 gap-2">
                       {exam.examSubjects.map((es: any) => (
                         <button
                           key={es.id}
                           onClick={() => navigate(`/dashboard/exams/${exam.id}/marks/${es.id}`)}
-                          className="w-full flex items-center justify-between p-2 rounded-lg bg-gray-50 hover:bg-indigo-50 transition-colors text-left"
+                          className="w-full flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-white hover:shadow-md hover:border-indigo-50 border border-transparent transition-all text-left"
                         >
-                          <span className="text-xs font-medium text-gray-700">{es.classSubject?.subject?.name}</span>
-                          <ChevronRight className="h-3 w-3 text-gray-400 group-hover:text-indigo-600" />
+                          <span className="text-xs font-bold text-gray-700">{es.classSubject?.subject?.name}</span>
+                          <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-indigo-600 transition-colors" />
                         </button>
                       ))}
                     </div>
@@ -680,47 +623,41 @@ export const TeacherDashboard: React.FC = () => {
                 ))}
               </div>
             )}
-
           </div>
-          <div className="p-6  border-t border-gray-100 margin-bottom-4">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mt-6 mb-4 px-2 py-3 embossed rounded-lg bg-gray-50  margin bottom-4">
-              <ClipboardCheck className="h-5 w-5 text-green-600" />
-              Quick Actions
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          {/* Quick Actions */}
+          <div className="p-6 border-t border-gray-50 bg-gray-50/50">
+            <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => navigate('/dashboard/attendance')}
-                className="flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-indigo-200 hover:bg-indigo-50/30 transition-all text-left"
+                className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-indigo-200 hover:shadow-lg transition-all text-left group"
               >
-                <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
-                  <Users className="h-6 w-6" />
+                <div className="h-10 w-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                  <Users className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900">Mark Attendance</h4>
-                  <p className="text-sm text-gray-500">Quickly mark daily attendance for your class.</p>
+                  <h4 className="text-xs font-bold text-gray-900">Attendance</h4>
+                  <p className="text-[10px] text-gray-500 font-medium">Mark student presence</p>
                 </div>
               </button>
               <button
                 onClick={() => navigate('/dashboard/timetable')}
-                className="flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-blue-200 hover:bg-blue-50/30 transition-all text-left"
+                className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-indigo-200 hover:shadow-lg transition-all text-left group"
               >
-                <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-                  <Calendar className="h-6 w-6" />
+                <div className="h-10 w-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                  <Calendar className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900">View Timetable</h4>
-                  <p className="text-sm text-gray-500">Check your teaching schedule for the week.</p>
+                  <h4 className="text-xs font-bold text-gray-900">Timetable</h4>
+                  <p className="text-[10px] text-gray-500 font-medium">Weekly schedule</p>
                 </div>
               </button>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   );
 };
-
-
-
-
-

@@ -54,6 +54,7 @@ const navigation = [
   { name: 'Fee Structures', href: '/dashboard/fees/structures', icon: IndianRupee, roles: ['admin'] },
   { name: 'Student Fees', href: '/dashboard/fees/students', icon: IndianRupee, roles: ['admin'] },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['admin'] },
+  { name: 'Homeworks', href: '/dashboard/homeworks/teacher_homeworksmng', icon: BookOpen, roles: ['teacher'] },
 ];
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
@@ -133,11 +134,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
                   <span className="text-indigo-600 font-semibold">
-                    {user.email.charAt(0).toUpperCase()}
+                    {user.email?.split('@')[0].charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{user.email}</p>
+                  <p className="text-sm font-medium text-gray-900 truncate">{user.firstName + ' ' + user.lastName}</p>
                   <p className="text-xs text-gray-500 capitalize">{user.roles?.[0]?.role?.name || 'User'}</p>
                 </div>
               </div>

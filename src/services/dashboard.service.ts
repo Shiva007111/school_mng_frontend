@@ -50,4 +50,31 @@ export const dashboardService = {
     return response.data;
   },
 
+  createHomework: async (data: any): Promise<ApiResponse<any>> => {
+    const response = await apiClient.post<ApiResponse<any>>('/teachers/homework', data);
+    return response.data;
+  },
+
+
+  getTeacherHomeworks: async (teacherId: string): Promise<ApiResponse<any>> => {
+    const response = await apiClient.get<ApiResponse<any>>(`/teachers/homework/${teacherId}`);
+    return response.data;
+  },
+
+  homeworkStatus: async (id: string, status: string, classSectionId: string): Promise<ApiResponse<any>> => {
+    const response = await apiClient.post<ApiResponse<any>>(`/students/homework/create-status/${id}`, { status, classSectionId });
+    return response.data;
+  },
+
+  getTeacherHomeworksByClassSectionId: async (classSectionId: string, homeworkId: string, teacherId: string, status: string): Promise<ApiResponse<any>> => {
+    const response = await apiClient.get<ApiResponse<any>>('/teachers/homework-status/students/', {
+      params: {
+        classSectionId: classSectionId,
+        homeworkId: homeworkId,
+        teacherId: teacherId,
+        status: status,
+      }
+    });
+    return response.data;
+  },
 };

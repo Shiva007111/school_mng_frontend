@@ -53,6 +53,9 @@ export default function StudentDetailPage() {
 
   const academicYear = currentYearData?.data;
 
+
+
+
   // Fetch attendance history (Full Academic Year if available, otherwise last 30 days)
   const { data: attendanceData } = useQuery({
     queryKey: ['attendance', id, academicYear?.id],
@@ -136,6 +139,7 @@ export default function StudentDetailPage() {
   }
 
   return (
+
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -169,7 +173,6 @@ export default function StudentDetailPage() {
           </div>
         )}
       </div>
-
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         {/* Left Column: Basic Info */}
         <div className="xl:col-span-1 space-y-6">

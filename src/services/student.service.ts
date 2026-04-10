@@ -15,18 +15,16 @@ export const studentService = {
         ...filters,
       },
     }
-  );  
+    );
     return response.data;
   },
   getNextAdmissionNo: async (): Promise<{ nextAdmissionNo: string }> => {
-  const response = await apiClient.get('/students', {
-    params: { nextAdmission: true },
-  });
+    const response = await apiClient.get('/students', {
+      params: { nextAdmission: true },
+    });
 
-  return response.data.data;
-},
-
-
+    return response.data.data;
+  },
 
   // Get current student profile
   getMe: async (): Promise<ApiResponse<Student>> => {
@@ -36,6 +34,7 @@ export const studentService = {
 
   // Get student by ID
   getStudentById: async (id: string): Promise<ApiResponse<Student>> => {
+    console.log("id", id);
     const response = await apiClient.get<ApiResponse<Student>>(`/students/${id}`);
     return response.data;
   },

@@ -35,7 +35,7 @@ export default function DashboardHomePage() {
     }
   };
   //can u drag username.
-  
+
   return (
     // <div className="space-y-6">
     //   {/* Welcome message */}
@@ -49,26 +49,24 @@ export default function DashboardHomePage() {
     //     </p>
     //   </div>
 
-  <div className="space-y-6">
-  {/* Welcome message */}
-  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6 shadow-lg">
-    
-    <div className="relative z-10">
-      <h1 className="text-3xl font-bold text-white">
-        Welcome {userRole}, {user?.firstName} {user?.lastName}
-      </h1>
+    <div className="space-y-6">
+      {/* Welcome message */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6 shadow-lg">
 
-      <p className="mt-2 text-sm text-indigo-100">
-        Here's what's happening with your{" "}
-        <span className="font-semibold capitalize">{userRole}</span> account today.
-      </p>
-    </div>
+        <div className="relative z-10">
+          <h1 className="text-3xl font-bold text-white">
+            Welcome {userRole}, {user?.firstName} {user?.lastName}
+          </h1>
+          <p className="mt-2 text-sm text-indigo-100">
+            Here's what's happening with your {userRole?.toLowerCase()} account today.
+          </p>
+        </div>
 
-    {/* Decorative background circle */}
-    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
-    <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
-  </div>
-    {renderDashboard()}
+        {/* Decorative background circle */}
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+        <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+      </div>
+      {renderDashboard()}
     </div>
   );
 }

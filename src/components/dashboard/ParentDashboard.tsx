@@ -32,7 +32,9 @@ export const ParentDashboard: React.FC = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold text-gray-900">Children Summary</h2>
+        {children.map((child: any) => (
+          <h2 className="text-xl font-bold text-gray-900">Children Summary of <span className="text-indigo-600 font-bold text-2xl">{child.name.charAt(0).toUpperCase() + child.name.slice(1)}</span></h2>
+        ))}
         <p className="text-sm text-gray-500">Quick overview of your children's performance and attendance.</p>
       </div>
 

@@ -19,6 +19,7 @@ export const StudentDashboard: React.FC = () => {
 
   const isLoading = statsLoading || announcementsLoading;
 
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
@@ -27,8 +28,7 @@ export const StudentDashboard: React.FC = () => {
     );
   }
 
-  const { timetable = [], attendanceRate = '0%', recentMarks = [] } = statsData?.data || {};
-
+  const { timetable = [], attendanceRate = '0%', recentMarks = [], homeworks = [], homeworksSubmissions = [] } = statsData?.data || {};
   return (
     <div className="space-y-8">
       {/* Quick Stats */}
@@ -77,8 +77,8 @@ export const StudentDashboard: React.FC = () => {
                 <div className="flex items-start justify-between mb-2">
                   <h4 className="text-base font-semibold text-gray-900">{announcement.title}</h4>
                   <span className={`text-xs px-2 py-1 rounded-full font-medium ${announcement.priority === 'high' ? 'bg-red-50 text-red-600' :
-                      announcement.priority === 'medium' ? 'bg-amber-50 text-amber-600' :
-                        'bg-blue-50 text-blue-600'
+                    announcement.priority === 'medium' ? 'bg-amber-50 text-amber-600' :
+                      'bg-blue-50 text-blue-600'
                     }`}>
                     {announcement.priority.charAt(0).toUpperCase() + announcement.priority.slice(1)}
                   </span>
@@ -95,9 +95,61 @@ export const StudentDashboard: React.FC = () => {
         </div>
       )}
 
+      {/* Homework Summary Section */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between bg-gradient-to-r from-indigo-50/50 to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+              <BookOpen className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Upcoming Homeworks</h3>
+              <p className="text-xs text-gray-500 font-medium">Quick overview of your assignments</p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/dashboard/homeworks/studetnt_homeworks')}
+            className="text-sm text-indigo-600 font-bold hover:underline bg-indigo-50 px-4 py-2 rounded-xl transition-all"
+          >
+            View All →
+          </button>
+        </div>
+
+        <div className="p-6">
+          {homeworks.length === 0 ? (
+            <p className="text-center py-6 text-gray-400 italic text-sm">No homework assigned yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {homeworks.slice(0, 3).map((hw: any) => {
+                const submission = homeworksSubmissions.find((s: any) => s.homeworkId === hw.id);
+                const isCompleted = submission?.status?.toLowerCase() === "completed";
+                return (
+                  <div key={hw.id} className="bg-gray-50 border border-gray-100 rounded-xl p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-[10px] font-bold text-indigo-600 bg-white px-2 py-0.5 rounded border border-indigo-100">
+                        {hw.subject?.name}
+                      </span>
+                      {isCompleted ? (
+                        <span className="text-[9px] font-bold text-green-600 flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> Done
+                        </span>
+                      ) : (
+                        <span className="text-[9px] font-bold text-amber-600">Pending</span>
+                      )}
+                    </div>
+                    <h4 className="text-sm font-bold text-gray-900 truncate">{hw.title}</h4>
+                    <p className="text-[10px] text-gray-400 mt-1">Due: {new Date(hw.expiryDate).toLocaleDateString()}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Today's Timetable */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden ">
           <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900">Today's Schedule</h3>
             <button onClick={() => navigate('/dashboard/timetable')} className="text-sm text-indigo-600 font-medium hover:underline">View Full</button>
@@ -131,7 +183,7 @@ export const StudentDashboard: React.FC = () => {
         </div>
 
         {/* Recent Performance */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden ">
           <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900">Recent Performance</h3>
             <button onClick={() => navigate('/dashboard/grades')} className="text-sm text-indigo-600 font-medium hover:underline">View All</button>
